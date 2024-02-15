@@ -1,0 +1,126 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+    color: white;
+    font-family: 'Arial', sans-serif;
+}
+
+button {
+    font-family: 'SpaceMission', sans-serif;
+    cursor: pointer;
+    background-color: #9b9b9b;
+    border: none;
+    color: rgb(0, 0, 0);
+    padding: 30px 64px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 32px;
+    width: 400px;
+    height: 150px;
+    box-sizing: border-box;
+}
+
+button:hover {
+    background-color: #0675d3;
+}
+
+#title {
+    font-size: 50px;
+    color: #9b9b9b;
+    font-family: 'VeniteAdoremus', sans-serif;
+}
+
+#homepageBody {
+    font-size: 200px;
+    color: #0454aa;
+}
+
+#play {
+    margin-left: 20px;
+    margin-top: 20px;
+    font-size: 50px;
+    color: #9b9b9b;
+    background-color: #ffffff;
+    font-family: 'SpaceMission', sans-serif;
+    text-align: center;
+}
+
+#tournamentBody {
+    font-size: 50px;
+    color: #9b9b9b;
+    background-color: #000000;
+    justify-content: center;
+    align-items: center;
+    font-family: 'SpaceMission', sans-serif;
+    text-align: center;
+}
+
+#tournamentButtons {
+    margin-left: 20px;
+    margin-top: 20px;
+    font-size: 50px;
+    color: #9b9b9b;
+    background-color: #000000;
+    font-family: 'SpaceMission', sans-serif;
+    text-align: center;
+}
+
+#settings {
+    margin-left: 20px;
+    margin-top: 20px;
+    font-size: 50px;
+    color: #9b9b9b;
+    background-color: #000000;
+    font-family: 'SpaceMission', sans-serif;
+    text-align: center;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    input[type='range'] {
+      overflow: hidden;
+      width: 80px;
+      -webkit-appearance: none;
+      background-color: #9a905d;
+    }
+    
+    input[type='range']::-webkit-slider-runnable-track {
+      height: 10px;
+      -webkit-appearance: none;
+      color: #13bba4;
+      margin-top: -1px;
+    }
+    
+    input[type='range']::-webkit-slider-thumb {
+      width: 10px;
+      -webkit-appearance: none;
+      height: 10px;
+      cursor: ew-resize;
+      background: #434343;
+      box-shadow: -80px 0 0 80px #43e5f7;
+    }
+
+}
+
+.hidden {
+    display: none;
+}
+
+canvas {
+    background-color: #222;
+    display: block; /* Prevents extra space below the canvas */
+    margin: auto; /* Centers the canvas horizontally */
+}
+
+@font-face {
+    font-family: 'VeniteAdoremus';
+    src: url('fonts/VeniteAdoremus.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'SpaceMission';
+    src: url('fonts/SpaceMission.otf') format('opentype');
+}

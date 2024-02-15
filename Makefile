@@ -1,22 +1,13 @@
-IMAGE_NAME=transcendance_image
-CONTAINER_NAME=transcendance_container
-PORT=4242
-
 build:
-	docker build -t $(IMAGE_NAME) .
+	docker-compose build
 
-run: build
-	docker run --name $(CONTAINER_NAME) -d -p $(PORT):80 $(IMAGE_NAME)
+up:
+	docker-compose up
 
-clean:
-	docker stop $(CONTAINER_NAME) || true
-	docker rm $(CONTAINER_NAME) || true
+down:
+	docker-compose down
 
-clean-image: clean
-	docker rmi $(IMAGE_NAME)
+logs:
+	docker-compose logs -f
 
-stop: clean clean-image
-
-rebuild: clean-image build
-
-.PHONY: build run clean clean-image rebuild
+.PHONY: build up down migrate makemigrations createsuperuser shell logs

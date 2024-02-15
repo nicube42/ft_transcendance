@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PONG</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="homepage">
+        <div id="title">
+        <h1>PONG</h1>
+        </div>
+        <div id="homepageBody">
+            <button id="PLAY">PLAY</button>
+            <br>
+            <button id="TOURNAMENT">Tournament</button>
+            <br>
+            <button id="SETTINGS">Settings</button>
+        </div>
+    </div>
+
+    <div id="play" class="hidden">
+        <div id="game">
+            <canvas id="pong" width="800" height="400"></canvas>
+        </div>
+        <div id="score">
+            <h1>Score</h1>
+            <p id="player1">Player 1: 0</p>
+            <p id="player2">Player 2: 0</p>
+        </div>
+    </div>
+
+    <div id="tournament" class="hidden">
+        <div id="title">
+            <h1>Tournament</h1>
+        </div>
+        <div id="tournamentBody">
+            <label for="number of players">number of players</label>
+            <input type="text" id="numplayers" name="numPlayers" value="4">
+            <br>
+        </div>
+        <br>
+        <button id="previous">Previous</button>
+        <button id="next">Next</button>
+    </div>
+
+    <div id="settings" class="hidden">
+        <h1>Settings</h1>
+        <form>
+            <label for="player1">Player 1</label>
+            <input type="text" id="player1" name="player1" value="Player 1">
+            <br>
+            <label for="player2">Player 2</label>
+            <input type="text" id="player2" name="player2" value="Player 2">
+            <br>
+            <label for="ballSpeed">Ball Speed</label>
+            <input type="range" id="ballSpeed" name="ballSpeed" min="1" max="10" value="5">
+            <br>
+            <label for="paddleSpeed">Paddle Speed</label>
+            <input type="range" id="paddleSpeed" name="paddleSpeed" min="1" max="10" value="5">
+            <br>
+            <label for="winningScore">Winning Score</label>
+            <input type="range" id="winningScore" name="winningScore" min="1" max="10" value="5">
+            <br>
+            <button id="previous">Previous</button>
+            <button id="save">Save</button>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
