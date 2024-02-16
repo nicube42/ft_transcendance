@@ -2,14 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PONG</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <nav class="navbar">
+        <ul class="nav-links">
+            <li><a href="#" id="navHome">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+    </nav>
+
     <div id="homepage">
         <div id="title">
-        <h1>PONG</h1>
+            <h1>PONG</h1>
         </div>
         <div id="homepageBody">
             <button id="PLAY">PLAY</button>
@@ -25,9 +35,10 @@
             <canvas id="pong" width="800" height="400"></canvas>
         </div>
         <div id="score">
-            <h1>Score</h1>
-            <p id="player1">Player 1: 0</p>
-            <p id="player2">Player 2: 0</p>
+            <div id="title_score">Score</div>
+            <p id="winning_score">Winning Score: 5</p>
+            <p id="player1_score">Player 1: 0</p>
+            <p id="player2_score">Player 2: 0</p>
         </div>
     </div>
 
@@ -41,18 +52,20 @@
             <br>
         </div>
         <br>
-        <button id="previous">Previous</button>
-        <button id="next">Next</button>
+        <div id="cluster_buttons_tournament">
+            <button_smaller id="previous_tournament">Previous</button_smaller>
+            <button_smaller id="next">Next</button_smaller>
+        </div>
     </div>
 
     <div id="settings" class="hidden">
         <h1>Settings</h1>
         <form>
             <label for="player1">Player 1</label>
-            <input type="text" id="player1" name="player1" value="Player 1">
+            <input type="text" id="player1" name="player1" value="one">
             <br>
             <label for="player2">Player 2</label>
-            <input type="text" id="player2" name="player2" value="Player 2">
+            <input type="text" id="player2" name="player2" value="two">
             <br>
             <label for="ballSpeed">Ball Speed</label>
             <input type="range" id="ballSpeed" name="ballSpeed" min="1" max="10" value="5">
@@ -63,8 +76,10 @@
             <label for="winningScore">Winning Score</label>
             <input type="range" id="winningScore" name="winningScore" min="1" max="10" value="5">
             <br>
-            <button id="previous">Previous</button>
-            <button id="save">Save</button>
+            <div id="cluster_buttons">
+                <button_smaller id="previous">Previous</button_smaller>
+                <button_smaller id="save">Save</button_smaller>
+            </div>
         </form>
     </div>
 

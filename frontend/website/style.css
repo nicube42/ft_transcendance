@@ -23,6 +23,24 @@ button {
     width: 400px;
     height: 150px;
     box-sizing: border-box;
+    border-radius: 20px;
+}
+
+button_smaller {
+    font-family: 'SpaceMission', sans-serif;
+    cursor: pointer;
+    background-color: #9b9b9b;
+    border: none;
+    color: rgb(0, 0, 0);
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 200px;
+    height: 75px;
+    box-sizing: border-box;
+    border-radius: 10px;
 }
 
 button:hover {
@@ -36,7 +54,7 @@ button:hover {
 }
 
 #homepageBody {
-    font-size: 200px;
+    font-size: 150px;
     color: #0454aa;
 }
 
@@ -60,10 +78,12 @@ button:hover {
     text-align: center;
 }
 
+
+
 #tournamentButtons {
     margin-left: 20px;
     margin-top: 20px;
-    font-size: 50px;
+    font-size: 25px;
     color: #9b9b9b;
     background-color: #000000;
     font-family: 'SpaceMission', sans-serif;
@@ -78,6 +98,51 @@ button:hover {
     background-color: #000000;
     font-family: 'SpaceMission', sans-serif;
     text-align: center;
+}
+
+#title_score{
+    color: #ff6e6e;
+}
+
+
+.navbar {
+    width: 100%;
+    background-color: #9b9b9b;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-links {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+}
+
+.nav-links li {
+    display: inline-block;
+    margin-right: 30px;
+}
+
+.nav-links li a {
+    display: block;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+}
+
+
+.nav-links li a:hover, .nav-links li a:focus {
+    background-color: #ddd;
+    color: black;
+}
+
+body
+{
+    padding-top: 50px;
 }
 
 @media screen and (-webkit-min-device-pixel-ratio:0) {
@@ -112,8 +177,8 @@ button:hover {
 
 canvas {
     background-color: #222;
-    display: block; /* Prevents extra space below the canvas */
-    margin: auto; /* Centers the canvas horizontally */
+    display: block;
+    margin: auto;
 }
 
 @font-face {

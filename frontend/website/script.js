@@ -4,18 +4,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let ballPosX = canvas.width / 2;
     let ballPosY = canvas.height / 2;
-    let ballSpeedX = 4;
-    let ballSpeedY = 4;
+    let player1_name = 'Player 1';
+    let player2_name = 'Player 2';
+    let ballSpeedX = 5;
+    let ballSpeedY = 5;
+    let paddleSpeed = 15;
     let paddleHeight = 100;
     let paddleWidth = 10;
     let leftPaddleY = (canvas.height - paddleHeight) / 2;
     let rightPaddleY = (canvas.height - paddleHeight) / 2;
-    const paddleSpeed = 16;
     let player1Score = 0;
     let player2Score = 0;
     let scoreMessage = '';
+    let winningScore = 5;
     let messageDisplayCounter = 0;
-
+    let animationFrameId;
+    
+    let ballspeed_save = 5;
 
     const homepage = document.getElementById('homepage');
     const play = document.getElementById('play');
@@ -24,12 +29,83 @@ document.addEventListener('DOMContentLoaded', function() {
     const goTotournamentPageButton = document.getElementById('TOURNAMENT');
     const settingsButton = document.getElementById('settings');
     const goToSettingsPageButton = document.getElementById('SETTINGS');
+    const goToHomepageButton = document.getElementById('navHome');
 
     const goToSaveButton = document.getElementById('save');
     const goToPreviousButton = document.getElementById('previous');
 
+    function resetVars()
+    {
+        ballPosX = canvas.width / 2;
+        ballPosY = canvas.height / 2;
+        player1_name = 'Player 1';
+        player2_name = 'Player 2';
+        ballSpeedX = ballspeed_save;
+        ballSpeedY = ballspeed_save;
+        paddleSpeed = 15;
+        paddleHeight = 100;
+        paddleWidth = 10;
+        leftPaddleY = (canvas.height - paddleHeight) / 2;
+        rightPaddleY = (canvas.height - paddleHeight) / 2;
+        player1Score = 0;
+        player2Score = 0;
+        scoreMessage = '';
+        winningScore = 5;
+        messageDisplayCounter = 0;
+    }
+
+    // Function to fetch and populate settings
+    function populateSettings() {
+        fetch('/api/settings')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch settings');
+                }
+                return response.json();
+            })
+            .then(settings => {
+                // Populate input fields with fetched settings
+                document.getElementById('player1').value = String(settings.player1);
+                player1_name = String(settings.player1);
+                document.getElementById('player2').value = String(settings.player2);
+                player2_name = String(settings.player2);
+                document.getElementById('ballSpeed').value = settings.ballSpeed;
+                ballspeed_save = settings.ballSpeed;
+                document.getElementById('paddleSpeed').value = settings.paddleSpeed;
+                paddleSpeed = settings.paddleSpeed * 3;
+                document.getElementById('winningScore').value = settings.winningScore;
+                winningScore = settings.winningScore;
+            })
+            .catch(error => {
+                // Handle error here
+                console.error('Error fetching settings:', error);
+            });
+    }
+
+    goToHomepageButton.addEventListener('click', function()
+    {
+        player1Score = 0;
+        player2Score = 0;
+        populateSettings();
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        if (!play.classList.contains('hidden'))
+            play.classList.add('hidden');
+        if (!tournament.classList.contains('hidden'))
+            tournament.classList.add('hidden');
+        if (!settingsButton.classList.contains('hidden'))
+            settingsButton.classList.add('hidden');
+        homepage.classList.remove('hidden');
+    });
+
     goToPlayPageButton.addEventListener('click', function()
     {
+        populateSettings();
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        resetVars();
         homepage.classList.add('hidden');
         play.classList.remove('hidden');
         draw_pong();
@@ -45,23 +121,66 @@ document.addEventListener('DOMContentLoaded', function() {
     {
         homepage.classList.add('hidden');
         settingsButton.classList.remove('hidden');
+        populateSettings();
     });
 
     goToSaveButton.addEventListener('click', function()
-    {
-        settingsButton.classList.add('hidden');
-        homepage.classList.remove('hidden');
+    {   
+        // Get the values from the input fields
+        const player1 = document.getElementById('player1').value;
+        const player2 = document.getElementById('player2').value;
+        const ballSpeed = document.getElementById('ballSpeed').value;
+        const paddleSpeed = document.getElementById('paddleSpeed').value;
+        const winningScore = document.getElementById('winningScore').value;
+
+        // Construct the data object to send to the backend
+        const data = {
+            player1: document.getElementById('player1').value,
+            player2: document.getElementById('player2').value,
+            ballSpeed: parseInt(document.getElementById('ballSpeed').value, 10),
+            paddleSpeed: parseInt(document.getElementById('paddleSpeed').value, 10),
+            winningScore: parseInt(document.getElementById('winningScore').value, 10)
+        };
+        console.log(data);
+
+        // Make an AJAX POST request to your backend endpoint
+        fetch('/api/settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to save settings');
+            }
+            // Handle success response here
+            console.log('Settings saved successfully');
+            goToHomepageButton.click();
+        })
+        .catch(error => {
+            // Handle error here
+            console.error('Error saving settings:', error);
+        });
     });
 
     goToPreviousButton.addEventListener('click', function()
     {
-        tournament.classList.add('hidden');
-        settingsButton.classList.add('hidden');
-        homepage.classList.remove('hidden');
+        goToHomepageButton.click();
     });
 
     function draw_pong()
     {
+        if ((player1Score >= winningScore || player2Score >= winningScore) && messageDisplayCounter === 0)
+        {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            goToHomepageButton.click();
+            player1Score = 0;
+            player2Score = 0;
+        }
         if (messageDisplayCounter === 0)
         {
 
@@ -101,18 +220,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (ballPosX <= 0)
                 {
                     player2Score++;
-                    scoreMessage = 'Player 2 Scored!';
+                    scoreMessage =  player2_name + ' Scored!';
                 }
                 else if (ballPosX >= canvas.width)
                 {
                     player1Score++;
-                    scoreMessage = 'Player 1 Scored!';
+                    scoreMessage = player1_name + ' Scored!';
                 }
                 ballPosX = canvas.width / 2;
                 ballPosY = canvas.height / 2;
-                ballSpeedX = -ballSpeedX;
-                ballSpeedY = 4;
-                messageDisplayCounter = 90;
+                ballSpeedX = ballspeed_save;
+                ballSpeedY = ballspeed_save;
+                messageDisplayCounter = 180;
             }
         }
         else
@@ -122,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
         // Clear the canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
         // Draw the ball
         ctx.fillStyle = 'white';
         ctx.beginPath();
@@ -133,7 +252,17 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.fillStyle = 'white';
         ctx.fillRect(0, leftPaddleY, paddleWidth, paddleHeight);
         ctx.fillRect(canvas.width - paddleWidth, rightPaddleY, paddleWidth, paddleHeight);
-    
+
+        if (player1Score >= winningScore)
+        {
+            scoreMessage = player1_name + ' Wins!';
+        }
+
+        if (player2Score >= winningScore)
+        {
+            scoreMessage = player2_name + ' Wins!';
+        }
+
         // Display scoring message
         if (messageDisplayCounter > 0)
         {
@@ -144,10 +273,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     
         // Always update score display and request next frame
-        document.getElementById('player1').textContent = `Player 1: ${player1Score}`;
-        document.getElementById('player2').textContent = `Player 2: ${player2Score}`;
-    
-        requestAnimationFrame(draw_pong);
+        document.getElementById('player1_score').textContent = player1_name + `: ${player1Score}`;
+        document.getElementById('player2_score').textContent = player2_name + `: ${player2Score}`;
+        document.getElementById('winning_score').textContent = "Winning score" + `: ${winningScore}`;
+
+        animationFrameId = requestAnimationFrame(draw_pong);
     }
     // Keyboard controls
     window.addEventListener('keydown', function(e)

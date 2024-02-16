@@ -14,7 +14,7 @@ services:
     build:
       context: .
       dockerfile: ./django/dockerfile
-    command: python manage.py runserver 0.0.0.0:5432
+    command: ./entrypoint.sh
     volumes:
       - ./django:/code
     depends_on:
