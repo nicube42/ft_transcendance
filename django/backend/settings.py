@@ -41,6 +41,6 @@ ROOT_URLCONF = 'backend.urls'
 
 AUTH_USER_MODEL = 'backend.CustomUser'
 
-LOGOUT_REDIRECT_URL = 'homepage'
+LOGOUT_REDIRECT_URL = 'firstpage'
 
 LOGIN_REDIRECT_URL = 'homepage'

@@ -1,6 +1,9 @@
 const settings = {
     populateSettings: function() {
-        fetch('/api/settings')
+        if (auth.is_connected() == false) {
+            return;
+        }
+        fetch('/api/settings/retrieve')
             .then(response => response.json())
             .then(data => {
                 document.getElementById('player1').value = data.player1;
@@ -14,7 +17,10 @@ const settings = {
             .catch(error => console.error('Error fetching settings:', error));
     },
     saveSettings: function() {
-        // Construct the data object to send to the backend
+        if (auth.is_connected() === false) {
+            return;
+        }
+        const csrfToken = getCookie('csrftoken');
         const data = {
             player1: document.getElementById('player1').value,
             player2: document.getElementById('player2').value,
@@ -25,21 +31,35 @@ const settings = {
         fetch('/api/settings', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
             },
+            credentials: 'include',
             body: JSON.stringify(data)
         })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to save settings');
             }
-            // Handle success response here
             console.log('Settings saved successfully');
         })
         .catch(error => {
-            // Handle error here
             console.error('Error saving settings:', error);
         });
-        
     }
 };
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = cookie.substring(name.length + 1);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}

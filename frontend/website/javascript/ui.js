@@ -37,8 +37,18 @@ const ui = {
         }.bind(ui));
         document.getElementById('navLogin').addEventListener('click', () => this.showSection('loginContainer'));
         document.getElementById('navRegister').addEventListener('click', () => this.showSection('register'));
-        document.getElementById('cancelLogin').addEventListener('click', () => this.showSection('homepage'));
-        document.getElementById('cancelRegister').addEventListener('click', () => this.showSection('homepage'));
+        document.getElementById('cancelLogin').addEventListener('click', () => {
+            if (auth.is_connected())
+                this.showSection('homepage')
+            else
+                this.showSection('firstPage');
+        });
+        document.getElementById('cancelRegister').addEventListener('click', () => {
+            if (auth.is_connected())
+                this.showSection('homepage')
+            else
+                this.showSection('firstPage');
+        });
         document.getElementById('navProfile').addEventListener('click', () => {
             this.showSection('profilPage')
             auth.retrieveInfos()
@@ -49,9 +59,17 @@ const ui = {
 
         });
         document.getElementById('navLogout').addEventListener('click', () => {
-            auth.logout();
-            this.showSection('homepage');
+            auth.logout()
+            this.showSection('firstPage');
         });
+        document.getElementById('login_initial').addEventListener('click', function(e) {
+            e.preventDefault();
+            this.showSection('loginContainer')
+        }.bind(ui));
+        document.getElementById('register_initial').addEventListener('click', function(e) {
+            e.preventDefault();
+            this.showSection('register')
+        }.bind(ui));
     }
 };
 

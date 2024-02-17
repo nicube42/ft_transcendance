@@ -18,11 +18,9 @@ const navbarManager = {
             registerLink.style.display = 'none';
             logoutLink.style.display = '';
             profileLink.style.display = '';
+            navbar.style.display = '';
         } else {
-            loginLink.style.display = '';
-            registerLink.style.display = '';
-            logoutLink.style.display = 'none';
-            profileLink.style.display = 'none';
+            navbar.style.display = 'none';
         }
     }
 };

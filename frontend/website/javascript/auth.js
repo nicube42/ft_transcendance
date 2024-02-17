@@ -50,7 +50,7 @@ const auth = {
             console.log('Logout success:', data);
             sessionStorage.removeItem('isLoggedIn');
             navbarManager.updateNavbar();
-            ui.showSection('homepage');
+            ui.showSection('firstpage');
         })
         .catch(error => console.error('Logout error:', error));
     },

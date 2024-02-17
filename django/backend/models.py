@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
+from django.conf import settings
 
 class CustomUser(AbstractUser):
     # Add additional fields here
@@ -21,6 +21,7 @@ class Player(models.Model):
     name = models.CharField(max_length=100)
 
 class GameSettings(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='game_settings', null=True)
     player1 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player1_settings')
     player2 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player2_settings')
     ball_speed = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
