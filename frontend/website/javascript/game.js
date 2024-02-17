@@ -13,8 +13,8 @@ const game = {
         this.ballSpeedY = settings.ballSpeed / 2;
         this.paddleSpeed = settings.paddleSpeed;
         this.winningScore = settings.winningScore;
-        this.player1_name = settings.player1_name;
-        this.player2_name = settings.player2_name;
+        this.player1_name = settings.player1;
+        this.player2_name = settings.player2;
     },
 
     canvas: null,
@@ -46,8 +46,8 @@ const game = {
     },
 
     resetVars: function() {
-        this.ballSpeedX = this.settings.ballSpeed;
-        this.ballSpeedY = this.settings.ballSpeed;
+        this.ballSpeedX = this.settings.ballSpeed / 2;
+        this.ballSpeedY = this.settings.ballSpeed / 2;
         this.paddleSpeed = this.settings.paddleSpeed;
         this.winningScore = this.settings.winningScore;
 
@@ -59,8 +59,8 @@ const game = {
         this.player2Score = 0;
         this.scoreMessage = '';
         this.messageDisplayCounter = 0;
-        this.player1_name = this.settings.player1Name;
-        this.player2_name = this.settings.player2Name;
+        this.player1_name = this.settings.player1;
+        this.player2_name = this.settings.player2;
 
         // Attach keyboard event listeners
         window.addEventListener('keydown', e => {
@@ -88,9 +88,8 @@ const game = {
         {
             if (this.player1Score >= this.winningScore || this.player2Score >= this.winningScore)
             {
-                ui.showSection('homepage');
                 this.resetVars();
-                this.drawPong();
+                ui.showSection('homepage');
             }
 
             // Ball movement logic
