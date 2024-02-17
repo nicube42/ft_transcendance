@@ -39,6 +39,15 @@ const ui = {
         document.getElementById('navRegister').addEventListener('click', () => this.showSection('register'));
         document.getElementById('cancelLogin').addEventListener('click', () => this.showSection('homepage'));
         document.getElementById('cancelRegister').addEventListener('click', () => this.showSection('homepage'));
+        document.getElementById('navProfile').addEventListener('click', () => {
+            this.showSection('profilPage')
+            auth.retrieveInfos()
+            .then(data => {
+                userInfoDisplayer.updateUI(data);
+            })
+            .catch(error => console.error('Failed to fetch or display user info:', error));
+
+        });
     }
 };
 

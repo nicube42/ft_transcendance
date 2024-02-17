@@ -7,6 +7,8 @@ from django.db import models
 class CustomUser(AbstractUser):
     # Add additional fields here
     bio = models.TextField(null=True, blank=True)
+    fullname = models.CharField(max_length=255, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
 
 
 class MyModel(models.Model):

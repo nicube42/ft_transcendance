@@ -14,11 +14,22 @@ DATABASES = {
 INSTALLED_APPS = [
     'backend',
     'django.contrib.staticfiles',
+    'django.contrib.sessions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'corsheaders',
 ]
 
-STATIC_URL = '/static/'
+MIDDLEWARE = [
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 SECRET_KEY = get_random_secret_key()
 

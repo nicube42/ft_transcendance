@@ -7,7 +7,9 @@ from .views import register
 urlpatterns = [
     path('api/settings', views.save_settings, name='save_settings'),
     path('api/register/', views.register, name='api-register'),
-    path('login/', LoginView.as_view(), name='login'),
+    path('api/login/', views.api_login, name='api-login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('api/user-info/', views.user_info, name='user_info'),
 ]
 
+# LoginView.as_view()

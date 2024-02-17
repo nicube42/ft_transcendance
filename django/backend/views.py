@@ -75,6 +75,10 @@ def register(request):
             data = json.loads(request.body)
             username = data.get('username')
             password = data.get('password')
+            fullname = data.get('fullname')
+            date_of_birth = data.get('date_of_birth')
+            bio = data.get('bio')
+
             
             # Check if the user already exists
             if CustomUser.objects.filter(username=username).exists():
@@ -83,7 +87,10 @@ def register(request):
             # Create a new user
             user = CustomUser.objects.create(
                 username=username,
-                password=make_password(password)  # Hash the password
+                password=make_password(password),
+                fullname=fullname,
+                date_of_birth=date_of_birth,
+                bio=bio
             )
             
             user.full_clean()  # Validate the model instance
@@ -97,17 +104,55 @@ def register(request):
 
 
 from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
+import json
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def api_login(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        username = data.get('username')
-        password = data.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return JsonResponse({'message': 'Login successful'})
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            username = data.get('username')
+            password = data.get('password')
+            if username is None or password is None:
+                return JsonResponse({'error': 'Username or password is missing'}, status=400)
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return JsonResponse({'message': 'Login successful'})
+            else:
+                return JsonResponse({'error': 'Invalid credentials'}, status=400)
+        except json.JSONDecodeError:
+            logger.exception('Error decoding JSON in api_login')
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+        except Exception as e:
+            logger.exception('Error in api_login: {}'.format(e))
+            return JsonResponse({'error': 'Internal Server Error'}, status=500)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+from django.http import JsonResponse
+import logging
+
+logger = logging.getLogger(__name__)
+
+@csrf_exempt
+def user_info(request):
+    try:
+        if request.user.is_authenticated:
+            user_data = {
+                'username': request.user.username,
+                'fullname': request.user.fullname,
+                'date_of_birth': request.user.date_of_birth,
+                'bio': request.user.bio,
+            }
+            return JsonResponse(user_data)
         else:
-            return JsonResponse({'error': 'Invalid credentials'}, status=400)
-    return JsonResponse({'error': 'Method not allowed'}, status=405)
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
+    except Exception as e:
+        logger.exception("Unexpected error in user_info: %s", e)
+        return JsonResponse({'error': 'Internal Server Error'}, status=500)
