@@ -156,3 +156,11 @@ def user_info(request):
     except Exception as e:
         logger.exception("Unexpected error in user_info: %s", e)
         return JsonResponse({'error': 'Internal Server Error'}, status=500)
+
+
+from django.contrib.auth import logout
+from django.http import JsonResponse
+
+def api_logout(request):
+    logout(request)
+    return JsonResponse({'message': 'Logout successful'})

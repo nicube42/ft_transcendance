@@ -23,6 +23,8 @@ const auth = {
         .then(data => {
             console.log('Login success:', data);
             ui.showSection('profilPage');
+            sessionStorage.setItem('isLoggedIn', 'true');
+            navbarManager.updateNavbar();
             auth.retrieveInfos()
             .then(data => {
                 userInfoDisplayer.updateUI(data);
@@ -30,6 +32,27 @@ const auth = {
             .catch(error => console.error('Failed to fetch or display user info:', error));
         })
         .catch(error => console.error('Login error:', error));
+    },
+    logout: function() {
+        fetch('/api/logout/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Logout success:', data);
+            sessionStorage.removeItem('isLoggedIn');
+            navbarManager.updateNavbar();
+            ui.showSection('homepage');
+        })
+        .catch(error => console.error('Logout error:', error));
     },
     register: function() {
         // Assuming CSRF token is required here as well, fetching it from the cookie
@@ -58,6 +81,7 @@ const auth = {
         .then(data => {
             console.log('Registration success:', data);
             ui.showSection('loginContainer');
+            navbarManager.updateNavbar();
         })
         .catch(error => console.error('Registration error:', error));
     },
@@ -74,8 +98,12 @@ const auth = {
         })
         .catch(error => {
             console.error('Error fetching user info:', error);
-            throw error; // Rethrow to handle it in the caller
+            throw error;
         });
+    },
+    is_connected: function() {
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+        return isLoggedIn;
     }
 };
 

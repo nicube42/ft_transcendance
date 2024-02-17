@@ -8,7 +8,7 @@ urlpatterns = [
     path('api/settings', views.save_settings, name='save_settings'),
     path('api/register/', views.register, name='api-register'),
     path('api/login/', views.api_login, name='api-login'),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('api/logout/', views.api_logout, name='logout'),
     path('api/user-info/', views.user_info, name='user_info'),
 ]
 

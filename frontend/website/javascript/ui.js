@@ -48,6 +48,10 @@ const ui = {
             .catch(error => console.error('Failed to fetch or display user info:', error));
 
         });
+        document.getElementById('navLogout').addEventListener('click', () => {
+            auth.logout();
+            this.showSection('homepage');
+        });
     }
 };
 
