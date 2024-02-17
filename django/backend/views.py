@@ -25,11 +25,6 @@ def save_settings(request):
         player1, created1 = Player.objects.get_or_create(name=player1_name)
         player2, created2 = Player.objects.get_or_create(name=player2_name)
 
-        # Instead of filtering by both players (which assumes a setting exists for that pair),
-        # directly create or update the settings since this action seems to always intend to save or update current settings.
-        # This avoids the issue with unique constraints when a new player is involved.
-        
-        # Assuming there's only one setting to update or the latest one should be updated:
         if GameSettings.objects.exists():
             # Update the latest settings
             settings = GameSettings.objects.latest('id')
@@ -67,3 +62,52 @@ def save_settings(request):
 
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+from django.http import JsonResponse
+import json
+from django.contrib.auth.hashers import make_password
+from django.core.exceptions import ValidationError
+from .models import CustomUser
+
+def register(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            password = data.get('password')
+            
+            # Check if the user already exists
+            if CustomUser.objects.filter(username=username).exists():
+                return JsonResponse({'error': 'Username already exists'}, status=400)
+            
+            # Create a new user
+            user = CustomUser.objects.create(
+                username=username,
+                password=make_password(password)  # Hash the password
+            )
+            
+            user.full_clean()  # Validate the model instance
+            user.save()
+            
+            return JsonResponse({'message': 'User created successfully'}, status=201)
+        except ValidationError as e:
+            return JsonResponse({'error': e.message_dict}, status=400)  # Return validation errors
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+
+from django.contrib.auth import authenticate, login
+
+@csrf_exempt
+def api_login(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return JsonResponse({'message': 'Login successful'})
+        else:
+            return JsonResponse({'error': 'Invalid credentials'}, status=400)
+    return JsonResponse({'error': 'Method not allowed'}, status=405)

@@ -11,13 +11,13 @@
     <nav class="navbar">
         <ul class="nav-links">
             <li><a href="#" id="navHome">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="#" id="navSet">Settings</a></li>
+            <li><a href="#" id="navRegister">Register</a></li>
+            <li><a href="#" id="navLogin">Login</a></li>
         </ul>
     </nav>
 
-    <div id="homepage">
+    <div id="homepage" class="section">
         <div id="title">
             <h1>PONG</h1>
         </div>
@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <div id="play" class="hidden">
+    <div id="play" class="hidden section">
         <div id="game">
             <canvas id="pong" width="800" height="400"></canvas>
         </div>
@@ -42,23 +42,23 @@
         </div>
     </div>
 
-    <div id="tournament" class="hidden">
+    <div id="tournament" class="hidden section">
         <div id="title">
             <h1>Tournament</h1>
         </div>
         <div id="tournamentBody">
-            <label for="number of players">number of players</label>
+            <label for="number of players">Number of players</label>
             <input type="text" id="numplayers" name="numPlayers" value="4">
             <br>
         </div>
         <br>
         <div id="cluster_buttons_tournament">
-            <button_smaller id="previous_tournament">Previous</button_smaller>
-            <button_smaller id="next">Next</button_smaller>
+            <button id="previous_tournament">Previous</button>
+            <button id="next">Next</button>
         </div>
     </div>
 
-    <div id="settings" class="hidden">
+    <div id="settings" class="hidden section">
         <h1>Settings</h1>
         <form>
             <label for="player1">Player 1</label>
@@ -77,13 +77,49 @@
             <input type="range" id="winningScore" name="winningScore" min="1" max="10" value="5">
             <br>
             <div id="cluster_buttons">
-                <button_smaller id="previous">Previous</button_smaller>
-                <button_smaller id="save">Save</button_smaller>
+                <button id="previousSettings">Previous</button>
+                <button id="saveSettings">Save</button>
             </div>
         </form>
     </div>
 
-    <script src="script.js"></script>
+    <div id="loginContainer" class="hidden section">
+        <div class="login-container">
+            <h2>Login</h2>
+            <form method="post" id="loginForm">
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    <input type="text" name="username" id="id_username" required>
+                </div>
+                <div class="form-group">
+                    <label for="id_password">Password</label>
+                    <input type="password" name="password" id="id_password" required>
+                </div>
+                <button type="submit">Login</button>
+                <button id="cancelLogin" type="button">Cancel</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="register" class="hidden section">
+        <h1>Register</h1>
+        <form id="registerForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <br>
+            <button type="submit">Register</button>
+        </form>
+        <button id="cancelRegister" type="button">Cancel</button>        
+    </div>
+
+    <script src="javascript/ui.js"></script>
+    <script src="javascript/settings.js"></script>
+    <script src="javascript/auth.js"></script>
+    <script src="javascript/game.js"></script>
+    <script src="javascript/main.js"></script>
 
 </body>
 </html>
