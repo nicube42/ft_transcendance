@@ -92,7 +92,6 @@ const ui = {
         },
         async 'navLogout'() {
             await auth.logout();
-            this.showOnlyOneSection('firstpage');
         },
         async 'login_initial'() {
             this.showOnlyOneSection('loginContainer');

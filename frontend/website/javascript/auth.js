@@ -32,8 +32,14 @@ const auth = {
             })
             .catch(error => console.error('Failed to fetch or display user info:', error));
         })
-        .catch(error => console.error('Login error:', error));
+        .catch(error => {
+            console.error('Login error:', error);
+            // Show the modal if login fails
+            var loginErrorModal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
+            loginErrorModal.show();
+        });
     },
+    
     logout: function() {
         fetch('/api/logout/', {
             method: 'POST',
@@ -50,6 +56,7 @@ const auth = {
         .then(data => {
             console.log('Logout success:', data);
             sessionStorage.removeItem('isLoggedIn');
+            ui.showOnlyOneSection('firstpage');
             navbarManager.updateNavbar();
         })
         .catch(error => console.error('Logout error:', error));
@@ -83,7 +90,11 @@ const auth = {
             ui.showOnlyOneSection('loginContainer');
             navbarManager.updateNavbar();
         })
-        .catch(error => console.error('Registration error:', error));
+        .catch(error => {
+            console.error('Registration error:', error)
+            var registrationErrorModal = new bootstrap.Modal(document.getElementById('registerErrorModal'));
+            registrationErrorModal.show();
+        });
     },
     retrieveInfos: function() {
         return fetch('/api/user-info/', {

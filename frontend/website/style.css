@@ -6,7 +6,7 @@ body, html {
     align-items: center;
     background-color: #000000;
     color: white;
-    font-family: 'Arial', sans-serif;
+    font-family: 'VeniteAdoremus', sans-serif;
     padding-top: 56px; /* Adjusted for fixed navbar */
 }
 
@@ -74,6 +74,39 @@ button:hover {
     font-size: 150px;
     color: #0454aa;
 }
+
+#loginErrorModal .modal-content {
+    background-color: black;
+    border: 2px solid #198754;
+    color: white;
+}
+
+#loginErrorModal .btn-outline-success {
+    border-color: #198754;
+    color: #198754;
+}
+
+#loginErrorModal .btn-outline-success:hover {
+    background-color: #198754;
+    color: black;
+}
+
+#registerErrorModal .modal-content {
+    background-color: black;
+    border: 2px solid #198754;
+    color: white;
+}
+
+#registerErrorModal .btn-outline-success {
+    border-color: #198754;
+    color: #198754;
+}
+
+#registerErrorModal .btn-outline-success:hover {
+    background-color: #198754;
+    color: black;
+}
+
 
 .section {
     margin: 20px;

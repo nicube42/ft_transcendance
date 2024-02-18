@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #198754;">
+    <nav id="fullNav" class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #198754;">
         <div class="container-fluid">
             <a id="navBrand" class="navbar-brand" href="#" style="color: #000000;" >PONG</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,8 +40,8 @@
         <div id="firstPage" class="text-center d-none">
             <h1 id="titleFirstpage">PONG</h1>
             <div id="homepageBody">
-                <button class="btn btn-outline-success" id="login_initial">LOGIN</button>
-                <button class="btn btn-outline-success" id="register_initial">REGISTER</button>
+                <button class="btn btn-outline-success fs-2" id="login_initial">LOGIN</button>
+                <button class="btn btn-outline-success fs-2" id="register_initial">REGISTER</button>
             </div>
         </div>
 
@@ -50,10 +50,10 @@
                 <h1 id="titleHomepage">PONG</h1>
             </div>
             <div id="homepageBody" class="text-center">
-                <button class="btn btn-outline-success" id="PLAY">PLAY</button>
-                <button class="btn btn-outline-success" id="TOURNAMENT">Tournament</button>
-                <button class="btn btn-outline-success" id="SETTINGS">Settings</button>
-                <button class="btn btn-outline-success" id="multiplayerBtn">Distant Multiplayer</button>
+                <button class="btn btn-outline-success fs-2" id="PLAY">PLAY</button>
+                <button class="btn btn-outline-success fs-2" id="TOURNAMENT">Tournament</button>
+                <button class="btn btn-outline-success fs-2" id="SETTINGS">Settings</button>
+                <button class="btn btn-outline-success fs-2" id="multiplayerBtn">Distant Multiplayer</button>
             </div>
         </div>
 
@@ -76,8 +76,8 @@
                 <input type="text" class="form-control" id="numplayers" name="numPlayers" value="4">
             </div>
             <div class="text-center">
-                <button class="btn btn-secondary" id="previous_tournament">Previous</button>
-                <button class="btn btn-primary" id="next">Next</button>
+                <button class="btn btn-secondary fs-2" id="previous_tournament">Previous</button>
+                <button class="btn btn-primary fs-2" id="next">Next</button>
             </div>
         </div>
 
@@ -105,8 +105,8 @@
                     <input type="range" class="form-range" id="winningScore" name="winningScore" min="1" max="10" value="5">
                 </div>
                 <div class="text-center">
-                    <button class="btn btn-outline-success" id="previousSettings">Previous</button>
-                    <button class="btn btn-outline-success" id="saveSettings">Save</button>
+                    <button class="btn btn-outline-success fs-2" id="previousSettings">Previous</button>
+                    <button class="btn btn-outline-success fs-2" id="saveSettings">Save</button>
                 </div>
             </form>
         </div>
@@ -124,8 +124,8 @@
                         <label for="id_password">Password</label>
                         <input type="password" class="form-control" name="password" id="id_password" required>
                     </div>
-                    <button type="submit" class="btn btn-outline-success">Login</button>
-                    <button id="cancelLogin" type="button" class="btn btn-outline-success">Cancel</button>
+                    <button type="submit" class="btn btn-outline-success fs-2">Login</button>
+                    <button id="cancelLogin" type="button" class="btn btn-outline-success fs-2">Cancel</button>
                 </form>
             </div>
         </div>
@@ -153,8 +153,8 @@
                     <label for="bio">Bio:</label>
                     <textarea class="form-control" id="bio" name="bio" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-outline-success">Register</button>
-                <button id="cancelRegister" type="button" class="btn btn-outline-success">Cancel</button>        
+                <button type="submit" class="btn btn-outline-success fs-2">Register</button>
+                <button id="cancelRegister" type="button" class="btn btn-outline-success fs-2">Cancel</button>        
             </form>
         </div>
 
@@ -190,6 +190,41 @@
         </div>
     </div>
 </div>
+
+<!-- Login Error Modal -->
+<div class="modal fade" id="loginErrorModal" tabindex="-1" aria-labelledby="loginErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginErrorModalLabel">Login Error</h5>
+        </div>
+        <div class="modal-body">
+          Incorrect username or password. Please try again.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-success fs-2" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Error Modal -->
+<div class="modal fade" id="registerErrorModal" tabindex="-1" aria-labelledby="loginErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="registerErrorModalLabel">Register Error</h5>
+        </div>
+        <div class="modal-body">
+          Username already in use. Please try again.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-success fs-2" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <script>
