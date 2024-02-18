@@ -4,32 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PONG</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #343a40;">
-
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #198754;">
         <div class="container-fluid">
-            <a id="navBrand" class="navbar-brand" href="#">PONG</a>
+            <a id="navBrand" class="navbar-brand" href="#" style="color: #000000;" >PONG</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
-                    <a class="nav-item nav-link" href="#" id="navHome">Home</a>
-                    <a class="nav-item nav-link" href="#" id="navSet">Settings</a>
+                    <a class="nav-item nav-link" href="#" id="navHome" style="color: #000000;">Home</a>
+                    <a class="nav-item nav-link d-none" href="#" id="navSet" style="color: #000000;">Settings</a>
                     <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #000000;">
                             Account
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#" id="navRegister">Register</a></li>
-                            <li><a class="dropdown-item" href="#" id="navLogin">Login</a></li>
-                            <li><a class="dropdown-item d-none" href="#" id="navProfile">Profile</a></li>
-                            <li><a class="dropdown-item d-none" href="#" id="navLogout">Logout</a></li>
+                            <li><a class="dropdown-item" href="#" id="navRegister" style="color: #000000;">Register</a></li>
+                            <li><a class="dropdown-item" href="#" id="navLogin" style="color: #000000;">Login</a></li>
+                            <li><a class="dropdown-item d-none" href="#" id="navProfile" style="color: #000000;">Profile</a></li>
+                            <li><a class="dropdown-item d-none" href="#" id="navLogout" style="color: #000000;">Logout</a></li>
                         </ul>
                     </div>                    
                 </div>
@@ -40,22 +38,22 @@
 
     <div class="container mt-4">
         <div id="firstPage" class="text-center d-none">
-            <h1>PONG</h1>
+            <h1 id="titleFirstpage">PONG</h1>
             <div id="homepageBody">
-                <button class="btn btn-primary" id="login_initial">LOGIN</button>
-                <button class="btn btn-secondary" id="register_initial">REGISTER</button>
+                <button class="btn btn-outline-success" id="login_initial">LOGIN</button>
+                <button class="btn btn-outline-success" id="register_initial">REGISTER</button>
             </div>
         </div>
 
         <div id="homepage" class="d-none">
             <div id="title" class="text-center">
-                <h1>PONG</h1>
+                <h1 id="titleHomepage">PONG</h1>
             </div>
             <div id="homepageBody" class="text-center">
-                <button class="btn btn-primary" id="PLAY">PLAY</button>
-                <button class="btn btn-info" id="TOURNAMENT">Tournament</button>
-                <button class="btn btn-warning" id="SETTINGS">Settings</button>
-                <button class="btn btn-danger" id="multiplayerBtn">Distant Multiplayer</button>
+                <button class="btn btn-outline-success" id="PLAY">PLAY</button>
+                <button class="btn btn-outline-success" id="TOURNAMENT">Tournament</button>
+                <button class="btn btn-outline-success" id="SETTINGS">Settings</button>
+                <button class="btn btn-outline-success" id="multiplayerBtn">Distant Multiplayer</button>
             </div>
         </div>
 
@@ -107,15 +105,15 @@
                     <input type="range" class="form-range" id="winningScore" name="winningScore" min="1" max="10" value="5">
                 </div>
                 <div class="text-center">
-                    <button class="btn btn-secondary" id="previousSettings">Previous</button>
-                    <button class="btn btn-primary" id="saveSettings">Save</button>
+                    <button class="btn btn-outline-success" id="previousSettings">Previous</button>
+                    <button class="btn btn-outline-success" id="saveSettings">Save</button>
                 </div>
             </form>
         </div>
 
         <div id="loginContainer" class="d-none">
             <div class="login-container">
-                <h2>Login</h2>
+                <h2 class="display-1">Login</h2>
                 <form method="post" id="loginForm">
                     <input type="hidden" name="csrfmiddlewaretoken" value="" id="csrfTokenInput">
                     <div class="form-group">
@@ -126,14 +124,14 @@
                         <label for="id_password">Password</label>
                         <input type="password" class="form-control" name="password" id="id_password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Login</button>
-                    <button id="cancelLogin" type="button" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-outline-success">Login</button>
+                    <button id="cancelLogin" type="button" class="btn btn-outline-success">Cancel</button>
                 </form>
             </div>
         </div>
         
         <div id="register" class="d-none">
-            <h1>Register</h1>
+            <h1 class="display-1">Register</h1>
             <form id="registerForm">
                 <div class="form-group">
                     <label for="username">Username:</label>
@@ -155,8 +153,8 @@
                     <label for="bio">Bio:</label>
                     <textarea class="form-control" id="bio" name="bio" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Register</button>
-                <button id="cancelRegister" type="button" class="btn btn-secondary">Cancel</button>        
+                <button type="submit" class="btn btn-outline-success">Register</button>
+                <button id="cancelRegister" type="button" class="btn btn-outline-success">Cancel</button>        
             </form>
         </div>
 
@@ -193,9 +191,7 @@
     </div>
 </div>
 
-<!-- Bootstrap 5 JavaScript Bundle with Popper.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.3/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Initialize Bootstrap dropdown

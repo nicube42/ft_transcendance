@@ -64,10 +64,16 @@ const ui = {
             this.showOnlyOneSection('homepage');
         },
         async 'cancelLogin'() {
-            this.showOnlyOneSection('homepage');
+            if (auth.is_connected())
+                this.showOnlyOneSection('homepage');
+            else
+                this.showOnlyOneSection('firstPage');
         },
         async 'cancelRegister'() {
-            this.showOnlyOneSection('homepage');
+            if (auth.is_connected())
+                this.showOnlyOneSection('homepage');
+            else
+                this.showOnlyOneSection('firstPage');
         },
         async 'navLogin'() {
             this.showOnlyOneSection('loginContainer');
