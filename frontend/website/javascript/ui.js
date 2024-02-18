@@ -51,6 +51,8 @@ const ui = {
         });
         document.getElementById('navSet').addEventListener('click', function(e) {
             e.preventDefault();
+            settings.saveSettings();
+            settings.populateSettings();
             this.showSection('settings');
         }.bind(ui));
         document.getElementById('navProfile').addEventListener('click', () => {
