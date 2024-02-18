@@ -7,10 +7,20 @@ const settings = {
             .then(response => response.json())
             .then(data => {
                 document.getElementById('player1').value = data.player1;
+                if (data.player1 === null)
+                    document.getElementById('player1').value = 'One';
                 document.getElementById('player2').value = data.player2;
+                if (data.player2 === null)
+                    document.getElementById('player2').value = 'Two';
                 document.getElementById('ballSpeed').value = data.ballSpeed;
+                if (data.ballSpeed === null)
+                    document.getElementById('ballSpeed').value = 5;
                 document.getElementById('paddleSpeed').value = data.paddleSpeed;
+                if (data.paddleSpeed === null)
+                    document.getElementById('paddleSpeed').value = 5;
                 document.getElementById('winningScore').value = data.winningScore;
+                if (data.winningScore === null)
+                    document.getElementById('winningScore').value = 5;
                 
                 game.updateGameSettings(data);
             })
@@ -32,7 +42,7 @@ const settings = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
+                // 'X-CSRFToken': csrfToken
             },
             credentials: 'include',
             body: JSON.stringify(data)

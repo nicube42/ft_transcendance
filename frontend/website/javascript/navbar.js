@@ -12,7 +12,6 @@ const navbarManager = {
         const registerLink = document.getElementById('navRegister');
         const profileLink = document.getElementById('navProfile');
 
-        // Hide or show links based on authentication status
         if (isAuthenticated) {
             loginLink.style.display = 'none';
             registerLink.style.display = 'none';

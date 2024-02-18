@@ -1,7 +1,6 @@
 const auth = {
     login: function() {
-        // Fetch the CSRF token from the cookie instead of the form
-        const csrfToken = getCookie('csrftoken'); // Using the getCookie function to retrieve the CSRF token
+        const csrfToken = getCookie('csrftoken');
         const formData = {
             username: document.getElementById('id_username').value,
             password: document.getElementById('id_password').value
@@ -10,7 +9,7 @@ const auth = {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken // Ensure this token is sent with the request
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify(formData)
         })
@@ -22,6 +21,8 @@ const auth = {
         })
         .then(data => {
             console.log('Login success:', data);
+            settings.saveSettings();
+            settings.populateSettings();
             ui.showSection('profilPage');
             sessionStorage.setItem('isLoggedIn', 'true');
             navbarManager.updateNavbar();
