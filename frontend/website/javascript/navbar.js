@@ -11,12 +11,14 @@ const navbarManager = {
         const logoutLink = document.getElementById('navLogout');
         const registerLink = document.getElementById('navRegister');
         const profileLink = document.getElementById('navProfile');
+        const navSetLink = document.getElementById('navSet');
 
         if (isAuthenticated) {
             loginLink.style.display = 'none';
             registerLink.style.display = 'none';
             logoutLink.style.display = '';
             profileLink.style.display = '';
+            navSetLink.style.display = '';
             navbar.style.display = '';
         } else {
             navbar.style.display = 'none';

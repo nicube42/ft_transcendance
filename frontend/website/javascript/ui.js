@@ -49,6 +49,10 @@ const ui = {
             else
                 this.showSection('firstPage');
         });
+        document.getElementById('navSet').addEventListener('click', function(e) {
+            e.preventDefault();
+            this.showSection('settings');
+        }.bind(ui));
         document.getElementById('navProfile').addEventListener('click', () => {
             this.showSection('profilPage')
             auth.retrieveInfos()
