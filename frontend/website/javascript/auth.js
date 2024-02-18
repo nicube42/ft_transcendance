@@ -23,7 +23,7 @@ const auth = {
             console.log('Login success:', data);
             settings.saveSettings();
             settings.populateSettings();
-            ui.showSection('profilPage');
+            ui.showOnlyOneSection('homepage');
             sessionStorage.setItem('isLoggedIn', 'true');
             navbarManager.updateNavbar();
             auth.retrieveInfos()
@@ -51,7 +51,6 @@ const auth = {
             console.log('Logout success:', data);
             sessionStorage.removeItem('isLoggedIn');
             navbarManager.updateNavbar();
-            ui.showSection('firstpage');
         })
         .catch(error => console.error('Logout error:', error));
     },
@@ -81,7 +80,7 @@ const auth = {
         })
         .then(data => {
             console.log('Registration success:', data);
-            ui.showSection('loginContainer');
+            ui.showOnlyOneSection('loginContainer');
             navbarManager.updateNavbar();
         })
         .catch(error => console.error('Registration error:', error));

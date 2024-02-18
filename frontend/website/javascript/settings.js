@@ -1,9 +1,9 @@
 const settings = {
-    populateSettings: function() {
+    populateSettings: async function() {
         if (auth.is_connected() == false) {
             return;
         }
-        fetch('/api/settings/retrieve')
+        await fetch('/api/settings/retrieve')
             .then(response => response.json())
             .then(data => {
                 document.getElementById('player1').value = data.player1;
@@ -26,7 +26,7 @@ const settings = {
             })
             .catch(error => console.error('Error fetching settings:', error));
     },
-    saveSettings: function() {
+    saveSettings: async function() {
         if (auth.is_connected() === false) {
             return;
         }
@@ -38,7 +38,7 @@ const settings = {
             paddleSpeed: parseInt(document.getElementById('paddleSpeed').value, 10),
             winningScore: parseInt(document.getElementById('winningScore').value, 10)
         };
-        fetch('/api/settings', {
+        await fetch('/api/settings', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -5,14 +5,10 @@ import json
 from django.contrib.auth.decorators import login_required
 
 @csrf_exempt
+@login_required  # Ensure the user is logged in
 def save_settings(request):
-    # Ensure the request is a POST request
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
-
-    # Check if the user is authenticated
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'User not authenticated'}, status=401)
     
     try:
         data = json.loads(request.body)
@@ -30,7 +26,7 @@ def save_settings(request):
         player1, _ = Player.objects.get_or_create(name=player1_name)
         player2, _ = Player.objects.get_or_create(name=player2_name)
         
-        # Attempt to retrieve existing settings for the user, or create new ones
+        # Update or create settings specific to the user
         settings, created = GameSettings.objects.update_or_create(
             user=request.user,
             defaults={
@@ -43,48 +39,43 @@ def save_settings(request):
         )
 
         return JsonResponse({'message': 'Settings updated successfully'}, status=200)
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON format'}, status=400)
-    except ValueError as e:
-        # Catching ValueError if int conversion fails
-        return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
-        # Catch-all for any other unexpected errors
-        return JsonResponse({'error': 'Internal Server Error', 'details': str(e)}, status=500)
+        return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
 
 
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import GameSettings, Player
+from .models import GameSettings
 from django.contrib.auth.decorators import login_required
 
 @csrf_exempt
-@login_required
+@login_required  # Ensure the user is logged in
 def retrieve_settings(request):
-    if request.method == 'GET':
-        defaults = {
-            'player1': 'One', 
-            'player2': 'Two', 
-            'ballSpeed': 5,
-            'paddleSpeed': 5,
-            'winningScore': 5
-        }
-        
-        try:
-            settings = GameSettings.objects.get(user=request.user)
-            response_data = {
-                'player1': settings.player1.name if settings.player1 else defaults['player1'],
-                'player2': settings.player2.name if settings.player2 else defaults['player2'],
-                'ballSpeed': settings.ball_speed if settings.ball_speed else defaults['ballSpeed'],
-                'paddleSpeed': settings.paddle_speed if settings.paddle_speed else defaults['paddleSpeed'],
-                'winningScore': settings.winning_score if settings.winning_score else defaults['winningScore'],
-            }
-        except GameSettings.DoesNotExist:
-            response_data = defaults
-
-        return JsonResponse(response_data)
-    else:
+    if request.method != 'GET':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    defaults = {
+        'player1': 'One', 
+        'player2': 'Two', 
+        'ballSpeed': 5,
+        'paddleSpeed': 5,
+        'winningScore': 5
+    }
+    
+    try:
+        settings = GameSettings.objects.get(user=request.user)
+        response_data = {
+            'player1': settings.player1.name,
+            'player2': settings.player2.name,
+            'ballSpeed': settings.ball_speed,
+            'paddleSpeed': settings.paddle_speed,
+            'winningScore': settings.winning_score,
+        }
+    except GameSettings.DoesNotExist:
+        # If no settings exist for the user, return defaults
+        response_data = defaults
+
+    return JsonResponse(response_data)
+
 
 
 from django.http import JsonResponse

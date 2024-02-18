@@ -4,169 +4,214 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PONG</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <nav id="navbar" class="navbar">
-        <ul class="nav-links">
-            <li><a href="#" id="navHome">Home</a></li>
-            <li><a href="#" id="navSet">Settings</a></li>
-            <li><a href="#" id="navRegister">Register</a></li>
-            <li><a href="#" id="navProfile">Profile</a></li>
-            <li><a href="#" id="navLogin">Login</a></li>
-            <li><a href="#" id="navLogout">Logout</a></li>
-        </ul>
-    </nav>
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #343a40;">
 
-    <div id="firstPage" class="section">
-        <div id="title">
-            <h1>PONG</h1>
-        </div>
-        <div id="homepageBody">
-            <button id="login_initial">LOGIN</button>
-            <br>
-            <button id="register_initial">REGISTER</button>
-        </div>
-    </div>
-
-    <div id="homepage" class="hidden section">
-        <div id="title">
-            <h1>PONG</h1>
-        </div>
-        <div id="homepageBody">
-            <button id="PLAY">PLAY</button>
-            <br>
-            <button id="TOURNAMENT">Tournament</button>
-            <br>
-            <button id="SETTINGS">Settings</button>
-        </div>
-    </div>
-
-    <div id="play" class="hidden section">
-        <div id="game">
-            <canvas id="pong" width="800" height="400"></canvas>
-        </div>
-        <div id="score">
-            <div id="title_score">Score</div>
-            <p id="winning_score">Winning Score: 5</p>
-            <p id="player1_score">Player 1: 0</p>
-            <p id="player2_score">Player 2: 0</p>
-        </div>
-    </div>
-
-    <div id="tournament" class="hidden section">
-        <div id="title">
-            <h1>Tournament</h1>
-        </div>
-        <div id="tournamentBody">
-            <label for="number of players">Number of players</label>
-            <input type="text" id="numplayers" name="numPlayers" value="4">
-            <br>
-        </div>
-        <br>
-        <div id="cluster_buttons_tournament">
-            <button id="previous_tournament">Previous</button>
-            <button id="next">Next</button>
-        </div>
-    </div>
-
-    <div id="settings" class="hidden section">
-        <h1>Settings</h1>
-        <form>
-            <label for="player1">Player 1</label>
-            <input type="text" id="player1" name="player1" value="one">
-            <br>
-            <label for="player2">Player 2</label>
-            <input type="text" id="player2" name="player2" value="two">
-            <br>
-            <label for="ballSpeed">Ball Speed</label>
-            <input type="range" id="ballSpeed" name="ballSpeed" min="1" max="10" value="5">
-            <br>
-            <label for="paddleSpeed">Paddle Speed</label>
-            <input type="range" id="paddleSpeed" name="paddleSpeed" min="1" max="10" value="5">
-            <br>
-            <label for="winningScore">Winning Score</label>
-            <input type="range" id="winningScore" name="winningScore" min="1" max="10" value="5">
-            <br>
-            <div id="cluster_buttons">
-                <button id="previousSettings">Previous</button>
-                <button id="saveSettings">Save</button>
+        <div class="container-fluid">
+            <a id="navBrand" class="navbar-brand" href="#">PONG</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link" href="#" id="navHome">Home</a>
+                    <a class="nav-item nav-link" href="#" id="navSet">Settings</a>
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Account
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#" id="navRegister">Register</a></li>
+                            <li><a class="dropdown-item" href="#" id="navLogin">Login</a></li>
+                            <li><a class="dropdown-item d-none" href="#" id="navProfile">Profile</a></li>
+                            <li><a class="dropdown-item d-none" href="#" id="navLogout">Logout</a></li>
+                        </ul>
+                    </div>                    
+                </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </nav>
+    
 
-    <div id="loginContainer" class="hidden section">
-        <div class="login-container">
-            <h2>Login</h2>
-            <form method="post" id="loginForm">
-                <input type="hidden" name="csrfmiddlewaretoken" value="" id="csrfTokenInput">
+    <div class="container mt-4">
+        <div id="firstPage" class="text-center d-none">
+            <h1>PONG</h1>
+            <div id="homepageBody">
+                <button class="btn btn-primary" id="login_initial">LOGIN</button>
+                <button class="btn btn-secondary" id="register_initial">REGISTER</button>
+            </div>
+        </div>
+
+        <div id="homepage" class="d-none">
+            <div id="title" class="text-center">
+                <h1>PONG</h1>
+            </div>
+            <div id="homepageBody" class="text-center">
+                <button class="btn btn-primary" id="PLAY">PLAY</button>
+                <button class="btn btn-info" id="TOURNAMENT">Tournament</button>
+                <button class="btn btn-warning" id="SETTINGS">Settings</button>
+                <button class="btn btn-danger" id="multiplayerBtn">Distant Multiplayer</button>
+            </div>
+        </div>
+
+        <div id="play" class="d-none">
+            <div id="game" class="text-center">
+                <canvas id="pong" class="border" width="800" height="400"></canvas>
+            </div>
+            <div id="score" class="text-center">
+                <h4>Score</h4>
+                <p id="winning_score">Winning Score: 5</p>
+                <p id="player1_score">Player 1: 0</p>
+                <p id="player2_score">Player 2: 0</p>
+            </div>
+        </div>
+
+        <div id="tournament" class="d-none">
+            <h1 class="text-center">Tournament</h1>
+            <div class="form-group">
+                <label for="numplayers">Number of players</label>
+                <input type="text" class="form-control" id="numplayers" name="numPlayers" value="4">
+            </div>
+            <div class="text-center">
+                <button class="btn btn-secondary" id="previous_tournament">Previous</button>
+                <button class="btn btn-primary" id="next">Next</button>
+            </div>
+        </div>
+
+        <div id="settings" class="d-none">
+            <h1>Settings</h1>
+            <form>
                 <div class="form-group">
-                    <label for="id_username">Username</label>
-                    <input type="text" name="username" id="id_username" required>
+                    <label for="player1">Player 1</label>
+                    <input type="text" class="form-control" id="player1" name="player1" value="one">
                 </div>
                 <div class="form-group">
-                    <label for="id_password">Password</label>
-                    <input type="password" name="password" id="id_password" required>
+                    <label for="player2">Player 2</label>
+                    <input type="text" class="form-control" id="player2" name="player2" value="two">
                 </div>
-                <button type="submit">Login</button>
-                <button id="cancelLogin" type="button">Cancel</button>
+                <div class="form-group">
+                    <label for="ballSpeed">Ball Speed</label>
+                    <input type="range" class="form-range" id="ballSpeed" name="ballSpeed" min="1" max="10" value="5">
+                </div>
+                <div class="form-group">
+                    <label for="paddleSpeed">Paddle Speed</label>
+                    <input type="range" class="form-range" id="paddleSpeed" name="paddleSpeed" min="1" max="10" value="5">
+                </div>
+                <div class="form-group">
+                    <label for="winningScore">Winning Score</label>
+                    <input type="range" class="form-range" id="winningScore" name="winningScore" min="1" max="10" value="5">
+                </div>
+                <div class="text-center">
+                    <button class="btn btn-secondary" id="previousSettings">Previous</button>
+                    <button class="btn btn-primary" id="saveSettings">Save</button>
+                </div>
             </form>
         </div>
-    </div>
-    
-    <div id="register" class="hidden section">
-        <h1>Register</h1>
-        <form id="registerForm">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <br>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <br>
-            <label for="fullname">Full Name:</label>
-            <input type="text" id="fullname" name="fullname" required>
-            <br>
-            <label for="birth">Birth Date:</label>
-            <input type="date" id="birth" name="birth" required>
-            <br>
-            <label for="bio">Bio:</label>
-            <input type="text" id="bio" name="bio" required>
-            <button type="submit">Register</button>
-        </form>
-        <button id="cancelRegister" type="button">Cancel</button>        
-    </div>
 
-    <div id= "profilPage" class="hidden section">
-        <h1>User Profile</h1>
-        <div class="profile-info">
-            <div>
-                <div id="usernameProfile"></div>
-            </div>
-            <div>
-                <div id="fullnameProfile"></div>
+        <div id="loginContainer" class="d-none">
+            <div class="login-container">
+                <h2>Login</h2>
+                <form method="post" id="loginForm">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="" id="csrfTokenInput">
+                    <div class="form-group">
+                        <label for="id_username">Username</label>
+                        <input type="text" class="form-control" name="username" id="id_username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_password">Password</label>
+                        <input type="password" class="form-control" name="password" id="id_password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button id="cancelLogin" type="button" class="btn btn-secondary">Cancel</button>
+                </form>
             </div>
         </div>
-        <div class="profile-info">
-            <div>
-                <div id="birthProfile"></div>
+        
+        <div id="register" class="d-none">
+            <h1>Register</h1>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="fullname">Full Name:</label>
+                    <input type="text" class="form-control" id="fullname" name="fullname" required>
+                </div>
+                <div class="form-group">
+                    <label for="birth">Birth Date:</label>
+                    <input type="date" class="form-control" id="birth" name="birth" required>
+                </div>
+                <div class="form-group">
+                    <label for="bio">Bio:</label>
+                    <textarea class="form-control" id="bio" name="bio" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+                <button id="cancelRegister" type="button" class="btn btn-secondary">Cancel</button>        
+            </form>
+        </div>
+
+        <div id="profilePage" class="d-none">
+            <h1>User Profile</h1>
+            <div class="profile-info">
+                <div>
+                    <label>Username:</label>
+                    <div id="usernameProfile"></div>
+                </div>
+                <div>
+                    <label>Full Name:</label>
+                    <div id="fullnameProfile"></div>
+                </div>
+                <div>
+                    <label>Birth Date:</label>
+                    <div id="birthProfile"></div>
+                </div>
+                <div>
+                    <label>Bio:</label>
+                    <div id="bioProfile"></div>
+                </div>
             </div>
         </div>
-        <div class="profile-info">
-            <div>
-                <div id="bioProfile"></div>
+
+        <div id="endgameStats" class="d-none">
+            <h1>Game Over</h1>
+            <div id="endgameStatsBody">
+                <p id="player1_endgame">Player 1: 0</p>
+                <p id="player2_endgame">Player 2: 0</p>
+                <p id="winner_endgame">Winner: </p>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="javascript/ui.js"></script>
-    <script src="javascript/settings.js"></script>
-    <script src="javascript/auth.js"></script>
-    <script src="javascript/game.js"></script>
-    <script src="javascript/csrf.js"></script>
-    <script src="javascript/profile.js"></script>
-    <script src="javascript/navbar.js"></script>
-    <script src="javascript/main.js"></script>
-
+<!-- Bootstrap 5 JavaScript Bundle with Popper.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.3/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Bootstrap dropdown
+        var dropdownToggleList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+        dropdownToggleList.forEach(function (dropdownToggleEl) {
+            new bootstrap.Dropdown(dropdownToggleEl);
+        });
+    });
+</script>
+<script src="javascript/ui.js"></script>
+<script src="javascript/settings.js"></script>
+<script src="javascript/auth.js"></script>
+<script src="javascript/game.js"></script>
+<script src="javascript/csrf.js"></script>
+<script src="javascript/profile.js"></script>
+<script src="javascript/navbar.js"></script>
+<script src="javascript/main.js"></script>
 </body>
 </html>

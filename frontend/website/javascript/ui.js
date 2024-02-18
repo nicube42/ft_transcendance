@@ -1,81 +1,118 @@
 const ui = {
-    hideAll: function() {
-        const sections = document.querySelectorAll('.section');
-        sections.forEach(section => {
-            if (!section.classList.contains('hidden')) {
-                section.classList.add('hidden');
+    toggleSectionVisibility: function(sectionId, isVisible) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.classList.toggle('d-none', !isVisible);
+        }
+    },
+
+    showOnlyOneSection: function(sectionId) {
+        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats'];
+        sections.forEach(sec => {
+            this.toggleSectionVisibility(sec, sec === sectionId);
+        });
+    },
+
+    initializePage: async function() {
+        try {
+            const isConnected = await auth.is_connected();
+            this.showOnlyOneSection(isConnected ? 'homepage' : 'firstPage');
+        } catch (error) {
+            console.error('Error initializing page:', error);
+        }
+    },
+
+    attachEventListeners: function() {
+        document.body.addEventListener('click', (e) => {
+            let target = e.target;
+            // Find the nearest ancestor with an ID or the element itself
+            while (target !== document.body && !target.id) {
+                target = target.parentNode;
+            }
+            // Prevent default action only if a handler is defined
+            if (this.actionHandlers[target.id]) {
+                e.preventDefault();
+                this.actionHandlers[target.id].call(this, e).catch(console.error);
             }
         });
     },
-    showSection: function(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (section) {
-            this.hideAll();
-            section.classList.remove('hidden');
+
+    actionHandlers: {
+        async 'navHome'() {
+            if (auth.is_connected())
+                this.showOnlyOneSection('homepage');
+            else
+                this.showOnlyOneSection('firstPage');
+        },
+        async 'PLAY'() {
+            this.showOnlyOneSection('play');
+            await settings.populateSettings();
+        },
+        async 'TOURNAMENT'() {
+            this.showOnlyOneSection('tournament');
+        },
+        async 'SETTINGS'() {
+            await settings.populateSettings();
+            this.showOnlyOneSection('settings');
+        },
+        async 'saveSettings'() {
+            await settings.saveSettings();
+            await settings.populateSettings();
+            this.showOnlyOneSection('homepage');
+        },
+        async 'previousSettings'() {
+            this.showOnlyOneSection('homepage');
+        },
+        async 'cancelLogin'() {
+            this.showOnlyOneSection('homepage');
+        },
+        async 'cancelRegister'() {
+            this.showOnlyOneSection('homepage');
+        },
+        async 'navLogin'() {
+            this.showOnlyOneSection('loginContainer');
+        },
+        async 'navRegister'() {
+            this.showOnlyOneSection('register');
+        },
+        async 'navProfile'() {
+            this.showOnlyOneSection('profilePage');
+            try {
+                const data = await auth.retrieveInfos();
+                userInfoDisplayer.updateUI(data);
+            } catch (error) {
+                console.error('Failed to fetch or display user info:', error);
+            }
+        },
+        async 'navLogout'() {
+            await auth.logout();
+            this.showOnlyOneSection('firstpage');
+        },
+        async 'login_initial'() {
+            this.showOnlyOneSection('loginContainer');
+        },
+        async 'register_initial'() {
+            this.showOnlyOneSection('register');
+        },
+        async 'navSet'() {
+            await settings.saveSettings();
+            await settings.populateSettings();
+            this.showOnlyOneSection('settings');
+        },
+        async 'navBrand' () {
+            if (auth.is_connected())
+                this.showOnlyOneSection('homepage');
+            else
+                this.showOnlyOneSection('firstPage');
         }
     },
-    init: function() {
-        document.getElementById('navHome').addEventListener('click', () => this.showSection('homepage'));
-        document.getElementById('PLAY').addEventListener('click', () => {
-            this.showSection('play');
-            settings.populateSettings();
-        });
-        document.getElementById('TOURNAMENT').addEventListener('click', () => this.showSection('tournament'));
-        document.getElementById('SETTINGS').addEventListener('click', () => {
-            settings.populateSettings();
-            this.showSection('settings');
-        });
-        document.getElementById('saveSettings').addEventListener('click', function(e) {
-            e.preventDefault();
-            settings.saveSettings();
-            settings.populateSettings();
-            this.showSection('homepage');
-        }.bind(ui));
-        document.getElementById('previousSettings').addEventListener('click', function(e) {
-            e.preventDefault();
-            this.showSection('homepage');
-        }.bind(ui));
-        document.getElementById('navLogin').addEventListener('click', () => this.showSection('loginContainer'));
-        document.getElementById('navRegister').addEventListener('click', () => this.showSection('register'));
-        document.getElementById('cancelLogin').addEventListener('click', () => {
-            if (auth.is_connected())
-                this.showSection('homepage')
-            else
-                this.showSection('firstPage');
-        });
-        document.getElementById('cancelRegister').addEventListener('click', () => {
-            if (auth.is_connected())
-                this.showSection('homepage')
-            else
-                this.showSection('firstPage');
-        });
-        document.getElementById('navSet').addEventListener('click', function(e) {
-            e.preventDefault();
-            settings.saveSettings();
-            settings.populateSettings();
-            this.showSection('settings');
-        }.bind(ui));
-        document.getElementById('navProfile').addEventListener('click', () => {
-            this.showSection('profilPage')
-            auth.retrieveInfos()
-            .then(data => {
-                userInfoDisplayer.updateUI(data);
-            })
-            .catch(error => console.error('Failed to fetch or display user info:', error));
 
-        });
-        document.getElementById('navLogout').addEventListener('click', () => {
-            auth.logout()
-            this.showSection('firstPage');
-        });
-        document.getElementById('login_initial').addEventListener('click', function(e) {
-            e.preventDefault();
-            this.showSection('loginContainer')
-        }.bind(ui));
-        document.getElementById('register_initial').addEventListener('click', function(e) {
-            e.preventDefault();
-            this.showSection('register')
-        }.bind(ui));
+    init: function() {
+        this.attachEventListeners();
+        this.initializePage();
     }
 };
 
+document.addEventListener('DOMContentLoaded', () => {
+    ui.init();
+});

@@ -89,7 +89,7 @@ const game = {
             if (this.player1Score >= this.winningScore || this.player2Score >= this.winningScore)
             {
                 this.resetVars();
-                ui.showSection('homepage');
+                ui.showOnlyOneSection('homepage');
             }
 
             // Ball movement logic

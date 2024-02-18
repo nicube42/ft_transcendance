@@ -7,6 +7,7 @@ body, html {
     background-color: #000;
     color: white;
     font-family: 'Arial', sans-serif;
+    padding-top: 56px; /* Adjusted for fixed navbar */
 }
 
 button {
@@ -26,12 +27,17 @@ button {
     border-radius: 20px;
 }
 
-#navBar {
-    display: none;
-}
-
 button:hover {
     background-color: #0675d3;
+}
+
+.dropdown-menu {
+    background-color: #6c6c6c;
+    border-color: #ffffff;
+}
+
+.dropdown-item {
+    color: #212529;
 }
 
 #title {
@@ -45,121 +51,30 @@ button:hover {
     color: #0454aa;
 }
 
-#play {
-    margin-left: 20px;
-    margin-top: 20px;
+.section {
+    margin: 20px;
     font-size: 50px;
     color: #9b9b9b;
-    background-color: #ffffff;
+    background-color: #000;
     font-family: 'SpaceMission', sans-serif;
     text-align: center;
 }
 
-#tournamentBody {
-    font-size: 50px;
-    color: #9b9b9b;
-    background-color: #000000;
-    justify-content: center;
-    align-items: center;
-    font-family: 'SpaceMission', sans-serif;
-    text-align: center;
-}
-
-
-
-#tournamentButtons {
-    margin-left: 20px;
-    margin-top: 20px;
-    font-size: 25px;
-    color: #9b9b9b;
-    background-color: #000000;
-    font-family: 'SpaceMission', sans-serif;
-    text-align: center;
-}
-
-#settings {
-    margin-left: 20px;
-    margin-top: 20px;
-    font-size: 50px;
-    color: #9b9b9b;
-    background-color: #000000;
-    font-family: 'SpaceMission', sans-serif;
-    text-align: center;
-}
-
-#title_score{
+#title_score {
     color: #ff6e6e;
 }
 
-
 .navbar {
-    width: 100%;
     background-color: #9b9b9b;
-    overflow: hidden;
-    position: fixed;
-    top: 0;
-    z-index: 1000;
 }
 
-.nav-links {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    text-align: center;
-}
-
-.nav-links li {
-    display: inline-block;
-    margin-right: 30px;
-}
-
-.nav-links li a {
-    display: block;
-    padding: 15px 20px;
-    text-decoration: none;
+.navbar-nav .nav-link {
     color: white;
-    font-size: 16px;
 }
 
-
-.nav-links li a:hover, .nav-links li a:focus {
+.navbar-nav .nav-link:hover, .navbar-nav .nav-link:focus {
     background-color: #ddd;
     color: black;
-}
-
-body
-{
-    padding-top: 50px;
-}
-
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    input[type='range'] {
-      overflow: hidden;
-      width: 80px;
-      -webkit-appearance: none;
-      background-color: #9a905d;
-    }
-    
-    input[type='range']::-webkit-slider-runnable-track {
-      height: 10px;
-      -webkit-appearance: none;
-      color: #13bba4;
-      margin-top: -1px;
-    }
-    
-    input[type='range']::-webkit-slider-thumb {
-      width: 10px;
-      -webkit-appearance: none;
-      height: 10px;
-      cursor: ew-resize;
-      background: #434343;
-      box-shadow: -80px 0 0 80px #43e5f7;
-    }
-
-}
-
-.hidden {
-    display: none;
 }
 
 canvas {
@@ -172,7 +87,44 @@ canvas {
     font-family: 'VeniteAdoremus';
     src: url('fonts/VeniteAdoremus.ttf') format('truetype');
 }
+
 @font-face {
     font-family: 'SpaceMission';
     src: url('fonts/SpaceMission.otf') format('opentype');
+}
+
+/* Custom styles for range inputs */
+input[type='range'] {
+    overflow: hidden;
+    width: 80%;
+    -webkit-appearance: none;
+    background-color: #9a905d;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+    height: 10px;
+    -webkit-appearance: none;
+    color: #13bba4;
+}
+
+input[type='range']::-webkit-slider-thumb {
+    width: 20px;
+    -webkit-appearance: none;
+    height: 20px;
+    cursor: ew-resize;
+    background: #434343;
+    box-shadow: 0 0 0 1px #43e5f7;
+}
+
+/* Adjustments for non-WebKit browsers */
+input[type='range']::-moz-range-track {
+    background-color: #9a905d;
+}
+
+input[type='range']::-moz-range-thumb {
+    background: #434343;
+}
+
+input[type='range']::-ms-thumb {
+    background: #434343;
 }
