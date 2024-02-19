@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/login/', views.api_login, name='api-login'),
     path('api/logout/', views.api_logout, name='logout'),
     path('api/user-info/', views.user_info, name='user_info'),
+    path('api/search-user/', views.search_user, name='search_user'),
 ]
 
 # LoginView.as_view()

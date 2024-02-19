@@ -27,3 +27,7 @@ class GameSettings(models.Model):
     ball_speed = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
     paddle_speed = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
     winning_score = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
+
+class Room(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    # Add more fields as needed, e.g., max players, private/public, etc.

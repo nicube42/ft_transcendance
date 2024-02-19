@@ -115,7 +115,48 @@ const auth = {
     is_connected: function() {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
         return isLoggedIn;
-    }
+    },
+    searchForUser: async function() {
+        const input = document.getElementById('searchUserInput');
+        const resultsDiv = document.getElementById('searchResults');
+        resultsDiv.innerHTML = ''; // Clear previous results
+    
+        if (input.value.trim() === '') {
+            const noResult = document.createElement('div');
+            noResult.classList.add('alert', 'alert-danger');
+            noResult.textContent = 'Please enter a username to search.';
+            resultsDiv.appendChild(noResult);
+            return;
+        }
+    
+        try {
+            const response = await fetch(`/api/search-user/?username=${encodeURIComponent(input.value)}`, {
+                method: 'GET',
+                credentials: 'include', // This is important for sessions to work
+            });
+    
+            if (response.status === 404) {
+                throw new Error('User not found');
+            }
+    
+            if (!response.ok) {
+                throw new Error('Request failed with status: ' + response.status);
+            }
+    
+            const data = await response.json();
+            const result = document.createElement('div');
+            result.classList.add('alert', 'alert-success');
+            result.textContent = `Found user: ${data.username}, Full Name: ${data.fullname}, Bio: ${data.bio}`;
+            resultsDiv.appendChild(result);
+            console.log('Search success:', data);
+        } catch (error) {
+            console.error('Search error:', error);
+            const noResult = document.createElement('div');
+            noResult.classList.add('alert', 'alert-danger');
+            noResult.textContent = error.toString();
+            resultsDiv.appendChild(noResult);
+        }
+    },
 };
 
 // Utility function to get a cookie by name

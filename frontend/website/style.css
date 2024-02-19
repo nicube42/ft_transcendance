@@ -64,7 +64,19 @@ button:hover {
     font-family: 'VeniteAdoremus', sans-serif;
 }
 
+#multiplayer {
+    font-size: 25px;
+    color: #198754;
+    font-family: 'VeniteAdoremus', sans-serif;
+}
+
 #register {
+    font-size: 25px;
+    color: #198754;
+    font-family: 'VeniteAdoremus', sans-serif;
+}
+
+#roomList {
     font-size: 25px;
     color: #198754;
     font-family: 'VeniteAdoremus', sans-serif;

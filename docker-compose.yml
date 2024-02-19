@@ -22,8 +22,14 @@ services:
     environment:
       - "DJANGO_SETTINGS_MODULE=backend.settings"
       - "PYTHONUNBUFFERED=1"
-    expose:
-      - 5432
+    ports:
+      - "8000:8000"  # Exposing Django on port 8000
+
+  # Assuming you have a Redis service defined for Channels
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
 
   nginx:
     build:
@@ -35,7 +41,6 @@ services:
       - ./website:/usr/share/nginx/html/website
     depends_on:
       - django
-      - ai
 
   ai:
     build:

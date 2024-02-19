@@ -179,3 +179,26 @@ from django.http import JsonResponse
 def api_logout(request):
     logout(request)
     return JsonResponse({'message': 'Logout successful'})
+
+
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse
+from .models import CustomUser
+
+@require_http_methods(["GET"])
+@login_required
+def search_user(request):
+    username = request.GET.get('username', '')
+    if not username:
+        return JsonResponse({'error': 'Username parameter is required'}, status=400)
+
+    try:
+        user = CustomUser.objects.get(username=username)
+        return JsonResponse({
+            'username': user.username,
+            'fullname': user.fullname,
+            'bio': user.bio,
+        }, status=200)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)

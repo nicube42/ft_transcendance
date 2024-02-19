@@ -7,7 +7,7 @@ const ui = {
     },
 
     showOnlyOneSection: function(sectionId) {
-        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats'];
+        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer'];
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
@@ -53,12 +53,16 @@ const ui = {
         async 'PLAY'() {
             game.setGameMode('multiplayer');
             this.showOnlyOneSection('play');
-            await settings.populateSettings();
+            //await settings.populateSettings();
         },
         async 'SINGLEPLAYER'() {
             game.setGameMode('singlePlayer');
             this.showOnlyOneSection('play');
-            await settings.populateSettings();
+            //await settings.populateSettings();
+        },
+        async 'MULTIPLAYER'() {
+            this.showOnlyOneSection('multiplayer');
+            gameSocket.listRooms();
         },
         async 'TOURNAMENT'() {
             this.showOnlyOneSection('tournament');
@@ -125,6 +129,16 @@ const ui = {
         async 'playAgain'() {
             this.showOnlyOneSection('play');
             await settings.populateSettings();
+        },
+        async 'createRoomBtn' () {
+            const roomName = document.querySelector('#roomNameInput').value;
+            gameSocket.createRoom(roomName);
+            gameSocket.listRooms();
+        },
+        async 'joinRoomBtn' () {
+            const roomName = document.querySelector('#roomNameInput').value;
+            gameSocket.joinRoom(roomName);
+            gameSocket.listRooms();
         }
     },
 

@@ -18,6 +18,9 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'corsheaders',
+    'channels',
+    'channels_redis',
+    'uvicorn',
 ]
 
 MIDDLEWARE = [
@@ -44,3 +47,14 @@ AUTH_USER_MODEL = 'backend.CustomUser'
 LOGOUT_REDIRECT_URL = 'firstpage'
 
 LOGIN_REDIRECT_URL = 'homepage'
+
+ASGI_APPLICATION = 'backend.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
+}
