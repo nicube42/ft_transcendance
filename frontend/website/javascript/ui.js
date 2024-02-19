@@ -51,6 +51,12 @@ const ui = {
                 this.showOnlyOneSection('firstPage');
         },
         async 'PLAY'() {
+            game.setGameMode('multiplayer');
+            this.showOnlyOneSection('play');
+            await settings.populateSettings();
+        },
+        async 'SINGLEPLAYER'() {
+            game.setGameMode('singlePlayer');
             this.showOnlyOneSection('play');
             await settings.populateSettings();
         },
@@ -115,6 +121,10 @@ const ui = {
                 this.showOnlyOneSection('homepage');
             else
                 this.showOnlyOneSection('firstPage');
+        },
+        async 'playAgain'() {
+            this.showOnlyOneSection('play');
+            await settings.populateSettings();
         }
     },
 

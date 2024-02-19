@@ -51,6 +51,7 @@
             </div>
             <div id="homepageBody" class="text-center">
                 <button class="btn btn-outline-success fs-2" id="PLAY">PLAY</button>
+                <button class="btn btn-outline-success fs-2" id="SINGLEPLAYER">SINGLE PLAYER</button>
                 <button class="btn btn-outline-success fs-2" id="TOURNAMENT">Tournament</button>
                 <button class="btn btn-outline-success fs-2" id="SETTINGS">Settings</button>
                 <button class="btn btn-outline-success fs-2" id="multiplayerBtn">Distant Multiplayer</button>
@@ -182,7 +183,7 @@
 
         <div id="endgameStats" class="d-none container mt-5">
             <div class="row justify-content-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="card text-white bg-dark mb-3">
                         <div class="card-header bg-success text-center">
                             <h2 class="card-title">Game Over</h2>
@@ -194,7 +195,7 @@
                             <p class="h4">Winner: <span id="winner_endgame"></span></p>
                         </div>
                         <div class="card-footer text-muted text-center">
-                            <button type="button" class="btn btn-outline-success fs-2 btn-sm" style="font-size: 0.875rem; padding: 0.25rem 0.5rem;">Play Again</button>
+                            <button id="playAgain" type="button" class="btn btn-outline-success fs-2 btn-sm btn-play-again">Play Again</button>
                         </div>
                     </div>
                 </div>
@@ -250,6 +251,7 @@
     });
 </script>
 <script src="javascript/ui.js"></script>
+<script src="javascript/webSocket.js"></script>
 <script src="javascript/settings.js"></script>
 <script src="javascript/auth.js"></script>
 <script src="javascript/game.js"></script>

@@ -117,6 +117,20 @@ button:hover {
     text-align: center;
 }
 
+.card-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.btn-play-again {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    width: auto;
+    margin: 0;
+}
+
 #title_score {
     color: #ff6e6e;
 }

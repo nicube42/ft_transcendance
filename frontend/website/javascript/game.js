@@ -1,5 +1,7 @@
 const game = {
 
+    gameMode: 'multiplayer',
+
     settings: {
         player1Name: 'Player 1',
         player2Name: 'Player 2',
@@ -35,6 +37,10 @@ const game = {
     messageDisplayCounter: 180,
     animationFrameId: null,
     ballspeed_save: 5,
+    aiPaddleDirection: 1,
+    aiActionInterval: null,
+    processAIActions: false,
+    aiPaddleMovementInterval: null,
 
     init: function() {
         this.canvas = document.getElementById('pong');
@@ -43,6 +49,23 @@ const game = {
             this.resetVars();
             this.drawPong();
         }
+    },
+
+    setGameMode: function(mode) {
+        this.gameMode = mode;
+        console.log('Game mode set to', mode);
+        if (mode === 'multiplayer') {
+            this.stopControlAndDisconnect();
+        }
+    },
+
+    updateGameSettings: function(settings) {
+        this.ballSpeedX = settings.ballSpeed / 2;
+        this.ballSpeedY = settings.ballSpeed / 2;
+        this.paddleSpeed = settings.paddleSpeed;
+        this.winningScore = settings.winningScore;
+        this.player1_name = settings.player1Name;
+        this.player2_name = settings.player2Name;
     },
 
     resetVars: function() {
@@ -61,15 +84,18 @@ const game = {
         this.messageDisplayCounter = 0;
         this.player1_name = this.settings.player1;
         this.player2_name = this.settings.player2;
+        this.aiPaddleDirection = 1;
 
         // Attach keyboard event listeners
         window.addEventListener('keydown', e => {
             switch(e.key) {
                 case 'ArrowUp':
-                    this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
+                    if (this.gameMode === 'multiplayer')
+                        this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
                     break;
                 case 'ArrowDown':
-                    this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+                    if (this.gameMode === 'multiplayer')
+                        this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
                     break;
                 case 'w':
                     this.leftPaddleY = Math.max(this.leftPaddleY - this.paddleSpeed, 0);
@@ -87,13 +113,24 @@ const game = {
             this.animationFrameId = null;
             console.log('Game paused');
             this.resetVars();
+            this.stopControlAndDisconnect();
         }
     },
     
     resume: function() {
         if (!this.animationFrameId) {
+            this.resetVars();
             this.drawPong();
             console.log('Game resumed');
+            if (this.gameMode === 'singlePlayer')
+            {
+                this.processAIActions = true;
+                this.controlRightPaddleWithAI();
+            }
+            else
+            {
+                this.stopControlAndDisconnect();
+            }
         }
     },
     
@@ -187,7 +224,64 @@ const game = {
         this.ballPosY = this.canvas.height / 2;
         this.ballSpeedX = -this.ballSpeedX;
         this.ballSpeedY = this.ballSpeedY;
-    }
+    },
+
+    controlRightPaddleWithAI: function() {
+        const movePaddle = (aiAction) => {
+            // Calculate the end position early, considering the direction for continuous movement for 1 second.
+            const endPosition = aiAction === 'UP' ? this.rightPaddleY - this.paddleSpeed * 60 : this.rightPaddleY + this.paddleSpeed * 60;
+    
+            if (this.aiPaddleMovementInterval) {
+                clearInterval(this.aiPaddleMovementInterval);
+            }
+
+            // Use setInterval to move the paddle every frame (assuming 60fps) towards the end position for 1 second.
+            this.aiPaddleMovementInterval = setInterval(() => {
+                if (aiAction === 'UP')
+                    this.rightPaddleY -= this.paddleSpeed;
+                if (aiAction === 'DOWN')
+                    this.rightPaddleY += this.paddleSpeed;
+    
+                // Clamp the paddle position within the canvas bounds.
+                this.rightPaddleY = Math.max(Math.min(this.rightPaddleY, this.canvas.height - this.paddleHeight), 0);
+    
+                // Check if the paddle has moved for about 1 second or reached the end position, then clear the interval.
+                if ((aiAction === 'UP' && this.rightPaddleY <= endPosition) || (aiAction === 'DOWN' && this.rightPaddleY >= endPosition)) {
+                    clearInterval(this.aiPaddleMovementInterval);
+                }
+            }, 1000 / 60); // 60fps
+        };
+    
+        const requestAIActionContinuously = () => {
+            if (this.processAIActions && websocket.aiSocket.readyState === WebSocket.OPEN && this.gameMode === 'singlePlayer') {
+                websocket.requestAIAction();
+                websocket.onAIAction = (aiAction) => {
+                    if (this.processAIActions) { // Check if AI actions should be processed
+                        movePaddle(aiAction);
+                    }
+                    // Continue to request AI actions based on a flag
+                    if (this.processAIActions) {
+                        setTimeout(requestAIActionContinuously, 1000); // Adjust timing as needed
+                    }
+                };
+            }
+        }
+    
+        requestAIActionContinuously(); // Start the process initially
+    },    
+
+    stopControlAndDisconnect: function() {
+        if (this.processAIActions === false && this.aiPaddleMovementInterval) {
+            clearInterval(this.aiPaddleMovementInterval);
+            this.aiPaddleMovementInterval = null;
+        }
+        this.processAIActions = false;
+    
+        if (this.aiActionInterval) {
+            clearInterval(this.aiActionInterval);
+        }
+    },    
+
 };
 
 game.init();

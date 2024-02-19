@@ -26,16 +26,29 @@ services:
       - 5432
 
   nginx:
-      build:
-        context: ./frontend  # This should be the directory that contains the custom Dockerfile for Nginx
-        dockerfile: dockerfile  # The name of your Dockerfile
-      ports:
-        - "4242:80"  # Map port 4242 on the host to port 80 in the container
-      volumes:
-        - ./website:/usr/share/nginx/html/website  # Make sure this points to where your static files are
-      depends_on:
-        - django
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4242:80"
+    volumes:
+      - ./website:/usr/share/nginx/html/website
+    depends_on:
+      - django
+      - ai
 
+  ai:
+    build:
+      context: .
+      dockerfile: ai/Dockerfile
+    volumes:
+      - ./ai:/app
+    depends_on:
+      - db
+    environment:
+      - SOME_ENV_VAR=example
+    ports:
+      - "5678:5678"
 
 volumes:
   postgres_data:
