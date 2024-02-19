@@ -11,6 +11,12 @@ const ui = {
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
+        game.handleVisibilityChange();
+    },
+
+    isSectionVisible: function(sectionId) {
+        const section = document.getElementById(sectionId);
+        return section && !section.classList.contains('d-none');
     },
 
     initializePage: async function() {
@@ -117,7 +123,3 @@ const ui = {
         this.initializePage();
     }
 };
-
-document.addEventListener('DOMContentLoaded', () => {
-    ui.init();
-});

@@ -180,14 +180,27 @@
             </div>
         </div>
 
-        <div id="endgameStats" class="d-none">
-            <h1>Game Over</h1>
-            <div id="endgameStatsBody">
-                <p id="player1_endgame">Player 1: 0</p>
-                <p id="player2_endgame">Player 2: 0</p>
-                <p id="winner_endgame">Winner: </p>
+        <div id="endgameStats" class="d-none container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card text-white bg-dark mb-3">
+                        <div class="card-header bg-success text-center">
+                            <h2 class="card-title">Game Over</h2>
+                        </div>
+                        <div class="card-body text-center">
+                            <h3 class="card-text">Final Scores</h3>
+                            <p class="h4">Player 1: <span id="player1_endgame">0</span></p>
+                            <p class="h4">Player 2: <span id="player2_endgame">0</span></p>
+                            <p class="h4">Winner: <span id="winner_endgame"></span></p>
+                        </div>
+                        <div class="card-footer text-muted text-center">
+                            <button type="button" class="btn btn-outline-success fs-2 btn-sm" style="font-size: 0.875rem; padding: 0.25rem 0.5rem;">Play Again</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+        
     </div>
 </div>
 

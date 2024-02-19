@@ -32,7 +32,7 @@ const game = {
     player2Score: 0,
     scoreMessage: '',
     winningScore: 5,
-    messageDisplayCounter: 0,
+    messageDisplayCounter: 180,
     animationFrameId: null,
     ballspeed_save: 5,
 
@@ -81,6 +81,30 @@ const game = {
         });
     },
 
+    pause: function() {
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+            console.log('Game paused');
+            this.resetVars();
+        }
+    },
+    
+    resume: function() {
+        if (!this.animationFrameId) {
+            this.drawPong();
+            console.log('Game resumed');
+        }
+    },
+    
+    handleVisibilityChange: function() {
+        if (ui.isSectionVisible('play')) {
+            this.resume();
+        } else {
+            this.pause();
+        }
+    },
+
     drawPong: function() {
         // Clear the canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -89,7 +113,7 @@ const game = {
             if (this.player1Score >= this.winningScore || this.player2Score >= this.winningScore)
             {
                 this.resetVars();
-                ui.showOnlyOneSection('homepage');
+                ui.showOnlyOneSection('endgameStats');
             }
 
             // Ball movement logic
