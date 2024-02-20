@@ -202,15 +202,32 @@
             </div>
         </div>
 
-        <div id="multiplayer" class="text-center">
+        <div id="multiplayer" class="d-none text-center">
             <div class="form-group">
                 <input type="text" id="roomNameInput" class="form-control" placeholder="Room name">
                 <button id="createRoomBtn" class="btn btn-outline-success fs-2 btn-sm">Create Room</button>
                 <button id="joinRoomBtn" class="btn btn-outline-success fs-2 btn-sm">Join Room</button>
             </div>
+            <br>
+            <h2>Rooms</h2>
+            <br>
+            <div id="roomList" class="mt-3">
+                <!-- Dynamically populated list of rooms will go here -->
+            </div>
         </div>
-        <div id="roomList" class="mt-3">
-            <!-- Dynamically populated list of rooms will go here -->
+
+        <div id="rooms" class="d-none container mt-5">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 id="roomNameHeading" class="text-center mb-4">Users Connected to the Room</h2>
+                    <div id="roomUsersList" class="list-group">
+                        <!-- The user list will be dynamically populated here by the JavaScript function -->
+                    </div>
+                    <div class="text-center mt-4">
+                        <button id="playButton" class="btn btn-outline-success fs-2 btn-sm">Play</button>
+                    </div>
+                </div>
+            </div>
         </div>
         
     </div>

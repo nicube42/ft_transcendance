@@ -30,4 +30,4 @@ class GameSettings(models.Model):
 
 class Room(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    # Add more fields as needed, e.g., max players, private/public, etc.
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='rooms', blank=True)

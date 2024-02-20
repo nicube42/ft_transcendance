@@ -8,7 +8,6 @@ websocket_urlpatterns = [
 ]
 
 application = ProtocolTypeRouter({
-    # (http->django views is added by default)
     'websocket': AuthMiddlewareStack(
         URLRouter([
             path('ws/game/', GameConsumer.as_asgi()),

@@ -11,6 +11,7 @@ const auth = {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrfToken
             },
+            credentials: 'include',
             body: JSON.stringify(formData)
         })
         .then(response => {
@@ -41,11 +42,14 @@ const auth = {
     },
     
     logout: function() {
+        const csrfToken = getCookie('csrftoken');
         fetch('/api/logout/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
-            }
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            credentials: 'include'
         })
         .then(response => {
             if (!response.ok) {
@@ -77,6 +81,7 @@ const auth = {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrfToken // Ensure this token is sent with the request
             },
+            credentials: 'include',
             body: JSON.stringify(formData)
         })
         .then(response => {

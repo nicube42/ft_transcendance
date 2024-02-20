@@ -7,7 +7,7 @@ const ui = {
     },
 
     showOnlyOneSection: function(sectionId) {
-        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer'];
+        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms'];
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
