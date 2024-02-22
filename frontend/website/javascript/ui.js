@@ -55,6 +55,11 @@ const ui = {
             this.showOnlyOneSection('play');
             //await settings.populateSettings();
         },
+        async 'playDistantBtn' () {
+            game.setGameMode('distant');
+            this.showOnlyOneSection('play');
+            gameSocket.sendGameStart();
+        },
         async 'SINGLEPLAYER'() {
             game.setGameMode('singlePlayer');
             this.showOnlyOneSection('play');
@@ -139,7 +144,21 @@ const ui = {
             const roomName = document.querySelector('#roomNameInput').value;
             gameSocket.joinRoom(roomName);
             gameSocket.listRooms();
-        }
+        },
+        async 'quitRoomBtn'() {
+            if (gameSocket.currentRoom) {
+                console.log(`Leaving room: ${gameSocket.currentRoom}`);
+                gameSocket.leaveRoom(gameSocket.currentRoom); // Leave the current room
+                setTimeout(() => {
+                    gameSocket.listUsersInRoom(gameSocket.currentRoom);
+                    gameSocket.currentRoom = null;
+                }, 500);
+                // Optionally, update UI to reflect that the user has left the room
+            } else {
+                console.error('Attempted to leave a room, but no current room is set.');
+            }
+        },
+        
     },
 
     init: function() {

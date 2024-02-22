@@ -20,6 +20,7 @@ const game = {
     },
 
     canvas: null,
+    playerRole: null,
     ctx: null,
     ballPosX: 0,
     ballPosY: 0,
@@ -48,6 +49,8 @@ const game = {
             this.ctx = this.canvas.getContext('2d');
             this.resetVars();
             this.drawPong();
+            window.removeEventListener('keydown', this.handleKeyDown.bind(this));
+            window.addEventListener('keydown', this.handleKeyDown.bind(this));
         }
     },
 
@@ -56,6 +59,9 @@ const game = {
         console.log('Game mode set to', mode);
         if (mode === 'multiplayer') {
             this.stopControlAndDisconnect();
+        }
+        else if (mode === 'distant') {
+            //this.ensureWebSocketConnection();
         }
     },
 
@@ -85,9 +91,37 @@ const game = {
         this.player1_name = this.settings.player1;
         this.player2_name = this.settings.player2;
         this.aiPaddleDirection = 1;
+        
+    },
 
-        // Attach keyboard event listeners
-        window.addEventListener('keydown', e => {
+    handleKeyDown: function(e) {
+        let direction = null;
+    
+        if (game.gameMode === 'distant') {
+            switch(e.key) {
+                case 'w':
+                    direction = 'up';
+                    if (game.playerRole === 'left')
+                        game.leftPaddleY = Math.max(game.leftPaddleY - game.paddleSpeed, 0);
+                    else
+                        game.rightPaddleY = Math.max(game.rightPaddleY - game.paddleSpeed, 0);
+                    break;
+                case 's':
+                    direction = 'down';
+                    if (game.playerRole === 'left')
+                        game.leftPaddleY = Math.min(game.leftPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
+                    else
+                        game.rightPaddleY = Math.min(game.rightPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
+                    break;
+            }
+    
+            if (direction) {
+                gameSocket.sendPaddleMovement(direction);
+            }
+        }
+        else
+        {
+
             switch(e.key) {
                 case 'ArrowUp':
                     if (this.gameMode === 'multiplayer')
@@ -104,7 +138,7 @@ const game = {
                     this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
                     break;
             }
-        });
+        }
     },
 
     pause: function() {
@@ -143,10 +177,13 @@ const game = {
     },
 
     drawPong: function() {
-        // Clear the canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (this.messageDisplayCounter === 0)
         {
+            if (this.gameMode === 'distant')
+            {
+                gameSocket.sendBallState();
+            }
             if (this.player1Score >= this.winningScore || this.player2Score >= this.winningScore)
             {
                 this.resetVars();
@@ -183,10 +220,7 @@ const game = {
             this.messageDisplayCounter--;
 
         // Draw ball
-        this.ctx.fillStyle = 'white';
-        this.ctx.beginPath();
-        this.ctx.arc(this.ballPosX, this.ballPosY, 10, 0, Math.PI * 2, true);
-        this.ctx.fill();
+        this.drawBall();
 
         // Draw paddles
         this.ctx.fillRect(0, this.leftPaddleY, this.paddleWidth, this.paddleHeight);
@@ -217,6 +251,13 @@ const game = {
 
         // Continue the game loop
         this.animationFrameId = requestAnimationFrame(this.drawPong.bind(this));
+    },
+
+    drawBall: function() {
+        this.ctx.fillStyle = 'white';
+        this.ctx.beginPath();
+        this.ctx.arc(this.ballPosX, this.ballPosY, 10, 0, Math.PI * 2, true);
+        this.ctx.fill();
     },
 
     resetBall: function() {
@@ -283,5 +324,3 @@ const game = {
     },    
 
 };
-
-game.init();
