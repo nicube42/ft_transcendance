@@ -13,7 +13,6 @@ var gameSocket = {
         const backendHost = window.location.host; // Adjust if your backend is on a different port or subdomain
         // Combine to form the WebSocket URL
         this.socket = new WebSocket(`${wsScheme}${backendHost}/ws/game/`);
-    
         this.socket.addEventListener('open', (event) => {
             console.log("Connected to WebSocket");
             this.listRooms(); // Now it's safe to send messages
@@ -31,7 +30,7 @@ var gameSocket = {
                 game.ballSpeedX = data.ball_state.ballSpeedX;
                 game.ballSpeedY = data.ball_state.ballSpeedY;
             }
-            
+
             if (data.action === 'list_users') { // Make sure this matches the backend action type
                 console.log("List of users in room:", data.users); // Debugging to see if we're getting here
                 this.updateUserList(data.users, data.room_name); // Update the user list in the UI
@@ -73,7 +72,14 @@ var gameSocket = {
         this.socket.addEventListener('close', (event) => {
             console.log("Disconnected from WebSocket");
         });
-    },    
+    },   
+
+    closeAndReinitialize: function() {
+        if (this.socket) {
+            this.socket.close();
+        }
+        this.init();
+    },
 
     getSessionId: function() {
         const cookieName = "sessionid="; // Change 'sessionid' to the name of your session cookie or token

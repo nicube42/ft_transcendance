@@ -6,13 +6,19 @@ const ui = {
         }
     },
 
-    showOnlyOneSection: function(sectionId) {
+    showOnlyOneSection: function(sectionId, isPopState = false) {
         const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms'];
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
-        game.handleVisibilityChange();
-    },
+    
+        if (!isPopState) {
+            const url = '/' + sectionId;
+            history.pushState({section: sectionId}, '', url);
+        }
+    
+        game.handleVisibilityChange?.();
+    },           
 
     isSectionVisible: function(sectionId) {
         const section = document.getElementById(sectionId);
@@ -20,13 +26,9 @@ const ui = {
     },
 
     initializePage: async function() {
-        try {
-            const isConnected = await auth.is_connected();
-            this.showOnlyOneSection(isConnected ? 'homepage' : 'firstPage');
-        } catch (error) {
-            console.error('Error initializing page:', error);
-        }
-    },
+        const path = window.location.pathname.substring(1) || 'firstPage';
+        this.showOnlyOneSection(path, true);
+    },     
 
     attachEventListeners: function() {
         document.body.addEventListener('click', (e) => {
@@ -164,5 +166,13 @@ const ui = {
     init: function() {
         this.attachEventListeners();
         this.initializePage();
-    }
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.section) {
+                ui.showOnlyOneSection(event.state.section, true);
+            } else {
+                ui.showOnlyOneSection('firstPage', true);
+            }
+        });
+        
+    },   
 };

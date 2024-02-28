@@ -22,24 +22,26 @@ const auth = {
         })
         .then(data => {
             console.log('Login success:', data);
+            sessionStorage.setItem('isLoggedIn', 'true');
+            gameSocket.closeAndReinitialize();
+            return auth.retrieveInfos();
+        })
+        .then(data => {
+            console.log('User info retrieved successfully:', data);
+            userInfoDisplayer.updateUI(data);
             settings.saveSettings();
             settings.populateSettings();
             ui.showOnlyOneSection('homepage');
-            sessionStorage.setItem('isLoggedIn', 'true');
             navbarManager.updateNavbar();
-            auth.retrieveInfos()
-            .then(data => {
-                userInfoDisplayer.updateUI(data);
-            })
-            .catch(error => console.error('Failed to fetch or display user info:', error));
         })
         .catch(error => {
-            console.error('Login error:', error);
-            // Show the modal if login fails
+            console.error('Login error or failed to fetch/display user info:', error);
+            // Show the modal if login fails or retrieving user info fails
             var loginErrorModal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
             loginErrorModal.show();
         });
     },
+    
     
     logout: function() {
         const csrfToken = getCookie('csrftoken');

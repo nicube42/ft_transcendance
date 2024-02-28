@@ -42,25 +42,7 @@ const game = {
     aiActionInterval: null,
     processAIActions: false,
     aiPaddleMovementInterval: null,
-    frame: 0,
-    ball_color: 'white',
 
-    bonusGreen: {
-        x: 100,
-        y: 100,
-        radius: 10,
-        color: 'green',
-        active: true
-    },
-    
-    bonusRed: {
-        x: 200,
-        y: 200,
-        radius: 10,
-        color: 'red',
-        active: true
-    },
-    
     init: function() {
         this.canvas = document.getElementById('pong');
         if (this.canvas.getContext) {
@@ -123,7 +105,7 @@ const game = {
                         game.leftPaddleY = Math.max(game.leftPaddleY - game.paddleSpeed, 0);
                     else
                         game.rightPaddleY = Math.max(game.rightPaddleY - game.paddleSpeed, 0);
-                    break;
+                    break; 
                 case 's':
                     direction = 'down';
                     if (game.playerRole === 'left')
@@ -188,7 +170,7 @@ const game = {
     
     handleVisibilityChange: function() {
         if (ui.isSectionVisible('play')) {
-            this.resume();
+            this.resume();  
         } else {
             this.pause();
         }
@@ -198,7 +180,6 @@ const game = {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (this.messageDisplayCounter === 0)
         {
-            this.frame++;
             if (this.gameMode === 'distant')
             {
                 gameSocket.sendBallState();
@@ -240,15 +221,7 @@ const game = {
 
         // Draw ball
         this.drawBall();
-        if (this.frame > 20)
-        {
-            this.drawBonus(this.bonusGreen);
-            this.drawBonus(this.bonusRed);
-        }
-        this.checkBonusCollision();
-        this.displayPoints();
 
-        this.ctx.fillStyle = 'white';
         // Draw paddles
         this.ctx.fillRect(0, this.leftPaddleY, this.paddleWidth, this.paddleHeight);
         this.ctx.fillRect(this.canvas.width - this.paddleWidth, this.rightPaddleY, this.paddleWidth, this.paddleHeight);
@@ -278,12 +251,10 @@ const game = {
 
         // Continue the game loop
         this.animationFrameId = requestAnimationFrame(this.drawPong.bind(this));
-        if (this.frame == 40)
-            this.frame = 0;
     },
 
     drawBall: function() {
-        this.ctx.fillStyle = this.ball_color;
+        this.ctx.fillStyle = 'white';
         this.ctx.beginPath();
         this.ctx.arc(this.ballPosX, this.ballPosY, 10, 0, Math.PI * 2, true);
         this.ctx.fill();
@@ -350,49 +321,6 @@ const game = {
         if (this.aiActionInterval) {
             clearInterval(this.aiActionInterval);
         }
-    },
-
-    drawBonus: function(bonus) {
-        game.ctx.beginPath();
-        game.ctx.arc(bonus.x, bonus.y, bonus.radius, 0, Math.PI * 2);
-        game.ctx.fillStyle = bonus.color;
-        game.ctx.fill();
-    },
-    
-    checkBonusCollision: function() {
-        if (Math.abs(this.ballPosX - this.bonusGreen.x) < this.bonusGreen.radius && Math.abs(this.ballPosY - this.bonusGreen.y) < this.bonusGreen.radius && this.bonusGreen.active) {
-            this.ballSpeedX *= 1.5;
-            this.ballSpeedY *= 1.5;
-            this.bonusGreen.active = false;
-        }
-    
-        if (Math.abs(this.ballPosX - this.bonusRed.x) < this.bonusRed.radius && Math.abs(this.ballPosY - this.bonusRed.y) < this.bonusRed.radius && this.bonusRed.active) {
-            this.ballSpeedX /= 1.5;
-            this.ballSpeedY /= 1.5;
-            var that = this;
-            setTimeout(function() {
-                that.ballSpeedX *= 1.5; 
-                that.ballSpeedY *= 1.5;
-            }, 10000);
-            this.bonusRed.active = false;
-        }
-        if (Math.abs(this.ballSpeedX) == this.settings.ballSpeed / 2)
-            this.ball_color = 'white';
-        else if (Math.abs(this.ballSpeedX) > this.settings.ballSpeed / 2)
-            this.ball_color = 'green';
-        else if (Math.abs(this.ballSpeedX) < this.settings.ballSpeed / 2)
-            this.ball_color = 'red';
     },    
-    
-    displayPoints: function() {
-        if (game.player1Score % 5 === 0 && game.player1Score > 0) {
-            // Afficher les points lorsque le joueur 1 marque 5 points
-            alert('Player 1 scores 5 points!');
-        }
-        if (game.player2Score % 5 === 0 && game.player2Score > 0) {
-            // Afficher les points lorsque le joueur 2 marque 5 points
-            alert('Player 2 scores 5 points!');
-        }
-    },
 
 };
