@@ -1,14 +1,13 @@
-
 To do transcendance
 
 -delete rooms
--enhence rooms : admin, password, invite, kick
--chat ?
 -fix settings
--add more settings
--search for user profiles
--upload profile photo + refine profiles
--finish pong game
+-enhence rooms : admin, password, invite, kick
 -error popup for room search elements
 -distant game gestion : pause, play, quit in game, disconnection gestion
+-add more settings
+-upload profile photo + refine profiles
+-search for user profiles
+-finish pong game
 -ui optimisation
+-chat ?

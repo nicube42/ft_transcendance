@@ -10,15 +10,6 @@ const game = {
         winningScore: 5,
     },
 
-    updateGameSettings: function(settings) {
-        this.ballSpeedX = settings.ballSpeed / 2;
-        this.ballSpeedY = settings.ballSpeed / 2;
-        this.paddleSpeed = settings.paddleSpeed;
-        this.winningScore = settings.winningScore;
-        this.player1_name = settings.player1;
-        this.player2_name = settings.player2;
-    },
-
     canvas: null,
     playerRole: null,
     ctx: null,
@@ -44,6 +35,8 @@ const game = {
     aiPaddleMovementInterval: null,
     frame: 0,
     ball_color: 'white',
+    player1_name: 'Player 1',
+    player2_name: 'Player 2',
 
     bonusGreen: {
         x: 100,
@@ -69,6 +62,7 @@ const game = {
             this.drawPong();
             window.removeEventListener('keydown', this.handleKeyDown.bind(this));
             window.addEventListener('keydown', this.handleKeyDown.bind(this));
+            settings.populateSettings();
         }
     },
 
@@ -88,9 +82,15 @@ const game = {
         this.ballSpeedY = settings.ballSpeed / 2;
         this.paddleSpeed = settings.paddleSpeed;
         this.winningScore = settings.winningScore;
-        this.player1_name = settings.player1Name;
-        this.player2_name = settings.player2Name;
-    },
+        this.player1_name = settings.player1;
+        this.player2_name = settings.player2;
+
+        this.settings.ballSpeed = settings.ballSpeed;
+        this.settings.paddleSpeed = settings.paddleSpeed;
+        this.settings.winningScore = settings.winningScore;
+        this.settings.player1 = settings.player1;
+        this.settings.player2 = settings.player2;
+    },   
 
     resetVars: function() {
         this.ballSpeedX = this.settings.ballSpeed / 2;

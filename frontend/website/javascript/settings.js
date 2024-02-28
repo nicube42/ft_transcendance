@@ -21,7 +21,6 @@ const settings = {
                 document.getElementById('winningScore').value = data.winningScore;
                 if (data.winningScore === null)
                     document.getElementById('winningScore').value = 5;
-                
                 game.updateGameSettings(data);
             })
             .catch(error => console.error('Error fetching settings:', error));

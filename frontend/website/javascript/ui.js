@@ -169,6 +169,7 @@ const ui = {
         window.addEventListener('popstate', function(event) {
             if (event.state && event.state.section) {
                 ui.showOnlyOneSection(event.state.section, true);
+                gameSocket.closeAndReinitialize();
             } else {
                 ui.showOnlyOneSection('firstPage', true);
             }

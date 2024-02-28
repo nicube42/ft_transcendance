@@ -31,33 +31,24 @@ var gameSocket = {
                 game.ballSpeedY = data.ball_state.ballSpeedY;
             }
 
-            if (data.action === 'list_users') { // Make sure this matches the backend action type
-                console.log("List of users in room:", data.users); // Debugging to see if we're getting here
-                this.updateUserList(data.users, data.room_name); // Update the user list in the UI
+            if (data.action === 'list_users') { 
+                console.log("List of users in room:", data.users);
+                this.updateUserList(data.users, data.room_name);
             } else if (data.action === 'list_rooms') {
                 this.updateRoomList(data.rooms);
             } else if (data.action === 'start_game') {
-                // Code to initialize the game goes here
                 console.log("Game is starting!");
                 this.stopPeriodicUpdates();
                 game.setGameMode('distant');
                 ui.showOnlyOneSection('play');
             } else if(data.action === 'paddle_move') {
-                // Apply the movement based on the received direction and role
                 let paddleAdjustment = data.direction === 'up' ? -game.paddleSpeed : game.paddleSpeed;
-        
-                // Check the role received in the message and adjust the opposite paddle
                 if(data.role === game.playerRole) {
-                    // If the role matches the local player's role, don't move any paddle
-                    // Because it means the local player has initiated the move and it's already been handled locally
                 } else {
-                    // If the role doesn't match, it's an opponent's move, so move the corresponding paddle
                     if (game.playerRole === 'left') {
-                        // Local player is 'left', so move the right paddle for opponent's move
                         game.rightPaddleY += paddleAdjustment;
                         game.rightPaddleY = Math.max(Math.min(game.rightPaddleY, game.canvas.height - game.paddleHeight), 0);
                     } else if (game.playerRole === 'right') {
-                        // Local player is 'right', so move the left paddle for opponent's move
                         game.leftPaddleY += paddleAdjustment;
                         game.leftPaddleY = Math.max(Math.min(game.leftPaddleY, game.canvas.height - game.paddleHeight), 0);
                     }
@@ -82,7 +73,7 @@ var gameSocket = {
     },
 
     getSessionId: function() {
-        const cookieName = "sessionid="; // Change 'sessionid' to the name of your session cookie or token
+        const cookieName = "sessionid=";
         const decodedCookie = decodeURIComponent(document.cookie);
         const ca = decodedCookie.split(';');
         for(let i = 0; i < ca.length; i++) {
@@ -94,15 +85,13 @@ var gameSocket = {
                 return c.substring(cookieName.length, c.length);
             }
         }
-        return ""; // Return empty string or null if the session ID/token is not found
+        return "";
     },
 
-    // Send a message to create a room
     createRoom: function(roomName) {
         this.sendMessage({'action': 'create_room', 'room_name': roomName});
     },
 
-    // Send a message to join a room
     joinRoom: function(roomName) {
         this.sendMessage({'action': 'join_room', 'room_name': roomName});
         this.currentRoom = roomName;
@@ -116,7 +105,6 @@ var gameSocket = {
         }
     },
 
-    // Leave a room
     leaveRoom: function(roomName) {
         this.sendMessage({'action': 'leaveRoom', 'room_name': roomName});
         this.stopPeriodicUpdates();
@@ -161,8 +149,8 @@ var gameSocket = {
         users.forEach((username) => {
             const userElement = document.createElement('a');
             userElement.href = "#";
-            userElement.className = 'list-group-item list-group-item-action';
-            userElement.textContent = username; // Use the username directly
+            userElement.className = 'list-group-item list-group-item-action text-success text-center fs-2';
+            userElement.textContent = username;
             usersListDiv.appendChild(userElement);
         });
     
