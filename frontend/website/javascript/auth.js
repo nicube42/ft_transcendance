@@ -36,7 +36,6 @@ const auth = {
         })
         .catch(error => {
             console.error('Login error or failed to fetch/display user info:', error);
-            // Show the modal if login fails or retrieving user info fails
             var loginErrorModal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
             loginErrorModal.show();
         });
@@ -68,8 +67,7 @@ const auth = {
         .catch(error => console.error('Logout error:', error));
     },
     register: function() {
-        // Assuming CSRF token is required here as well, fetching it from the cookie
-        const csrfToken = getCookie('csrftoken'); // Using the getCookie function to retrieve the CSRF token
+        const csrfToken = getCookie('csrftoken');
         const formData = {
             username: document.getElementById('username').value,
             password: document.getElementById('password').value,
@@ -81,7 +79,7 @@ const auth = {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken // Ensure this token is sent with the request
+                'X-CSRFToken': csrfToken
             },
             credentials: 'include',
             body: JSON.stringify(formData)
@@ -126,7 +124,7 @@ const auth = {
     searchForUser: async function() {
         const input = document.getElementById('searchUserInput');
         const resultsDiv = document.getElementById('searchResults');
-        resultsDiv.innerHTML = ''; // Clear previous results
+        resultsDiv.innerHTML = '';
     
         if (input.value.trim() === '') {
             const noResult = document.createElement('div');
@@ -139,7 +137,7 @@ const auth = {
         try {
             const response = await fetch(`/api/search-user/?username=${encodeURIComponent(input.value)}`, {
                 method: 'GET',
-                credentials: 'include', // This is important for sessions to work
+                credentials: 'include',
             });
     
             if (response.status === 404) {
@@ -166,14 +164,12 @@ const auth = {
     },
 };
 
-// Utility function to get a cookie by name
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
             let cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
             if (cookie.startsWith(name + '=')) {
                 cookieValue = cookie.substring(name.length + 1);
                 break;
@@ -183,13 +179,11 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Attach events for login and registration forms
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
     auth.login();
 });
 
-// Make sure to check if the element exists before attaching an event listener to avoid errors
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
     registerForm.addEventListener('submit', function(e) {

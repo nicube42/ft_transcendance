@@ -63,6 +63,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.game_start()
         elif action == 'update_ball_state':
             await self.update_ball_state(text_data_json)
+        elif action == 'delete_room':
+            await self.delete_room(text_data_json)
 
     async def create_room(self, data):
         room_name = data['room_name']
@@ -77,7 +79,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         room = await self.get_room_by_name(room_name)
         if room:
             await self.add_user_to_room(room)
-            user_count = await self.get_user_count(room)  # Use the async wrapper here
+            user_count = await self.get_user_count(room)
             player_position = "left" if user_count == 1 else "right"
             await self.channel_layer.group_add(
                 room_name,
@@ -85,7 +87,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             )
             await self.send(text_data=json.dumps({'position': player_position}))
             await self.list_users_in_room(data)
-            # Broadcast to the room that a new player has joined
             await self.channel_layer.group_send(
                 room_name,
                 {
@@ -102,8 +103,32 @@ class GameConsumer(AsyncWebsocketConsumer):
         else:
             await self.send(text_data=json.dumps({'error': 'Room does not exist'}))
 
+    async def delete_room(self, data):
+        room_name = data['room_name']
+        deleted = await self.remove_room_by_name(room_name)
+        if deleted:
+            await self.send(text_data=json.dumps({'message': f'Room {room_name} deleted successfully'}))
+            await self.channel_layer.group_send(
+                room_name,
+                {
+                    "type": "room.deleted",
+                    "room_name": room_name,
+                }
+            )
+        else:
+            await self.send(text_data=json.dumps({'error': 'Room does not exist or could not be deleted'}))
+
+    @database_sync_to_async
+    def remove_room_by_name(self, name):
+        try:
+            room = Room.objects.get(name=name)
+            room.delete()
+            return True
+        except Room.DoesNotExist:
+            return False
+
+
     async def player_joined(self, event):
-        # Send a message to all users in the room except the sender
         if self.scope["user"].username != event["player"]:
             await self.send(text_data=json.dumps({
                 "type": "player.joined",
@@ -112,21 +137,20 @@ class GameConsumer(AsyncWebsocketConsumer):
                 "user_count": event["user_count"],
             }))
 
-    # Add a new async function to get user count
     @database_sync_to_async
     def get_user_count(self, room):
         return room.users.count()
 
     async def list_users_in_room(self, data):
-        room_name = data.get('room_name')  # Use .get() to safely access the key
-        if not room_name:  # Check if room_name is None or empty
+        room_name = data.get('room_name')
+        if not room_name:
             await self.send(text_data=json.dumps({'error': 'Room name is required'}))
             return
         logger.info(f"Listing users for room: {room_name}")
         room = await self.get_room_by_name(room_name)
         if room:
             user_objects = await self.get_users_in_room(room)
-            users = [user.username for user in user_objects]  # Serialize user data here
+            users = [user.username for user in user_objects]
             await self.send(text_data=json.dumps({
                 'action': 'list_users',
                 'room_name': room_name,
@@ -180,13 +204,10 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def remove_user_from_room(self, room):
         user = await self.get_user_instance()
         if user is not None:
-            # Remove the user from the room
             await database_sync_to_async(room.users.remove)(user)
             logger.info(f"User {user.username} removed from room {room.name}")
             await self.channel_layer.group_discard(room.name, self.channel_name)
 
-
-    # Assuming this is corrected as you've shown
     async def add_user_to_room(self, room):
         user = await self.get_user_instance()
         print (user)
@@ -194,7 +215,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             await database_sync_to_async(room.users.add)(user)
             await self.channel_layer.group_add(room.name, self.channel_name)
 
-    # Correct handling for leaving all rooms
     async def leave_all_rooms(self):
         user = await self.get_user_instance()
         if user is not None:
@@ -202,7 +222,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             for room in rooms:
                 await database_sync_to_async(room.users.remove)(user)
     
-    # Helper method to get user's rooms
     @database_sync_to_async
     def _get_user_rooms(self, user):
         return list(user.rooms.all())
@@ -230,9 +249,8 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def handle_paddle_move(self, data):
         room_name = data['room_name']
         direction = data['direction']
-        role = data['role']  # 'left' or 'right', based on the player's role
+        role = data['role']
 
-        # Broadcast the paddle move, including the sender's channel name to exclude them
         await self.channel_layer.group_send(
             room_name,
             {
@@ -240,38 +258,33 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'direction': direction,
                 'role': role,
                 'player': self.scope["user"].username,
-                'sender_channel_name': self.channel_name,  # Include the sender's channel name
+                'sender_channel_name': self.channel_name,
             }
         )
 
 
     async def broadcast_paddle_move(self, event):
-        # Send the paddle move event to WebSocket, including the player's username
         await self.send(text_data=json.dumps({
             'action': 'paddle_move',
             'direction': event['direction'],
-            'role': event['role'],  # Make sure to include the role in the response
-            'player': event['player']  # Now this line should not cause a KeyError
+            'role': event['role'],
+            'player': event['player']
         }))
 
         
     async def update_ball_state(self, data):
         room_name = data['room_name']
-        # Log the received data for debugging
         logging.info(f"Received data for ball state update: {data}")
 
-        # Safely access the keys using the get method
         ballPosX = data.get('ballPosX')
         ballPosY = data.get('ballPosY')
         ballSpeedX = data.get('ballSpeedX')
         ballSpeedY = data.get('ballSpeedY')
 
-        # Check if any of the required keys are missing
         if ballPosX is None or ballPosY is None or ballSpeedX is None or ballSpeedY is None:
             logging.error("Missing one or more required keys in the data for ball state update.")
             return
 
-        # Now define the ball_state dictionary correctly before using it
         ball_state = {
             'ballPosX': ballPosX,
             'ballPosY': ballPosY,
@@ -279,21 +292,18 @@ class GameConsumer(AsyncWebsocketConsumer):
             'ballSpeedY': ballSpeedY,
         }
 
-        # Broadcast the ball state update, including the sender's channel name to exclude them
         await self.channel_layer.group_send(
             room_name,
             {
                 'type': 'broadcast_ball_state',
                 'ball_state': ball_state,
-                'sender_channel_name': self.channel_name,  # Include the sender's channel name
+                'sender_channel_name': self.channel_name,
             }
         )
 
 
     async def broadcast_ball_state(self, event):
-        # Exclude the sender by checking if the event's 'sender_channel_name' matches the current channel name
         if event.get('sender_channel_name') != self.channel_name:
-            # The message is not sent back to the sender
             await self.send(text_data=json.dumps({
                 'action': 'update_ball_state',
                 'ball_state': event['ball_state'],
@@ -302,7 +312,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def start_game(self, data):
         room_name = data['room_name']
-        # Broadcast a message to the room to start the game
         await self.channel_layer.group_send(
             room_name,
             {
@@ -313,7 +322,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 
     async def game_start(self, event):
-        # Send a message to WebSocket clients
         await self.send(text_data=json.dumps({
             'action': 'start_game',
         }))

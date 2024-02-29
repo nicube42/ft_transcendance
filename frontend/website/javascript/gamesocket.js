@@ -7,15 +7,12 @@ var gameSocket = {
     ballSpeedY_tmp: null,
 
     init: function() {
-        // Dynamically determine the WebSocket scheme based on the current location protocol
         const wsScheme = window.location.protocol === "https:" ? "wss://" : "ws://";
-        // Use window.location.host to automatically adapt to the current domain and port
-        const backendHost = window.location.host; // Adjust if your backend is on a different port or subdomain
-        // Combine to form the WebSocket URL
+        const backendHost = window.location.host;
         this.socket = new WebSocket(`${wsScheme}${backendHost}/ws/game/`);
         this.socket.addEventListener('open', (event) => {
             console.log("Connected to WebSocket");
-            this.listRooms(); // Now it's safe to send messages
+            this.listRooms();
         });
     
         this.socket.addEventListener('message', (event) => {
@@ -56,6 +53,8 @@ var gameSocket = {
             } else if (data.action === 'assign_role') {
                 game.playerRole = data.role; // 'left' or 'right'
                 console.log(`Assigned role: ${data.role}`);
+            } else if (data.error && data.action === 'delete_room') {
+                console.error(data.error);
             }
             
         });
@@ -110,6 +109,10 @@ var gameSocket = {
         this.stopPeriodicUpdates();
     },
 
+    deleteRoom: function(roomName) {
+        this.sendMessage({'action': 'delete_room', 'room_name': roomName});
+    },
+
     listRooms: function() {
         this.sendMessage({'action': 'list_rooms'});
     },
@@ -120,21 +123,38 @@ var gameSocket = {
 
     updateRoomList: function(rooms) {
         const roomListDiv = document.getElementById('roomList');
-        roomListDiv.innerHTML = ''; // Clear current list
+        roomListDiv.innerHTML = '';
         if (ui.isSectionVisible('multiplayer')) {        
-            rooms.forEach((room) => { // Assuming room is an object with a property 'name'
+            rooms.forEach((room) => {
                 const roomElement = document.createElement('div');
                 roomElement.className = 'room-item';
-                roomElement.textContent = room.name; // Access the 'name' property of the room object
-                roomElement.style.color = 'white';
-                roomElement.addEventListener('click', () => {
-                    this.joinRoom(room.name); // Make sure to pass the room's name here as well
+                roomElement.style.display = 'flex';
+                roomElement.style.justifyContent = 'space-between';
+                roomElement.style.alignItems = 'center';
+    
+                const roomName = document.createElement('span');
+                roomName.textContent = room.name;
+                roomName.style.color = 'white';
+    
+                const deleteButton = document.createElement('button');
+                deleteButton.type = 'button';
+                deleteButton.className = 'btn-close btn-close-white';
+                deleteButton.setAttribute('aria-label', 'Close');
+                roomElement.appendChild(roomName);
+                roomElement.appendChild(deleteButton);
+                deleteButton.setAttribute('data-room-name', room.name);
+    
+                roomElement.addEventListener('click', (event) => {
+                    if (event.target !== deleteButton) {
+                        this.joinRoom(room.name);
+                    }
                 });
-        
+    
                 roomListDiv.appendChild(roomElement);
             });
         }
     },
+    
 
     updateUserList: function(users, roomName) {
         const usersListDiv = document.getElementById('roomUsersList');
@@ -142,10 +162,9 @@ var gameSocket = {
             console.error('Element with ID "roomUsersList" not found.');
             return;
         }
-        usersListDiv.innerHTML = ''; // Clear current list
+        usersListDiv.innerHTML = '';
         console.log('Updating user list for room:', roomName, 'with users:', users);
         
-        // Assuming 'users' is an array of strings (usernames)
         users.forEach((username) => {
             const userElement = document.createElement('a');
             userElement.href = "#";
@@ -154,7 +173,6 @@ var gameSocket = {
             usersListDiv.appendChild(userElement);
         });
     
-        // Update the heading to show the room name
         const roomNameHeading = document.getElementById('roomNameHeading');
         if (roomNameHeading) {
             roomNameHeading.textContent = `Users in ${roomName}:`;
@@ -168,7 +186,7 @@ var gameSocket = {
         this.sendMessage({
             action: 'join_room',
             room_name: roomName,
-            mode: 'distant' // Specify the game mode as distant multiplayer
+            mode: 'distant'
         });
     },
 
@@ -190,8 +208,8 @@ var gameSocket = {
         if (this.socket.readyState === WebSocket.OPEN) {
             const message = {
                 action: 'paddle_move',
-                direction: direction, // 'up' or 'down'
-                role: game.playerRole, // Include the player's role here
+                direction: direction,
+                role: game.playerRole,
                 room_name: this.currentRoom,
             };
             this.socket.send(JSON.stringify(message));
@@ -211,21 +229,21 @@ var gameSocket = {
             this.socket.send(JSON.stringify(message));
         } else {
             console.log("WebSocket is not open. Waiting before retrying...");
-            setTimeout(() => this.sendMessage(message), 1000); // Recursive retry with delay
+            setTimeout(() => this.sendMessage(message), 1000);
         }
     },
 
     startPeriodicUpdates: function() {
         if (this.updateInterval) {
-            clearInterval(this.updateInterval); // Clear any existing interval to avoid duplicates
+            clearInterval(this.updateInterval);
         }
         this.updateInterval = setInterval(() => {
             if (this.currentRoom) {
                 this.listUsersInRoom(this.currentRoom);
             } else {
-                this.stopPeriodicUpdates(); // Stop updates if there's no current room
+                this.stopPeriodicUpdates();
             }
-        }, 2000); // Update every 2 seconds
+        }, 2000);
     },
 
     stopPeriodicUpdates: function() {
@@ -243,7 +261,6 @@ window.addEventListener('beforeunload', function() {
     }
 });
 
-// Once the page is fully loaded, initialize the WebSocket connection
 window.addEventListener('load', function() {
     gameSocket.init();
 });

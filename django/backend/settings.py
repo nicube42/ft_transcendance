@@ -65,7 +65,7 @@ CHANNEL_LAYERS = {
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:4242',  # Adjust to your frontend's origin
+    'http://localhost:4242',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -79,7 +79,7 @@ LOGGING = {
         },
     },
     'loggers': {
-        '': {  # Root logger
+        '': {
             'handlers': ['console'],
             'level': 'DEBUG',
         },

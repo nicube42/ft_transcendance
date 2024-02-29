@@ -7,7 +7,7 @@ body, html {
     background-color: #000000;
     color: white;
     font-family: 'VeniteAdoremus', sans-serif;
-    padding-top: 56px; /* Adjusted for fixed navbar */
+    padding-top: 56px;
 }
 
 button {

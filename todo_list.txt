@@ -1,7 +1,6 @@
 To do transcendance
 
 -delete rooms
--fix settings
 -enhence rooms : admin, password, invite, kick
 -error popup for room search elements
 -distant game gestion : pause, play, quit in game, disconnection gestion

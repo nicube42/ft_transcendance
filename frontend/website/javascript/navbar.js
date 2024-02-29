@@ -3,9 +3,8 @@ const navbarManager = {
         this.updateNavbar();
     },
     updateNavbar: function() {
-        const isAuthenticated = auth.is_connected(); // Ensure auth.is_connected() is defined and returns a boolean
+        const isAuthenticated = auth.is_connected();
 
-        // Select the dropdown menu and links within the navbar
         const dropdownMenu = document.querySelector('.navbar .dropdown-menu');
         const loginLink = dropdownMenu.querySelector('#navLogin');
         const logoutLink = dropdownMenu.querySelector('#navLogout');

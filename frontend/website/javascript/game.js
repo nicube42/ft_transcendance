@@ -73,7 +73,6 @@ const game = {
             this.stopControlAndDisconnect();
         }
         else if (mode === 'distant') {
-            //this.ensureWebSocketConnection();
         }
     },
 

@@ -5,7 +5,7 @@ import json
 from django.contrib.auth.decorators import login_required
 
 @csrf_exempt
-@login_required  # Ensure the user is logged in
+@login_required
 def save_settings(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -18,15 +18,12 @@ def save_settings(request):
         paddle_speed = int(data.get('paddleSpeed', 5))
         winning_score = int(data.get('winningScore', 5))
 
-        # Validate the input
         if not player1_name or not player2_name:
             return JsonResponse({'error': 'Missing player names'}, status=400)
         
-        # Get or create players
         player1, _ = Player.objects.get_or_create(name=player1_name)
         player2, _ = Player.objects.get_or_create(name=player2_name)
-        
-        # Update or create settings specific to the user
+
         settings, created = GameSettings.objects.update_or_create(
             user=request.user,
             defaults={
@@ -48,7 +45,7 @@ from .models import GameSettings
 from django.contrib.auth.decorators import login_required
 
 @csrf_exempt
-@login_required  # Ensure the user is logged in
+@login_required
 def retrieve_settings(request):
     if request.method != 'GET':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -71,7 +68,6 @@ def retrieve_settings(request):
             'winningScore': settings.winning_score,
         }
     except GameSettings.DoesNotExist:
-        # If no settings exist for the user, return defaults
         response_data = defaults
 
     return JsonResponse(response_data)
@@ -95,11 +91,9 @@ def register(request):
             bio = data.get('bio')
 
             
-            # Check if the user already exists
             if CustomUser.objects.filter(username=username).exists():
                 return JsonResponse({'error': 'Username already exists'}, status=400)
             
-            # Create a new user
             user = CustomUser.objects.create(
                 username=username,
                 password=make_password(password),
@@ -108,12 +102,12 @@ def register(request):
                 bio=bio
             )
             
-            user.full_clean()  # Validate the model instance
+            user.full_clean()
             user.save()
             
             return JsonResponse({'message': 'User created successfully'}, status=201)
         except ValidationError as e:
-            return JsonResponse({'error': e.message_dict}, status=400)  # Return validation errors
+            return JsonResponse({'error': e.message_dict}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 

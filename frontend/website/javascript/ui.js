@@ -33,16 +33,28 @@ const ui = {
     attachEventListeners: function() {
         document.body.addEventListener('click', (e) => {
             let target = e.target;
-            // Find the nearest ancestor with an ID or the element itself
+    
+            if (target.matches('.btn-close[data-room-name]')) {
+                e.preventDefault();
+                const roomName = target.getAttribute('data-room-name');
+                this.handleDeleteRoom(roomName).catch(console.error);
+                return;
+            }
+    
             while (target !== document.body && !target.id) {
                 target = target.parentNode;
             }
-            // Prevent default action only if a handler is defined
             if (this.actionHandlers[target.id]) {
                 e.preventDefault();
                 this.actionHandlers[target.id].call(this, e).catch(console.error);
             }
         });
+    },
+
+    handleDeleteRoom: async function(roomName) {
+        console.log(`Deleting room: ${roomName}`);
+        gameSocket.deleteRoom(roomName);
+        gameSocket.listRooms();
     },
 
     actionHandlers: {
@@ -55,7 +67,6 @@ const ui = {
         async 'PLAY'() {
             game.setGameMode('multiplayer');
             this.showOnlyOneSection('play');
-            //await settings.populateSettings();
         },
         async 'playDistantBtn' () {
             game.setGameMode('distant');
@@ -65,7 +76,6 @@ const ui = {
         async 'SINGLEPLAYER'() {
             game.setGameMode('singlePlayer');
             this.showOnlyOneSection('play');
-            //await settings.populateSettings();
         },
         async 'MULTIPLAYER'() {
             this.showOnlyOneSection('multiplayer');
@@ -150,12 +160,11 @@ const ui = {
         async 'quitRoomBtn'() {
             if (gameSocket.currentRoom) {
                 console.log(`Leaving room: ${gameSocket.currentRoom}`);
-                gameSocket.leaveRoom(gameSocket.currentRoom); // Leave the current room
+                gameSocket.leaveRoom(gameSocket.currentRoom);
                 setTimeout(() => {
                     gameSocket.listUsersInRoom(gameSocket.currentRoom);
                     gameSocket.currentRoom = null;
                 }, 500);
-                // Optionally, update UI to reflect that the user has left the room
             } else {
                 console.error('Attempted to leave a room, but no current room is set.');
             }

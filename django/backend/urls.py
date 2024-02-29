@@ -13,5 +13,3 @@ urlpatterns = [
     path('api/user-info/', views.user_info, name='user_info'),
     path('api/search-user/', views.search_user, name='search_user'),
 ]
-
-# LoginView.as_view()
