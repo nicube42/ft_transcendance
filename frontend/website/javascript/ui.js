@@ -1,4 +1,5 @@
 const ui = {
+    connected: false,
     toggleSectionVisibility: function(sectionId, isVisible) {
         const section = document.getElementById(sectionId);
         if (section) {
@@ -23,12 +24,7 @@ const ui = {
     isSectionVisible: function(sectionId) {
         const section = document.getElementById(sectionId);
         return section && !section.classList.contains('d-none');
-    },
-
-    initializePage: async function() {
-        const path = window.location.pathname.substring(1) || 'firstPage';
-        this.showOnlyOneSection(path, true);
-    },     
+    },   
 
     attachEventListeners: function() {
         document.body.addEventListener('click', (e) => {
@@ -59,7 +55,7 @@ const ui = {
 
     actionHandlers: {
         async 'navHome'() {
-            if (auth.is_connected())
+            if (this.connected)
                 this.showOnlyOneSection('homepage');
             else
                 this.showOnlyOneSection('firstPage');
@@ -97,13 +93,13 @@ const ui = {
             this.showOnlyOneSection('homepage');
         },
         async 'cancelLogin'() {
-            if (auth.is_connected())
+            if (this.connected)
                 this.showOnlyOneSection('homepage');
             else
                 this.showOnlyOneSection('firstPage');
         },
         async 'cancelRegister'() {
-            if (auth.is_connected())
+            if (this.connected)
                 this.showOnlyOneSection('homepage');
             else
                 this.showOnlyOneSection('firstPage');
@@ -138,7 +134,7 @@ const ui = {
             this.showOnlyOneSection('settings');
         },
         async 'navBrand' () {
-            if (auth.is_connected())
+            if (this.connected)
                 this.showOnlyOneSection('homepage');
             else
                 this.showOnlyOneSection('firstPage');
@@ -174,15 +170,29 @@ const ui = {
 
     init: function() {
         this.attachEventListeners();
-        this.initializePage();
+        this.checkAuthenticationAndInitializePage();
         window.addEventListener('popstate', function(event) {
             if (event.state && event.state.section) {
                 ui.showOnlyOneSection(event.state.section, true);
-                gameSocket.closeAndReinitialize();
             } else {
                 ui.showOnlyOneSection('firstPage', true);
             }
         });
-        
-    },   
+    },
+
+    checkAuthenticationAndInitializePage: function() {
+        auth.checkAuthentication().then((authStatus) => {
+            if (authStatus.isAuthenticated) {
+                this.connected = true;
+                const path = window.location.pathname.substring(1) || 'homepage';
+                this.showOnlyOneSection(path, true);
+            } else {
+                this.connected = false;
+                this.showOnlyOneSection('firstPage', true);
+            }
+        }).catch((error) => {
+            console.error('Error checking authentication status:', error);
+            this.showOnlyOneSection('firstPage', true);
+        });
+    },
 };

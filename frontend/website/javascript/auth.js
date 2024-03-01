@@ -118,8 +118,35 @@ const auth = {
         });
     },
     is_connected: function() {
-        const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
-        return isLoggedIn;
+        this.checkAuthentication();
+    },
+    checkAuthentication: function() {
+        return fetch('/api/check_auth_status/', {
+            method: 'GET', // Specifies the request method
+            credentials: 'include' // Ensures that cookies, such as CSRF tokens, are included with the request
+        })
+        .then(response => {
+            if (response.status === 401 || response.status === 403) {
+                // User is not authenticated or session is compromised
+                return { isAuthenticated: false };
+            } else if (!response.ok) {
+                // Handle other HTTP errors
+                throw new Error('Server error or network issue.');
+            }
+            return response.json(); // Parse JSON body of the response
+        })
+        .then(data => {
+            if (data.is_authenticated) {
+                console.log("User is authenticated.");
+                return { isAuthenticated: true }; // Return an object indicating authentication status
+            } else {
+                return { isAuthenticated: false }; // Return an object indicating authentication status
+            }
+        })
+        .catch(error => {
+            console.error(error.message);
+            return { isAuthenticated: false }; // Ensure a consistent return structure for error handling
+        });
     },
     searchForUser: async function() {
         const input = document.getElementById('searchUserInput');
@@ -191,3 +218,4 @@ if (registerForm) {
         auth.register();
     });
 }
+

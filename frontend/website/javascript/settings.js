@@ -1,6 +1,6 @@
 const settings = {
     populateSettings: async function() {
-        if (auth.is_connected() == false) {
+        if (ui.connected === false) {
             return;
         }
         await fetch('/api/settings/retrieve')
@@ -26,7 +26,7 @@ const settings = {
             .catch(error => console.error('Error fetching settings:', error));
     },
     saveSettings: async function() {
-        if (auth.is_connected() === false) {
+        if (ui.connected === false) {
             return;
         }
         const csrfToken = getCookie('csrftoken');

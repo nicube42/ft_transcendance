@@ -124,37 +124,38 @@ var gameSocket = {
     updateRoomList: function(rooms) {
         const roomListDiv = document.getElementById('roomList');
         roomListDiv.innerHTML = '';
-        if (ui.isSectionVisible('multiplayer')) {        
-            rooms.forEach((room) => {
-                const roomElement = document.createElement('div');
-                roomElement.className = 'room-item';
-                roomElement.style.display = 'flex';
-                roomElement.style.justifyContent = 'space-between';
-                roomElement.style.alignItems = 'center';
     
-                const roomName = document.createElement('span');
-                roomName.textContent = room.name;
-                roomName.style.color = 'white';
+        rooms.forEach((room) => {
+            const roomElement = document.createElement('div');
+            roomElement.className = 'room-item';
+            roomElement.style.display = 'flex';
+            roomElement.style.justifyContent = 'space-between';
+            roomElement.style.alignItems = 'center';
     
+            const roomName = document.createElement('span');
+            roomName.textContent = room.name;
+            roomName.style.color = 'white';
+            roomElement.appendChild(roomName);
+    
+            if (room.is_admin) {
                 const deleteButton = document.createElement('button');
                 deleteButton.type = 'button';
                 deleteButton.className = 'btn-close btn-close-white';
                 deleteButton.setAttribute('aria-label', 'Close');
-                roomElement.appendChild(roomName);
-                roomElement.appendChild(deleteButton);
-                deleteButton.setAttribute('data-room-name', room.name);
-    
-                roomElement.addEventListener('click', (event) => {
-                    if (event.target !== deleteButton) {
-                        this.joinRoom(room.name);
-                    }
+                deleteButton.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    this.deleteRoom(room.name);
                 });
+                roomElement.appendChild(deleteButton);
+            }
     
-                roomListDiv.appendChild(roomElement);
+            roomElement.addEventListener('click', () => {
+                this.joinRoom(room.name);
             });
-        }
-    },
     
+            roomListDiv.appendChild(roomElement);
+        });
+    },    
 
     updateUserList: function(users, roomName) {
         const usersListDiv = document.getElementById('roomUsersList');
@@ -261,6 +262,6 @@ window.addEventListener('beforeunload', function() {
     }
 });
 
-window.addEventListener('load', function() {
-    gameSocket.init();
-});
+// window.addEventListener('load', function() {
+//     gameSocket.init();
+// });

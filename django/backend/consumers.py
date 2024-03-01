@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 import json
 from django.contrib.sessions.models import Session
 import logging
+from django.db.models import Case, When, Value, BooleanField
 
 logger = logging.getLogger(__name__) 
 
@@ -24,6 +25,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                     logger.info("No user found in session.")
             else:
                 logger.info("No session ID provided.")
+            return
         logger.debug(f"User: {self.user}, Session Key: {self.scope['cookies'].get('sessionid', None)}")
         await self.accept()
 
@@ -68,11 +70,15 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def create_room(self, data):
         room_name = data['room_name']
-        room, created = await self.get_or_create_room(name=room_name)
+        user = self.scope['user']
+        if user.is_anonymous:
+            await self.send_message_safe(json.dumps({'error': 'Authentication required to create room'}))
+            return
+        room, created = await self.get_or_create_room(name=room_name, user=user)
         if created:
-            await self.send(text_data=json.dumps({'message': f'Room {room_name} created'}))
+            await self.send_message_safe(json.dumps({'message': f'Room {room_name} created'}))
         else:
-            await self.send(text_data=json.dumps({'error': 'Room already exists'}))
+            await self.send_message_safe(json.dumps({'error': 'Room already exists'}))
 
     async def join_room(self, data):
         room_name = data['room_name']
@@ -85,7 +91,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 room_name,
                 self.channel_name
             )
-            await self.send(text_data=json.dumps({'position': player_position}))
+            await self.send_message_safe(json.dumps({'position': player_position}))
             await self.list_users_in_room(data)
             await self.channel_layer.group_send(
                 room_name,
@@ -96,27 +102,30 @@ class GameConsumer(AsyncWebsocketConsumer):
                     "user_count": user_count,
                 }
             )
-            await self.send(text_data=json.dumps({
+            await self.send_message_safe(json.dumps({
                 'action': 'assign_role',
                 'role': player_position  # 'left' or 'right'
             }))
         else:
-            await self.send(text_data=json.dumps({'error': 'Room does not exist'}))
+            await self.send_message_safe(json.dumps({'error': 'Room does not exist'}))
 
     async def delete_room(self, data):
         room_name = data['room_name']
-        deleted = await self.remove_room_by_name(room_name)
-        if deleted:
-            await self.send(text_data=json.dumps({'message': f'Room {room_name} deleted successfully'}))
-            await self.channel_layer.group_send(
-                room_name,
-                {
-                    "type": "room.deleted",
-                    "room_name": room_name,
-                }
-            )
+        user = self.scope['user']
+        room = await self.get_room_by_name(room_name)
+
+        if room:
+            is_admin = await self.is_user_admin_of_room(user, room)
+            if is_admin:
+                deleted = await self.remove_room_by_name(room_name)
+                if deleted:
+                    await self.send_message_safe(json.dumps({'message': f'Room {room_name} deleted successfully'}))
+                else:
+                    await self.send_message_safe(json.dumps({'error': 'Failed to delete room'}))
+            else:
+                await self.send_message_safe(json.dumps({'error': 'Only the room admin can delete the room'}))
         else:
-            await self.send(text_data=json.dumps({'error': 'Room does not exist or could not be deleted'}))
+            await self.send_message_safe(json.dumps({'error': 'Room does not exist'}))
 
     @database_sync_to_async
     def remove_room_by_name(self, name):
@@ -130,7 +139,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def player_joined(self, event):
         if self.scope["user"].username != event["player"]:
-            await self.send(text_data=json.dumps({
+            await self.send_message_safe(json.dumps({
                 "type": "player.joined",
                 "position": event["position"],
                 "player": event["player"],
@@ -144,36 +153,60 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def list_users_in_room(self, data):
         room_name = data.get('room_name')
         if not room_name:
-            await self.send(text_data=json.dumps({'error': 'Room name is required'}))
+            await self.send_message_safe(json.dumps({'error': 'Room name is required'}))
             return
         logger.info(f"Listing users for room: {room_name}")
         room = await self.get_room_by_name(room_name)
         if room:
             user_objects = await self.get_users_in_room(room)
             users = [user.username for user in user_objects]
-            await self.send(text_data=json.dumps({
+            await self.send_message_safe(json.dumps({
                 'action': 'list_users',
                 'room_name': room_name,
                 'users': users
             }))
         else:
-            await self.send(text_data=json.dumps({
+            await self.send_message_safe(json.dumps({
                 'error': 'Room does not exist',
                 'room_name': room_name
             }))
 
 
+    @database_sync_to_async
+    def get_rooms_data(self, user):
+        rooms = Room.objects.annotate(is_admin=Case(
+            When(admin=user, then=Value(True)),
+            default=Value(False),
+            output_field=BooleanField()
+        )).values('name', 'is_admin')
+        return list(rooms)
+
     async def list_rooms(self):
-            rooms = await self.get_rooms()
-            await self.send(text_data=json.dumps({
-                'action': 'list_rooms',
-                'rooms': [{'name': room.name} for room in rooms]
-            }))
+        user = self.scope['user']
+        rooms_data = await self.get_rooms_data(user)
+        await self.send_message_safe(json.dumps({
+            'action': 'list_rooms',
+            'rooms': rooms_data
+        }))
+
 
 
     @database_sync_to_async
-    def get_or_create_room(self, name):
-        return Room.objects.get_or_create(name=name)
+    def get_rooms(self):
+        user = self.user
+        rooms = Room.objects.annotate(
+            is_admin=Case(
+                When(admin=user, then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField()
+            )
+        ).values('name', 'is_admin')
+        return list(rooms)
+
+    @database_sync_to_async
+    def get_or_create_room(self, name, user):
+        room, created = Room.objects.get_or_create(name=name, defaults={'admin': user})
+        return room, created
 
     @database_sync_to_async
     def get_room_by_name(self, name):
@@ -190,15 +223,15 @@ class GameConsumer(AsyncWebsocketConsumer):
         logger.info(f"Attempting to leave room with data: {data}")
         room_name = data.get('room_name')
         if not room_name:
-            await self.send(text_data=json.dumps({'error': 'Room name is required to leave'}))
+            await self.send_message_safe(json.dumps({'error': 'Room name is required to leave'}))
             return
         room = await self.get_room_by_name(room_name)
         if room:
             await self.remove_user_from_room(room)
-            await self.send(text_data=json.dumps({'message': f'Left room {room_name}'}))
+            await self.send_message_safe(json.dumps({'message': f'Left room {room_name}'}))
             await self.list_users_in_room(data)
         else:
-            await self.send(text_data=json.dumps({'error': 'Room does not exist'}))
+            await self.send_message_safe(json.dumps({'error': 'Room does not exist'}))
 
     
     async def remove_user_from_room(self, room):
@@ -230,6 +263,11 @@ class GameConsumer(AsyncWebsocketConsumer):
     def get_users_in_room(self, room):
         print(room.users.all())
         return list(room.users.all())
+
+    @database_sync_to_async
+    def is_user_admin_of_room(self, user, room):
+        """Check if the given user is the admin of the specified room."""
+        return room.admin == user
     
     async def get_user_instance(self):
         user_id = self.scope["user"].id
@@ -264,7 +302,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 
     async def broadcast_paddle_move(self, event):
-        await self.send(text_data=json.dumps({
+        await self.send_message_safe(json.dumps({
             'action': 'paddle_move',
             'direction': event['direction'],
             'role': event['role'],
@@ -304,7 +342,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def broadcast_ball_state(self, event):
         if event.get('sender_channel_name') != self.channel_name:
-            await self.send(text_data=json.dumps({
+            await self.send_message_safe(json.dumps({
                 'action': 'update_ball_state',
                 'ball_state': event['ball_state'],
             }))
@@ -322,6 +360,14 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 
     async def game_start(self, event):
-        await self.send(text_data=json.dumps({
+        await self.send_message_safe(json.dumps({
             'action': 'start_game',
         }))
+
+    async def send_message_safe(self, message):
+        if not self.user.is_anonymous:
+            if not isinstance(message, str):
+                message = json.dumps(message)
+            await self.send(text_data=message)
+        else:
+            logger.info("Attempted to send message to anonymous user, action skipped.")

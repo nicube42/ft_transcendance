@@ -196,3 +196,15 @@ def search_user(request):
         }, status=200)
     except CustomUser.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
+    
+def check_auth_status(request):
+    session_compromised = False  # You would replace this with your actual check.
+
+    if request.user.is_authenticated:
+        if session_compromised:
+            logout(request)
+            return JsonResponse({"error": "Session is compromised. Please log in again."}, status=403)
+        else:
+            return JsonResponse({"is_authenticated": True})
+    else:
+        return JsonResponse({"is_authenticated": False}, status=401)
