@@ -184,10 +184,12 @@ const ui = {
         auth.checkAuthentication().then((authStatus) => {
             if (authStatus.isAuthenticated) {
                 this.connected = true;
+                navbarManager.updateNavbar(this.connected);
                 const path = window.location.pathname.substring(1) || 'homepage';
                 this.showOnlyOneSection(path, true);
             } else {
                 this.connected = false;
+                navbarManager.updateNavbar(this.connected);
                 this.showOnlyOneSection('firstPage', true);
             }
         }).catch((error) => {

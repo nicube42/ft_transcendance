@@ -1,9 +1,7 @@
 const navbarManager = {
-    init: function() {
-        this.updateNavbar();
-    },
-    updateNavbar: function() {
-        const isAuthenticated = ui.connected;
+    updateNavbar: function(authentication) {
+        console.log("updateNavbar called with authentication:", authentication);
+        const isAuthenticated = authentication;
 
         const dropdownMenu = document.querySelector('.navbar .dropdown-menu');
         const loginLink = dropdownMenu.querySelector('#navLogin');
@@ -26,7 +24,3 @@ const navbarManager = {
         }
     }
 };
-
-document.addEventListener('DOMContentLoaded', () => {
-    navbarManager.init();
-});

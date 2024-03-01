@@ -261,7 +261,3 @@ window.addEventListener('beforeunload', function() {
         clearInterval(gameSocket.leaveInterval);
     }
 });
-
-// window.addEventListener('load', function() {
-//     gameSocket.init();
-// });

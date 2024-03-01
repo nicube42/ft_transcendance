@@ -32,7 +32,7 @@ const auth = {
             settings.saveSettings();
             settings.populateSettings();
             ui.showOnlyOneSection('homepage');
-            navbarManager.updateNavbar();
+            navbarManager.updateNavbar({ isAuthenticated: true });
         })
         .catch(error => {
             console.error('Login error or failed to fetch/display user info:', error);
@@ -61,8 +61,9 @@ const auth = {
         .then(data => {
             console.log('Logout success:', data);
             sessionStorage.removeItem('isLoggedIn');
-            ui.showOnlyOneSection('firstpage');
-            navbarManager.updateNavbar();
+            ui.showOnlyOneSection('loginContainer');
+            navbarManager.updateNavbar({ isAuthenticated: false });
+            ui.connected = false;
         })
         .catch(error => console.error('Logout error:', error));
     },
@@ -93,7 +94,6 @@ const auth = {
         .then(data => {
             console.log('Registration success:', data);
             ui.showOnlyOneSection('loginContainer');
-            navbarManager.updateNavbar();
         })
         .catch(error => {
             console.error('Registration error:', error)
