@@ -198,7 +198,7 @@ def search_user(request):
         return JsonResponse({'error': 'User not found'}, status=404)
     
 def check_auth_status(request):
-    session_compromised = False  # You would replace this with your actual check.
+    session_compromised = False
 
     if request.user.is_authenticated:
         if session_compromised:
