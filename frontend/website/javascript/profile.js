@@ -17,7 +17,7 @@ const userInfoDisplayer = {
 
     updateFullNameProfile: function(data) {
         if (data.fullname) {
-            const fullNameDiv = document.getElementById('fullnameProfile'); // Ensure the ID matches your HTML
+            const fullNameDiv = document.getElementById('fullnameProfile');
             if (fullNameDiv) {
                 fullNameDiv.innerHTML = `<p>Full name: ${data.fullname}</p>`;
             } else {

@@ -41,7 +41,6 @@ const settings = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 'X-CSRFToken': csrfToken
             },
             credentials: 'include',
             body: JSON.stringify(data)

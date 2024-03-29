@@ -23,24 +23,62 @@ const auth = {
         .then(data => {
             console.log('Login success:', data);
             sessionStorage.setItem('isLoggedIn', 'true');
-            gameSocket.closeAndReinitialize();
-            return auth.retrieveInfos();
-        })
-        .then(data => {
-            console.log('User info retrieved successfully:', data);
-            userInfoDisplayer.updateUI(data);
-            settings.saveSettings();
-            settings.populateSettings();
-            ui.showOnlyOneSection('homepage');
-            navbarManager.updateNavbar({ isAuthenticated: true });
+            this.waitForAuthToBeRecognized(() => {
+                auth.retrieveInfos()
+                    .then(data => {
+                        console.log('User info retrieved successfully:', data);
+                        userInfoDisplayer.updateUI(data);
+                        settings.saveSettings();
+                        settings.populateSettings();
+                        ui.showOnlyOneSection('homepage');
+                        navbarManager.updateNavbar({ isAuthenticated: true });
+                    })
+                    .catch(error => {
+                        console.error('Failed to fetch/display user info:', error);
+                    });
+            }, (error) => {
+                console.error('Auth recognition error:', error);
+            });
         })
         .catch(error => {
-            console.error('Login error or failed to fetch/display user info:', error);
+            console.error('Login error:', error);
             var loginErrorModal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
             loginErrorModal.show();
         });
     },
-    
+
+    waitForAuthToBeRecognized : function(successCallback, errorCallback) {
+        const maxAttempts = 5;
+        let attempts = 0;
+        
+        const checkAuth = () => {
+            fetch('/api/check_auth_status/', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Auth check failed');
+            })
+            .then(data => {
+                if (data.is_authenticated) {
+                    successCallback();
+                } else if (attempts < maxAttempts) {
+                    setTimeout(checkAuth, 1000);
+                    attempts++;
+                } else {
+                    throw new Error('Max auth check attempts reached');
+                }
+            })
+            .catch(error => {
+                errorCallback(error);
+            });
+        };
+
+        checkAuth();
+    },
     
     logout: function() {
         const csrfToken = getCookie('csrftoken');
@@ -146,45 +184,28 @@ const auth = {
             return { isAuthenticated: false };
         });
     },
-    searchForUser: async function() {
-        const input = document.getElementById('searchUserInput');
-        const resultsDiv = document.getElementById('searchResults');
-        resultsDiv.innerHTML = '';
-    
-        if (input.value.trim() === '') {
-            const noResult = document.createElement('div');
-            noResult.classList.add('alert', 'alert-danger');
-            noResult.textContent = 'Please enter a username to search.';
-            resultsDiv.appendChild(noResult);
-            return;
-        }
-    
+    checkIfUserLoggedIn: async function(username) {
         try {
-            const response = await fetch(`/api/search-user/?username=${encodeURIComponent(input.value)}`, {
+            const response = await fetch(`/api/is-user-logged-in/?username=${encodeURIComponent(username)}`, {
                 method: 'GET',
                 credentials: 'include',
             });
-    
-            if (response.status === 404) {
-                throw new Error('User not found');
-            }
-    
             if (!response.ok) {
-                throw new Error('Request failed with status: ' + response.status);
+                throw new Error(`Request failed with status: ${response.status}`);
             }
-    
             const data = await response.json();
-            const result = document.createElement('div');
-            result.classList.add('alert', 'alert-success');
-            result.textContent = `Found user: ${data.username}, Full Name: ${data.fullname}, Bio: ${data.bio}`;
-            resultsDiv.appendChild(result);
-            console.log('Search success:', data);
+            if (data.is_logged_in) {
+                console.log(`User ${username} is currently logged in.`);
+                alert(`User ${username} has been invited.`);
+                return username;
+            } else {
+                console.log(`User ${username} is not logged in.`);
+                alert(`User ${username} is not logged in.`);
+                return null;
+            }
         } catch (error) {
-            console.error('Search error:', error);
-            const noResult = document.createElement('div');
-            noResult.classList.add('alert', 'alert-danger');
-            noResult.textContent = error.toString();
-            resultsDiv.appendChild(noResult);
+            console.error('Error checking user login status:', error);
+            alert('Error checking user login status.');
         }
     },
 };
@@ -216,4 +237,17 @@ if (registerForm) {
         auth.register();
     });
 }
+
+document.getElementById('inviteRoomBtn').addEventListener('click', function() {
+    const username = document.getElementById('usernameInput').value.trim();
+    if (username) {
+        const roomName = gameSocket.currentRoom;
+        user = auth.checkIfUserLoggedIn(username);
+        if (user != null) {
+            gameSocket.sendInvite(username, roomName);
+        }
+    } else {
+        alert('Please enter a username.');
+    }
+});
 

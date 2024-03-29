@@ -10,6 +10,15 @@ const game = {
         winningScore: 5,
     },
 
+    updateGameSettings: function(settings) {
+        this.ballSpeedX = settings.ballSpeed / 2;
+        this.ballSpeedY = settings.ballSpeed / 2;
+        this.paddleSpeed = settings.paddleSpeed;
+        this.winningScore = settings.winningScore;
+        this.player1_name = settings.player1;
+        this.player2_name = settings.player2;
+    },
+
     canvas: null,
     playerRole: null,
     ctx: null,
@@ -35,24 +44,28 @@ const game = {
     aiPaddleMovementInterval: null,
     frame: 0,
     ball_color: 'white',
-    player1_name: 'Player 1',
-    player2_name: 'Player 2',
+    currentBonus: null,
+    nextBonusTimeout: null,
+    bonusTouched: false,
 
     bonusGreen: {
         x: 100,
         y: 100,
+        baseRadius: 10,
         radius: 10,
         color: 'green',
-        active: true
+        active: false
     },
     
     bonusRed: {
         x: 200,
         y: 200,
+        baseRadius: 10,
         radius: 10,
         color: 'red',
-        active: true
+        active: false
     },
+    
     
     init: function() {
         this.canvas = document.getElementById('pong');
@@ -62,7 +75,6 @@ const game = {
             this.drawPong();
             window.removeEventListener('keydown', this.handleKeyDown.bind(this));
             window.addEventListener('keydown', this.handleKeyDown.bind(this));
-            settings.populateSettings();
         }
     },
 
@@ -73,6 +85,7 @@ const game = {
             this.stopControlAndDisconnect();
         }
         else if (mode === 'distant') {
+            //this.ensureWebSocketConnection();
         }
     },
 
@@ -81,15 +94,9 @@ const game = {
         this.ballSpeedY = settings.ballSpeed / 2;
         this.paddleSpeed = settings.paddleSpeed;
         this.winningScore = settings.winningScore;
-        this.player1_name = settings.player1;
-        this.player2_name = settings.player2;
-
-        this.settings.ballSpeed = settings.ballSpeed;
-        this.settings.paddleSpeed = settings.paddleSpeed;
-        this.settings.winningScore = settings.winningScore;
-        this.settings.player1 = settings.player1;
-        this.settings.player2 = settings.player2;
-    },   
+        this.player1_name = settings.player1Name;
+        this.player2_name = settings.player2Name;
+    },
 
     resetVars: function() {
         this.ballSpeedX = this.settings.ballSpeed / 2;
@@ -193,6 +200,43 @@ const game = {
         }
     },
 
+    generateRandomCoordinates: function() {
+        // créé coordonnées random
+        const x = Math.floor(Math.random() * (this.canvas.width - 20)) + 10; // 10 pour éviter que le bonus ne se trouve trop près du bord sinn ca beug
+        const y = Math.floor(Math.random() * (this.canvas.height - 20)) + 10;
+        return { x, y };
+    },
+
+    attemptBonusGeneration: function() {
+        // Only proceed if no bonus is currently active
+        if (!this.bonusGreen.active && !this.bonusRed.active && !this.bonusTouched) {
+            this.generateRandomBonus();
+        }
+    },
+    
+    generateRandomBonus: function() {
+        if (this.nextBonusTimeout) {
+            clearTimeout(this.nextBonusTimeout);
+        }
+        
+        const randomBonusType = Math.random() < 0.5 ? 'green' : 'red';
+        const randomCoordinates = this.generateRandomCoordinates();
+        
+        this.bonusGreen.active = false;
+        this.bonusRed.active = false;
+        
+        if (randomBonusType === 'green') {
+            this.bonusGreen = { ...this.bonusGreen, ...randomCoordinates, active: true };
+        } else {
+            this.bonusRed = { ...this.bonusRed, ...randomCoordinates, active: true };
+        }
+    
+        this.nextBonusTimeout = setTimeout(() => {
+            this.bonusGreen.active = false;
+            this.bonusRed.active = false;
+        }, 9000);
+    },
+
     drawPong: function() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (this.messageDisplayCounter === 0)
@@ -237,17 +281,23 @@ const game = {
         else
             this.messageDisplayCounter--;
 
-        // Draw ball
         this.drawBall();
-        if (this.frame > 20)
-        {
+
+        // bonus logic
+
+        this.attemptBonusGeneration();
+
+        if (this.bonusGreen.active) {
             this.drawBonus(this.bonusGreen);
+        } else if (this.bonusRed.active) {
             this.drawBonus(this.bonusRed);
         }
+    
         this.checkBonusCollision();
         this.displayPoints();
-
+    
         this.ctx.fillStyle = 'white';
+
         // Draw paddles
         this.ctx.fillRect(0, this.leftPaddleY, this.paddleWidth, this.paddleHeight);
         this.ctx.fillRect(this.canvas.width - this.paddleWidth, this.rightPaddleY, this.paddleWidth, this.paddleHeight);
@@ -275,10 +325,11 @@ const game = {
         document.getElementById('player2_score').textContent = this.player2_name + `: ${this.player2Score}`;
         document.getElementById('winning_score').textContent = "Winning score" + `: ${this.winningScore}`;
 
-        // Continue the game loop
+        this.frame++;
+        if (this.frame >= Number.MAX_SAFE_INTEGER) {
+            this.frame = 0; // Reset frame counter to avoid overflow
+        }
         this.animationFrameId = requestAnimationFrame(this.drawPong.bind(this));
-        if (this.frame == 40)
-            this.frame = 0;
     },
 
     drawBall: function() {
@@ -352,36 +403,54 @@ const game = {
     },
 
     drawBonus: function(bonus) {
-        game.ctx.beginPath();
-        game.ctx.arc(bonus.x, bonus.y, bonus.radius, 0, Math.PI * 2);
-        game.ctx.fillStyle = bonus.color;
-        game.ctx.fill();
+        // Assuming `bonusTouched` is a boolean flag indicating if a bonus has been touched
+        if (!bonus.active || this.bonusTouched) {
+            return; // Skip drawing if the bonus is not active or if any bonus has been touched
+        }
+        const pulsatingRadius = bonus.baseRadius + Math.sin(this.frame * 0.1) * 2; // Adjust for pulsating effect
+        this.ctx.beginPath();
+        this.ctx.arc(bonus.x, bonus.y, pulsatingRadius, 0, Math.PI * 2);
+        this.ctx.fillStyle = bonus.color;
+        this.ctx.fill();
     },
     
     checkBonusCollision: function() {
+        var that = this; // Capture the correct context of 'this' to use inside setTimeout
+    
         if (Math.abs(this.ballPosX - this.bonusGreen.x) < this.bonusGreen.radius && Math.abs(this.ballPosY - this.bonusGreen.y) < this.bonusGreen.radius && this.bonusGreen.active) {
             this.ballSpeedX *= 1.5;
             this.ballSpeedY *= 1.5;
             this.bonusGreen.active = false;
+            this.bonusTouched = true;
+            setTimeout(function() {
+                that.ballSpeedX /= 1.5;
+                that.ballSpeedY /= 1.5;
+                that.bonusTouched = false; // Use 'that' instead of 'this'
+                that.attemptBonusGeneration(); // Try generating a new bonus
+            }, 10000); // 10 seconds
         }
     
         if (Math.abs(this.ballPosX - this.bonusRed.x) < this.bonusRed.radius && Math.abs(this.ballPosY - this.bonusRed.y) < this.bonusRed.radius && this.bonusRed.active) {
             this.ballSpeedX /= 1.5;
             this.ballSpeedY /= 1.5;
-            var that = this;
-            setTimeout(function() {
-                that.ballSpeedX *= 1.5; 
-                that.ballSpeedY *= 1.5;
-            }, 10000);
             this.bonusRed.active = false;
+            this.bonusTouched = true;
+            setTimeout(function() {
+                that.ballSpeedX *= 1.5;
+                that.ballSpeedY *= 1.5;
+                that.bonusTouched = false; // Use 'that' instead of 'this'
+                that.attemptBonusGeneration(); // Try generating a new bonus
+            }, 10000); // 10 seconds
         }
+    
+        // Ball color logic remains the same
         if (Math.abs(this.ballSpeedX) == this.settings.ballSpeed / 2)
             this.ball_color = 'white';
         else if (Math.abs(this.ballSpeedX) > this.settings.ballSpeed / 2)
             this.ball_color = 'green';
         else if (Math.abs(this.ballSpeedX) < this.settings.ballSpeed / 2)
             this.ball_color = 'red';
-    },    
+    },      
     
     displayPoints: function() {
         if (game.player1Score % 5 === 0 && game.player1Score > 0) {

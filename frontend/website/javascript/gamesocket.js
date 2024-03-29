@@ -14,6 +14,11 @@ var gameSocket = {
             console.log("Connected to WebSocket");
             this.listRooms();
         });
+        this.socket.addEventListener('close', (event) => {
+            console.log("Disconnected from WebSocket, attempting to reconnect...");
+            setTimeout(() => this.init(), 5000);
+        });
+
     
         this.socket.addEventListener('message', (event) => {
             const data = JSON.parse(event.data);
@@ -55,14 +60,51 @@ var gameSocket = {
                 console.log(`Assigned role: ${data.role}`);
             } else if (data.error && data.action === 'delete_room') {
                 console.error(data.error);
+            } else if (data.action === 'receive_invite') {
+                console.log(data.message);
+                this.showInvitePopup(data.room_name, data.from_user);
             }
-            
         });
     
         this.socket.addEventListener('close', (event) => {
             console.log("Disconnected from WebSocket");
         });
-    },   
+    },
+
+    showInvitePopup: function(roomName, fromUser) {
+        const popupDiv = document.createElement('div');
+        popupDiv.id = 'invitePopup';
+        popupDiv.style.position = 'fixed';
+        popupDiv.style.left = '50%';
+        popupDiv.style.top = '50%';
+        popupDiv.style.transform = 'translate(-50%, -50%)';
+        popupDiv.style.backgroundColor = 'white';
+        popupDiv.style.padding = '20px';
+        popupDiv.style.zIndex = '1000';
+        popupDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+        
+        const message = document.createElement('p');
+        message.textContent = `You have been invited to join the room '${roomName}' by ${fromUser}. Do you accept?`;
+        popupDiv.appendChild(message);
+        
+        const acceptButton = document.createElement('button');
+        acceptButton.textContent = 'Accept';
+        acceptButton.onclick = () => {
+            this.joinRoom(roomName);
+            document.body.removeChild(popupDiv);
+        };
+        popupDiv.appendChild(acceptButton);
+    
+        const refuseButton = document.createElement('button');
+        refuseButton.textContent = 'Refuse';
+        refuseButton.style.marginLeft = '10px';
+        refuseButton.onclick = () => {
+            document.body.removeChild(popupDiv);
+        };
+        popupDiv.appendChild(refuseButton);
+        
+        document.body.appendChild(popupDiv);
+    },
 
     closeAndReinitialize: function() {
         if (this.socket) {
@@ -232,6 +274,14 @@ var gameSocket = {
             console.log("WebSocket is not open. Waiting before retrying...");
             setTimeout(() => this.sendMessage(message), 1000);
         }
+    },
+
+    sendInvite: function(username, roomName) {
+        this.sendMessage({
+            action: 'send_invite',
+            username: username,
+            room_name: roomName,
+        });
     },
 
     startPeriodicUpdates: function() {

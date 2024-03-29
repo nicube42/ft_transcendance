@@ -7,27 +7,46 @@ import json
 from django.contrib.sessions.models import Session
 import logging
 from django.db.models import Case, When, Value, BooleanField
+from channels.layers import get_channel_layer
+import aioredis
+import contextlib
+
 
 logger = logging.getLogger(__name__) 
 
+@contextlib.asynccontextmanager
+async def get_redis_connection():
+    redis = await aioredis.from_url("redis://redis", encoding="utf-8", decode_responses=True)
+    try:
+        yield redis
+    finally:
+        await redis.close()
+
 class GameConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
-        print(self.scope)
-        self.user = self.scope["user"]
-        if self.user.is_anonymous:
-            session_key = self.scope["cookies"].get("sessionid", None)
-            if session_key:
-                user = await self.get_user_from_session(session_key)
-                if user:
-                    self.user = user
-                    logger.info(f"Authenticated user from session: {user}")
-                else:
-                    logger.info("No user found in session.")
+        self.user = self.scope.get("user")
+        session_key = self.scope["cookies"].get("sessionid", None)
+
+        if self.user.is_anonymous and session_key:
+            self.user = await self.get_user_from_session(session_key)
+            if self.user:
+                logger.info(f"Authenticated user from session: {self.user.username}")
             else:
-                logger.info("No session ID provided.")
-            return
-        logger.debug(f"User: {self.user}, Session Key: {self.scope['cookies'].get('sessionid', None)}")
+                logger.info("Failed to authenticate user from session.")
+
+        if self.user and not self.user.is_anonymous:
+            await self.track_user_channel(self.user.username, self.channel_name)
+            logger.info(f"Tracking user {self.user.username} on channel {self.channel_name}")
+        else:
+            logger.info("User is anonymous, skipping tracking.")
+
         await self.accept()
+
+    async def restore_user_state(self):
+        user_rooms = await self.get_user_rooms_from_redis(self.user.username)
+        for room_name in user_rooms:
+            await self.join_room({'room_name': room_name}, reconnect=True)
 
     @database_sync_to_async
     def get_user_from_session(self, session_key):
@@ -40,8 +59,24 @@ class GameConsumer(AsyncWebsocketConsumer):
             return None
 
     async def disconnect(self, close_code):
-        await self.leave_all_rooms()
-        pass
+        if self.user and not self.user.is_anonymous:
+            await self.update_user_state_in_redis()
+            await self.untrack_user_channel(self.scope["user"].username)
+            await self.leave_all_rooms()
+
+    async def update_user_state_in_redis(self):
+        rooms = await self._get_user_rooms(self.user)
+        room_names = [room.name for room in rooms]
+        async with get_redis_connection() as redis:
+            await redis.set(f"user_state:{self.user.username}", json.dumps({"rooms": room_names}))
+
+    async def get_user_rooms_from_redis(self, username):
+        async with get_redis_connection() as redis:
+            state_json = await redis.get(f"user_state:{username}")
+        if state_json:
+            state = json.loads(state_json)
+            return state.get("rooms", [])
+        return []
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -67,6 +102,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.update_ball_state(text_data_json)
         elif action == 'delete_room':
             await self.delete_room(text_data_json)
+        elif action == 'send_invite':
+            await self.send_invite(text_data_json)
 
     async def create_room(self, data):
         room_name = data['room_name']
@@ -77,37 +114,69 @@ class GameConsumer(AsyncWebsocketConsumer):
         room, created = await self.get_or_create_room(name=room_name, user=user)
         if created:
             await self.send_message_safe(json.dumps({'message': f'Room {room_name} created'}))
+            await self.broadcast_room_list()
         else:
             await self.send_message_safe(json.dumps({'error': 'Room already exists'}))
 
-    async def join_room(self, data):
+    async def join_room(self, data, reconnect=False):
         room_name = data['room_name']
         room = await self.get_room_by_name(room_name)
         if room:
-            await self.add_user_to_room(room)
-            user_count = await self.get_user_count(room)
+            user_added, user_count = await self.add_or_retrieve_user_in_room(room)
             player_position = "left" if user_count == 1 else "right"
-            await self.channel_layer.group_add(
-                room_name,
-                self.channel_name
-            )
-            await self.send_message_safe(json.dumps({'position': player_position}))
-            await self.list_users_in_room(data)
-            await self.channel_layer.group_send(
-                room_name,
-                {
+
+            if not reconnect:
+                await self.channel_layer.group_add(room_name, self.channel_name)
+                await self.send_message_safe(json.dumps({'position': player_position}))
+                await self.list_users_in_room(data)
+                await self.channel_layer.group_send(room_name, {
                     "type": "player.joined",
                     "position": player_position,
                     "player": self.scope["user"].username,
                     "user_count": user_count,
-                }
-            )
+                })
+            
             await self.send_message_safe(json.dumps({
                 'action': 'assign_role',
                 'role': player_position  # 'left' or 'right'
             }))
         else:
             await self.send_message_safe(json.dumps({'error': 'Room does not exist'}))
+
+    async def add_or_retrieve_user_in_room(self, room):
+        """
+        Add a user to a room if they're not already part of it.
+        This function is idempotent; it can be called multiple times without additional effect.
+        Returns a tuple of (user_added, user_count), where user_added is a boolean indicating if the user was newly added.
+        """
+        user = self.scope['user']
+        if user.is_anonymous:
+            return False, 0
+        
+        user_already_in_room = await self.is_user_in_room(user, room)
+        
+        if not user_already_in_room:
+            await database_sync_to_async(room.users.add)(user)
+            user_added = True
+        else:
+            user_added = False
+        
+        user_count = await self.get_user_count(room)
+        return user_added, user_count
+
+    @database_sync_to_async
+    def is_user_in_room(self, user, room):
+        """
+        Check if a user is in the given room.
+        """
+        return room.users.filter(id=user.id).exists()
+
+    async def get_user_count(self, room):
+        """
+        Asynchronously return the number of users in the given room.
+        """
+        return await database_sync_to_async(room.users.count)()
+
 
     async def delete_room(self, data):
         room_name = data['room_name']
@@ -149,6 +218,31 @@ class GameConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_user_count(self, room):
         return room.users.count()
+    
+    async def broadcast_room_list(self):
+        rooms_data = await self.get_rooms_data(self.scope["user"])
+        await self.channel_layer.group_send(
+            "lobby",
+            {
+                "type": "room.list",
+                "rooms": rooms_data,
+            }
+        )
+
+    async def room_list(self, event):
+        await self.send(text_data=json.dumps({
+            'action': 'list_rooms',
+            'rooms': event['rooms'],
+        }))
+
+    @database_sync_to_async
+    def get_rooms_data(self, user):
+        rooms = Room.objects.annotate(is_admin=Case(
+            When(admin=user, then=Value(True)),
+            default=Value(False),
+            output_field=BooleanField()
+        )).values('name', 'is_admin')
+        return list(rooms)
 
     async def list_users_in_room(self, data):
         room_name = data.get('room_name')
@@ -182,13 +276,17 @@ class GameConsumer(AsyncWebsocketConsumer):
         return list(rooms)
 
     async def list_rooms(self):
-        user = self.scope['user']
-        rooms_data = await self.get_rooms_data(user)
-        await self.send_message_safe(json.dumps({
+        user = self.scope["user"]
+        if user.is_authenticated:
+            rooms_data = await self.get_rooms_data(user)
+            await self.send_message_safe(json.dumps({
             'action': 'list_rooms',
             'rooms': rooms_data
-        }))
-
+            }))
+        else:
+            await self.send(text_data=json.dumps({
+                'error': 'User must be logged in to list rooms.'
+            }))
 
 
     @database_sync_to_async
@@ -371,3 +469,45 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.send(text_data=message)
         else:
             logger.info("Attempted to send message to anonymous user, action skipped.")
+
+    async def send_invite(self, data):
+        invitee_username = data['username']
+        room_name = data.get('room_name', 'default_room')
+        from_user = self.scope["user"].username
+
+        async with get_redis_connection() as redis:
+            invitee_channel_name = await redis.get(f"user_channel:{invitee_username}")
+
+        if invitee_channel_name:
+            await self.channel_layer.send(invitee_channel_name, {
+                'type': 'receive_invite',
+                'from_user': from_user,
+                'room_name': room_name,
+                'message': f"You have been invited to join the room {room_name} by {from_user}"
+            })
+            await self.send_message_safe(json.dumps({'message': f'Invitation sent to {invitee_username}'}))
+        else:
+            await self.send_message_safe(json.dumps({'error': f'User {invitee_username} is not online or does not exist.'}))
+
+    async def receive_invite(self, event):
+        await self.send(text_data=json.dumps({
+            'action': 'receive_invite',
+            'from_user': event['from_user'],
+            'room_name': event['room_name'],
+            'message': event['message'],
+        }))
+
+
+    async def get_user_channel(self, username):
+        redis = aioredis.from_url("redis://redis", encoding="utf-8", decode_responses=True)
+        channel_name = await redis.get(f"user_channel:{username}")
+        await redis.close()
+        return channel_name
+
+    async def track_user_channel(self, username, channel_name):
+        async with get_redis_connection() as redis:
+            await redis.set(f"user_channel:{username}", channel_name)
+
+    async def untrack_user_channel(self, username):
+        async with get_redis_connection() as redis:
+            await redis.delete(f"user_channel:{username}")

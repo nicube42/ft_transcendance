@@ -132,6 +132,7 @@ def api_login(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
+                request.session.save()
                 return JsonResponse({'message': 'Login successful'})
             else:
                 return JsonResponse({'error': 'Invalid credentials'}, status=400)
@@ -139,7 +140,7 @@ def api_login(request):
             logger.exception('Error decoding JSON in api_login')
             return JsonResponse({'error': 'Invalid JSON format'}, status=400)
         except Exception as e:
-            logger.exception('Error in api_login: {}'.format(e))
+            logger.exception(f'Error in api_login: {e}')
             return JsonResponse({'error': 'Internal Server Error'}, status=500)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -180,22 +181,17 @@ from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from .models import CustomUser
 
-@require_http_methods(["GET"])
-@login_required
-def search_user(request):
-    username = request.GET.get('username', '')
-    if not username:
-        return JsonResponse({'error': 'Username parameter is required'}, status=400)
-
-    try:
-        user = CustomUser.objects.get(username=username)
-        return JsonResponse({
-            'username': user.username,
-            'fullname': user.fullname,
-            'bio': user.bio,
-        }, status=200)
-    except CustomUser.DoesNotExist:
+def is_user_logged_in(request):
+    username = request.GET.get('username', None)
+    if username is None:
+        return JsonResponse({'error': 'Username parameter is missing.'}, status=400)
+    
+    user = CustomUser.objects.filter(username=username).first()
+    if user is None:
         return JsonResponse({'error': 'User not found'}, status=404)
+    
+    is_logged_in = LoggedInUser.objects.filter(user=user).exists()
+    return JsonResponse({'is_logged_in': is_logged_in})
     
 def check_auth_status(request):
     session_compromised = False
@@ -208,3 +204,16 @@ def check_auth_status(request):
             return JsonResponse({"is_authenticated": True})
     else:
         return JsonResponse({"is_authenticated": False}, status=401)
+    
+
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.dispatch import receiver
+from .models import LoggedInUser
+
+@receiver(user_logged_in)
+def on_user_login(sender, request, user, **kwargs):
+    LoggedInUser.objects.get_or_create(user=user)
+
+@receiver(user_logged_out)
+def on_user_logout(sender, request, user, **kwargs):
+    LoggedInUser.objects.filter(user=user).delete()

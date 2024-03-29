@@ -32,3 +32,9 @@ class Room(models.Model):
     name = models.CharField(max_length=100, unique=True)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='rooms', blank=True)
     admin = models.ForeignKey(CustomUser(), on_delete=models.CASCADE, related_name='admin_rooms', null=True)
+
+class LoggedInUser(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
+
+    def __str__(self):
+        return self.user.username

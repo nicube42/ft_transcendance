@@ -5,3 +5,4 @@ django-cors-headers>=3.7.0
 channels>=3.0.3
 channels_redis>=3.3.0
 uvicorn[standard]>=0.13.4
+aioredis>=2.0.0

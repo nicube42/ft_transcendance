@@ -226,6 +226,13 @@
                     <div class="text-center mt-4">
                         <button id="playDistantBtn" class="btn btn-outline-success fs-2 btn-sm">Play</button>
                         <button id="quitRoomBtn" class="btn btn-outline-success fs-2 btn-sm">Quit room</button>
+                        <form id="invitePlayerForm" class="d-flex justify-content-center align-items-center">
+                            <div class="mb-3">
+                                <label for="usernameInput" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="usernameInput" name="username" placeholder="Enter username">
+                            </div>
+                            <button type="button" id="inviteRoomBtn" class="btn btn-outline-success fs-2 btn-sm">Invite a player</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -272,7 +279,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Initialize Bootstrap dropdown
         var dropdownToggleList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
         dropdownToggleList.forEach(function (dropdownToggleEl) {
             new bootstrap.Dropdown(dropdownToggleEl);
@@ -285,7 +291,6 @@
 <script src="javascript/settings.js"></script>
 <script src="javascript/auth.js"></script>
 <script src="javascript/game.js"></script>
-<script src="javascript/csrf.js"></script>
 <script src="javascript/profile.js"></script>
 <script src="javascript/navbar.js"></script>
 <script src="javascript/main.js"></script>

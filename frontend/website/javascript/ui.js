@@ -12,6 +12,7 @@ const ui = {
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
+        gameSocket.init();
     
         if (!isPopState) {
             const url = '/' + sectionId;

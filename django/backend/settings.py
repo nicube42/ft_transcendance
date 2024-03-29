@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'channels',
     'channels_redis',
     'uvicorn',
+    'aioredis',
 ]
 
 MIDDLEWARE = [
