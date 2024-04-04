@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import GameSettings, Player
 import json
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 @csrf_exempt
 @login_required
@@ -217,3 +218,19 @@ def on_user_login(sender, request, user, **kwargs):
 @receiver(user_logged_out)
 def on_user_logout(sender, request, user, **kwargs):
     LoggedInUser.objects.filter(user=user).delete()
+
+from django.shortcuts import render, redirect
+from .forms import ProfilePicUpdateForm
+from django.contrib.auth.decorators import login_required
+
+@login_required
+@require_POST
+def profile_pic_update(request):
+    if request.method == 'POST':
+        form = ProfilePicUpdateForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = ProfilePicUpdateForm(instance=request.user)
+    return render(request, 'app/profile_update.html', {'form': form})

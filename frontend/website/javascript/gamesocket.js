@@ -19,7 +19,6 @@ var gameSocket = {
             setTimeout(() => this.init(), 5000);
         });
 
-    
         this.socket.addEventListener('message', (event) => {
             const data = JSON.parse(event.data);
             console.log("Received message from server:", data);
@@ -63,6 +62,12 @@ var gameSocket = {
             } else if (data.action === 'receive_invite') {
                 console.log(data.message);
                 this.showInvitePopup(data.room_name, data.from_user);
+            } else if(data.action === 'receive_tournament_invite') {
+                tournament.showInvitePopup(data.tournament_id, data.from_user);
+            } else if (data.action === 'tournament_created') {
+                tournament.handleTournamentCreated(data);
+            } else if (data.action === 'update_participant_count') {
+                tournament.updateParticipantCount(data.participant_count, data.max_players, data.participants);
             }
         });
     
@@ -281,6 +286,40 @@ var gameSocket = {
             action: 'send_invite',
             username: username,
             room_name: roomName,
+        });
+    },
+
+    createTournament: function() {
+        const numPlayers = parseInt(document.getElementById('numplayers').value, 10);
+        if (isNaN(numPlayers) || numPlayers % 2 !== 0) {
+            alert('Number of players must be an even number.');
+            return;
+        }
+    
+        gameSocket.sendMessage({
+            action: 'create_tournament',
+            numPlayers: numPlayers
+        });
+    },
+    
+    invitePlayers: function() {
+        const username = document.getElementById('usernameInput').value.trim();
+        if (username === '') {
+            alert('Please enter a username to invite.');
+            return;
+        }
+    
+        gameSocket.sendMessage({
+            action: 'invite_to_tournament',
+            tournamentId: this.tournamentId,
+            username: username
+        });
+    },
+    
+    startMatches: function() {
+        gameSocket.sendMessage({
+            action: 'start_tournament_matches',
+            tournamentId: this.tournamentId
         });
     },
 

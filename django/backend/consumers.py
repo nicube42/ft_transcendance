@@ -1,7 +1,9 @@
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import async_to_sync
+from asgiref.sync import sync_to_async
 from .models import Room
+from .models import Tournament
 from django.contrib.auth import get_user_model
 import json
 from django.contrib.sessions.models import Session
@@ -10,7 +12,7 @@ from django.db.models import Case, When, Value, BooleanField
 from channels.layers import get_channel_layer
 import aioredis
 import contextlib
-
+import uuid
 
 logger = logging.getLogger(__name__) 
 
@@ -104,6 +106,21 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.delete_room(text_data_json)
         elif action == 'send_invite':
             await self.send_invite(text_data_json)
+        if action == 'create_tournament':
+            await self.create_tournament(text_data_json)
+        elif action == 'invite_to_tournament':
+            await self.invite_to_tournament(text_data_json)
+        elif action == 'accept_tournament_invite':
+            await self.accept_tournament_invite(text_data_json)
+        elif action == 'update_participants':
+            tournament_id = text_data_json.get('tournament_id')  # Extract the tournament_id as a string
+            if tournament_id:
+                await self.update_tournament_participants(tournament_id)  # Pass the extracted ID as a string
+            else:
+                # Handle the case where tournament_id is not provided or is invalid
+                await self.send_message_safe(json.dumps({'error': 'tournament_id is required for updating participants'}))
+        # elif action == 'start_tournament_matches':
+        #     await self.start_tournament_matches(text_data_json)
 
     async def create_room(self, data):
         room_name = data['room_name']
@@ -511,3 +528,177 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def untrack_user_channel(self, username):
         async with get_redis_connection() as redis:
             await redis.delete(f"user_channel:{username}")
+
+
+    async def create_tournament(self, data):
+        # Extract necessary data (e.g., tournament name) from the incoming message
+        tournament_name = data.get('name', 'Unnamed Tournament')
+        user = self.scope['user']
+        max_players = data.get('numPlayers', 4)
+        
+        # Generate a unique tournament ID
+        tournament_id = str(uuid.uuid4())
+        
+        # Create the tournament in the database
+        tournament = await self.create_tournament_record(tournament_id, tournament_name, max_players)
+        error_message = await self.add_user_to_tournament_participants(user.id, tournament_id)
+        await self.channel_layer.group_add(f"tournament_{tournament_id}", self.channel_name)
+        # Check if the tournament was successfully created
+        if tournament:
+            # await self.update_tournament_participants(tournament_id)
+            response = {
+                'action': 'tournament_created',
+                'tournamentId': tournament_id,
+                'name': tournament_name,
+                'message': 'Tournament created successfully'
+            }
+        else:
+            response = {
+                'action': 'tournament_creation_failed',
+                'message': 'Failed to create tournament'
+            }
+        
+        # Send the response back to the client
+        await self.send(text_data=json.dumps(response))
+
+    @database_sync_to_async
+    def create_tournament_record(self, tournament_id, name, max_players):
+        # Logic to save the tournament to your database
+        # This is a simplified example. Adapt according to your actual Tournament model.
+        try:
+            tournament = Tournament.objects.create(id=tournament_id, name=name)
+            tournament.max_players = max_players
+            tournament.save()
+            return tournament
+        except Exception as e:
+            logger.error(f"Failed to create tournament: {e}")
+            return None
+
+    async def send_tournament_invite(self, event):
+        # Sending the actual invite message to the WebSocket client
+        await self.send(text_data=json.dumps({
+            'action': 'receive_tournament_invite',
+            'from_user': event['from_user'],
+            'tournament_id': event['tournament_id'],
+            'message': event['message'],
+        }))
+
+    async def invite_to_tournament(self, data):
+        invitee_username = data['username']
+        tournament_id = data['tournamentId']
+        from_user = self.scope["user"].username
+
+        # Use Redis to check if the invitee is currently connected by looking up their channel name
+        async with get_redis_connection() as redis:
+            invitee_channel_name = await redis.get(f"user_channel:{invitee_username}")
+
+        if invitee_channel_name:
+            # Prepare the message with the corrected type that points to our handler method
+            invite_message = {
+                'type': 'send_tournament_invite',  # Corrected to match the handler method in GameConsumer
+                'from_user': from_user,
+                'tournament_id': tournament_id,
+                'message': f"You have been invited to join the tournament {tournament_id} by {from_user}"
+            }
+            # Send the message to the invitee's channel
+            await self.channel_layer.send(invitee_channel_name, invite_message)
+            # Optionally, confirm to the inviter that the invite was sent
+            await self.send_message_safe(json.dumps({'message': f'Invitation sent to {invitee_username}'}))
+        else:
+            # Handle the case where the invitee is not online or cannot be found
+            await self.send_message_safe(json.dumps({'error': f'User {invitee_username} is not online or does not exist.'}))
+
+    async def update_tournament_participants(self, tournament_id):
+        tournament = await self.get_tournament_instance(tournament_id)
+        if tournament:
+            participant_count = await sync_to_async(tournament.participants.count)()
+            max_players = tournament.max_players
+            participants = await database_sync_to_async(list)(tournament.participants.all())
+            participant_usernames = [p.username for p in participants]
+            update_message = {
+                'action': 'update_participant_count',
+                'participants': participant_usernames,
+                'participant_count': participant_count,
+                'max_players': max_players,
+            }
+            await self.send_message_safe(json.dumps(update_message))
+        else:
+            logger.error(f"Tournament with ID {tournament_id} not found.")
+
+    @database_sync_to_async
+    def get_tournament_instance(self, tournament_id):
+        try:
+            return Tournament.objects.get(id=tournament_id)
+        except Tournament.DoesNotExist:
+            return None
+
+    async def accept_tournament_invite(self, data):
+        user = self.scope['user']
+        tournament_id = data['tournamentId']
+
+        # Ensure the user is authenticated before proceeding
+        if user.is_anonymous:
+            await self.send_message_safe({'error': 'User must be authenticated to accept an invitation.'})
+            return
+
+        # Attempt to add the user to the tournament's participants
+        added, error_message = await self.add_user_to_tournament_participants(user.id, tournament_id)
+        await self.channel_layer.group_add(f"tournament_{tournament_id}", self.channel_name)
+
+        if added:
+            # After successfully adding the user, broadcast the updated participant count.
+            await self.broadcast_tournament_participant_update(tournament_id)
+        else:
+            await self.send_message_safe({'error': error_message})
+
+    async def send_json(self, event):
+        await self.send(text_data=event['text'])
+
+    async def broadcast_tournament_participant_update(self, tournament_id):
+        tournament = await self.get_tournament_instance(tournament_id)
+        if tournament:
+            participant_count = await sync_to_async(tournament.participants.count)()
+            max_players = tournament.max_players
+            participants = await database_sync_to_async(list)(tournament.participants.all())
+            participant_usernames = [p.username for p in participants]
+            update_message = {
+                'type': 'send_json',  # Use the built-in handler to send JSON data.
+                'text': json.dumps({
+                    'action': 'update_participant_count',
+                    'participants': participant_usernames,
+                    'participant_count': participant_count,
+                    'max_players': max_players,
+                }),
+            }
+            await self.channel_layer.group_send(
+                f"tournament_{tournament_id}",
+                update_message
+            )
+
+    @database_sync_to_async
+    def add_user_to_tournament_participants(self, user_id, tournament_id):
+        try:
+            user = get_user_model().objects.get(id=user_id)
+            tournament = Tournament.objects.get(id=tournament_id)
+            
+            # Check if user is already a participant to avoid duplicates
+            if tournament.participants.filter(id=user_id).exists():
+                return False, 'User is already a participant in this tournament.'
+
+            tournament.participants.add(user)
+            tournament.save()
+            return True, None  # Successfully added
+        except get_user_model().DoesNotExist:
+            return False, 'User does not exist.'
+        except Tournament.DoesNotExist:
+            return False, 'Tournament does not exist.'
+
+
+    # async def start_tournament_matches(self, data):
+    #     # Logic to start tournament matches
+    #     # This might involve setting up matches, selecting players, etc.
+    #     # Respond to clients with match start information
+    #     tournament_id = data['tournamentId']
+    #     # Example response
+    #     match_info = {'action': 'matches_started', 'matches': 'details_here'}
+    #     await self.send(text_data=json.dumps(match_info))

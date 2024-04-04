@@ -7,20 +7,24 @@ const ui = {
         }
     },
 
-    showOnlyOneSection: function(sectionId, isPopState = false) {
-        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms'];
+    showOnlyOneSection: function(sectionId, isPopState = false, queryParams = {}) {
+        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage'];
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
         gameSocket.init();
     
         if (!isPopState) {
-            const url = '/' + sectionId;
-            history.pushState({section: sectionId}, '', url);
+            let url = '/' + sectionId;
+            const queryStrings = Object.keys(queryParams).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(queryParams[key])}`).join('&');
+            if (queryStrings) {
+                url += `?${queryStrings}`;
+            }
+            history.pushState({section: sectionId, queryParams: queryParams}, '', url);
         }
     
         game.handleVisibilityChange?.();
-    },           
+    },         
 
     isSectionVisible: function(sectionId) {
         const section = document.getElementById(sectionId);
@@ -166,7 +170,13 @@ const ui = {
                 console.error('Attempted to leave a room, but no current room is set.');
             }
         },
-        
+        async 'nextStageBtn'() {
+            //this.showOnlyOneSection('tournamentStage');
+            tournament.createTournament();
+        },
+        async 'invitePlayerTournamentBtn'() {
+            tournament.invitePlayers();
+        }
     },
 
     init: function() {
@@ -179,6 +189,19 @@ const ui = {
                 ui.showOnlyOneSection('firstPage', true);
             }
         });
+        this.loadTournamentData();
+    },
+
+    loadTournamentData: function() {
+        const tournamentId = localStorage.getItem('tournamentId');
+        const maxPlayers = localStorage.getItem('maxPlayers');
+        const currentParticipants = localStorage.getItem('currentParticipants');
+        // const participants = localStorage.getItem('participants');
+    
+        if (tournamentId && maxPlayers && currentParticipants) {
+            tournament.updateParticipantCount(parseInt(currentParticipants, 10), parseInt(maxPlayers, 10));
+            tournament.tournamentId = tournamentId;
+        }
     },
 
     checkAuthenticationAndInitializePage: function() {

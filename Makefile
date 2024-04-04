@@ -16,5 +16,8 @@ makemigrations:
 migrate:
 	docker-compose run --rm django python manage.py migrate
 
+collectstatic:
+	docker-compose run --rm django python manage.py collectstatic --no-input
+
 
 .PHONY: build up down migrate makemigrations createsuperuser shell logs

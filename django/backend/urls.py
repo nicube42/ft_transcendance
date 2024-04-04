@@ -3,6 +3,8 @@ from . import views
 from django.urls import path, include
 from django.contrib.auth.views import LoginView, LogoutView
 from .views import register
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('api/settings', views.save_settings, name='save_settings'),
@@ -13,4 +15,5 @@ urlpatterns = [
     path('api/user-info/', views.user_info, name='user_info'),
     path('api/check_auth_status/', views.check_auth_status, name='check_auth_status'),
     path('api/is-user-logged-in/', views.is_user_logged_in, name='is_user_logged_in'),
-]
+    path('update-profile-pic/', views.profile_pic_update, name='update_profile_pic'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

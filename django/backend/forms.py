@@ -6,3 +6,8 @@ class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = CustomUser
         fields = UserCreationForm.Meta.fields + ('fullname', 'date_of_birth', 'bio')
+
+class ProfilePicUpdateForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['profile_pic']
