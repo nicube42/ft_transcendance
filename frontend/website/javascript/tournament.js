@@ -31,7 +31,7 @@ const tournament = {
     updateParticipantCount: function(currentParticipants, maxPlayers, participants) {
         this.currentParticipants = currentParticipants;
         this.maxPlayers = maxPlayers;
-        this.participants = participants;
+        this.participants = Array.isArray(participants) ? participants : [participants];
         document.getElementById('participantCount').textContent = `Participants: ${currentParticipants}/${maxPlayers}`;
         localStorage.setItem('currentParticipants', currentParticipants);
         localStorage.setItem('participants', JSON.stringify(this.participants));
@@ -172,20 +172,65 @@ const tournament = {
         console.log('Match tree generated and displayed.');
     },
 
-    startMatches: function() {
-        // This function would be called after all players have joined.
-        // It should request the server to start the matches by randomly matching players.
-        gameSocket.sendMessage({
-            action: 'start_tournament_matches',
-            tournamentId: this.tournamentId
-        });
+    startFirstRoundMatches: function() {
+        // Identify first-round matches
+        const firstRoundMatches = this.identifyFirstRoundMatches();
+        
+        firstRoundMatches.forEach(match => {
+            // Use gameSocket to create a room for each match
+            gameSocket.init();
+            const roomName = `Tournament_${this.tournamentId}_Match_${match.id}`;
+            gameSocket.createRoom(roomName);
 
-        // Handle match start, updates, and completion
+            // Invite both participants to the room
+            gameSocket.sendInvite(match.player1, roomName);
+            gameSocket.sendInvite(match.player2, roomName);
+
+            // Start the match after a short delay to ensure both players join
+            setTimeout(() => {
+                gameSocket.sendGameStart();
+            }, 5000); // Adjust delay based on expected join time
+        });
     },
 
-    updateMatches: function(matchData) {
-        // Update UI based on ongoing match data
-        // This might include which players are currently playing, scores, etc.
+    identifyFirstRoundMatches: function() {
+        return this.matches.filter(match => match.round === 1);
+    },
+
+    // New Method: Process Match Result
+    processMatchResult: function(matchId, winner) {
+        // Update the match winner in the tournament's state
+        const matchIndex = this.matches.findIndex(match => match.id === matchId);
+        if (matchIndex > -1) {
+            this.matches[matchIndex].winner = winner;
+
+            // Advance winner to the next round or declare tournament winner
+            if (this.matches.every(match => match.round === this.matches[matchIndex].round && match.winner)) {
+                // If all matches in the current round have concluded
+                this.generateNextRoundMatches();
+            }
+        }
+    },
+
+    // New Method: Generate Matches for Next Round
+    generateNextRoundMatches: function() {
+        if (this.maxPlayers != this.currentParticipants) {
+            return;
+        }
+        // // Check if we are at the final match
+        // const remainingPlayers = this.matches.filter(match => !match.winner).length;
+        // if (remainingPlayers === 1) {
+        //     const tournamentWinner = this.matches.find(match => !match.winner).winner;
+        //     this.finalizeTournament(tournamentWinner);
+        //     return;
+        // }
+
+        // Otherwise, generate next round matches from winners
+        let nextRound = Math.max(...this.matches.map(match => match.round)) + 1;
+        let matchId = Math.max(...this.matches.map(match => match.id)) + 1;
+        let playersInThisRound = this.matches.filter(match => match.winner).map(match => match.winner);
+        // Generate and start next round matches
+        this.startFirstRoundMatches(); // This now starts the next round matches
     },
 
     finalizeTournament: function(winner) {

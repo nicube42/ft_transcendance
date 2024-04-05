@@ -176,6 +176,9 @@ const ui = {
         },
         async 'invitePlayerTournamentBtn'() {
             tournament.invitePlayers();
+        },
+        async 'startTournamentBtn'() {
+            tournament.generateNextRoundMatches();
         }
     },
 

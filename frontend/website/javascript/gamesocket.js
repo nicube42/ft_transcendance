@@ -25,11 +25,13 @@ var gameSocket = {
         
 
             if (data.action === 'update_ball_state') {
-                console.log("Received ball state:", data);
-                game.ballPosX = data.ball_state.ballPosX;
-                game.ballPosY = data.ball_state.ballPosY;
-                game.ballSpeedX = data.ball_state.ballSpeedX;
-                game.ballSpeedY = data.ball_state.ballSpeedY;
+                if (game.playerRole === 'right') {
+                    console.log("Received ball state:", data);
+                    game.ballPosX = data.ball_state.ballPosX;
+                    game.ballPosY = data.ball_state.ballPosY;
+                    game.ballSpeedX = data.ball_state.ballSpeedX;
+                    game.ballSpeedY = data.ball_state.ballSpeedY;
+                }
             }
 
             if (data.action === 'list_users') { 
@@ -239,18 +241,23 @@ var gameSocket = {
     },
 
     sendBallState: function() {
-        if (game.playerRole === 'left' && game.ballPosX !== null && game.ballPosY !== null && game.ballSpeedX !== null && game.ballSpeedY !== null) {
-            const message = {
-            action: 'update_ball_state',
-            ballPosX: game.ballPosX,
-            ballPosY: game.ballPosY,
-            ballSpeedX: game.ballSpeedX,
-            ballSpeedY: game.ballSpeedY,
-            room_name: this.currentRoom,
-            };
-            this.socket.send(JSON.stringify(message));
+        // Ensure only the left player sends the ball's state
+        if (game.playerRole === 'left') {
+            // Check all required ball state variables are not null
+            if (game.ballPosX !== null && game.ballPosY !== null && game.ballSpeedX !== null && game.ballSpeedY !== null) {
+                const message = {
+                    action: 'update_ball_state',
+                    ballPosX: game.ballPosX,
+                    ballPosY: game.ballPosY,
+                    ballSpeedX: game.ballSpeedX,
+                    ballSpeedY: game.ballSpeedY,
+                    room_name: this.currentRoom,
+                };
+                this.socket.send(JSON.stringify(message));
+            }
         }
-      },
+    },
+    
     
     sendPaddleMovement: function(direction) {
         if (this.socket.readyState === WebSocket.OPEN) {

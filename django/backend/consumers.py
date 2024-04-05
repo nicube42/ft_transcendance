@@ -42,7 +42,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             logger.info(f"Tracking user {self.user.username} on channel {self.channel_name}")
         else:
             logger.info("User is anonymous, skipping tracking.")
-
         await self.accept()
 
     async def restore_user_state(self):
@@ -140,11 +139,18 @@ class GameConsumer(AsyncWebsocketConsumer):
         room = await self.get_room_by_name(room_name)
         if room:
             user_added, user_count = await self.add_or_retrieve_user_in_room(room)
-            player_position = "left" if user_count == 1 else "right"
+            
+            # Determine player position based on the current count of users in the room
+            # The first player to join gets "left", the second gets "right"
+            logger.info(f"User count in room {room_name}: {user_count}")
+            if user_count == 1:
+                player_position = "left"  # The first player joining
+            elif user_count == 2:
+                player_position = "right"  # The second player joining
 
             if not reconnect:
                 await self.channel_layer.group_add(room_name, self.channel_name)
-                await self.send_message_safe(json.dumps({'position': player_position}))
+                # await self.send_message_safe(json.dumps({'position': player_position}))
                 await self.list_users_in_room(data)
                 await self.channel_layer.group_send(room_name, {
                     "type": "player.joined",
@@ -153,12 +159,11 @@ class GameConsumer(AsyncWebsocketConsumer):
                     "user_count": user_count,
                 })
             
+            # Inform the client of their assigned role
             await self.send_message_safe(json.dumps({
                 'action': 'assign_role',
-                'role': player_position  # 'left' or 'right'
+                'role': player_position  # Assigns 'left', 'right'
             }))
-        else:
-            await self.send_message_safe(json.dumps({'error': 'Room does not exist'}))
 
     async def add_or_retrieve_user_in_room(self, room):
         """
