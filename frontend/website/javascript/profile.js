@@ -17,7 +17,7 @@ const userInfoDisplayer = {
 
     fetchAndUpdateUserProfile: function() {
         // Fetch user profile information (assuming you have an endpoint set up for this)
-        fetch('http://localhost:8000/api/user-info/', {
+        fetch('https://localhost:8000/api/user-info/', {
             credentials: 'include', // Include cookies for session management
         })
         .then(response => response.json())
