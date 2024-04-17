@@ -54,6 +54,7 @@
                 <button class="btn btn-outline-success fs-2" id="PLAY">LOCAL MULTIPLAYER</button>
                 <button class="btn btn-outline-success fs-2" id="MULTIPLAYER">DISTANT MULTIPLAYER</button>
                 <button class="btn btn-outline-success fs-2" id="TOURNAMENT">TOURNAMENT</button>
+                <button class="btn btn-outline-success fs-2" id="STATISTICS">STATISTICS</button>
                 <button class="btn btn-outline-success fs-2" id="SETTINGS">SETTINGS</button>
             </div>
         </div>
@@ -108,7 +109,28 @@
             <div class="text-center mt-4">
                 <button class="btn btn-success" id="startTournamentBtn">Start Tournament</button>
             </div>
-        </div>        
+        </div>
+        
+        <div id="playerStats" class="container mt-5 d-none">
+            <h2 class="text-center mb-4">Player Statistics</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Last Games Results</h3>
+                    <ul id="gamesList" class="list-group">
+                        <!-- Last games results will be listed here -->
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h3>Player Details</h3>
+                    <div id="playerDetails" class="list-group">
+                        <p class="list-group-item">Games Played: <span id="gamesPlayed"></span></p>
+                        <p class="list-group-item">Total Wins: <span id="totalWins"></span></p>
+                        <p class="list-group-item">Total Losses: <span id="totalLosses"></span></p>
+                        <p class="list-group-item">Total Score: <span id="totalScore"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div id="settings" class="d-none">
             <h1>Settings</h1>
@@ -192,19 +214,15 @@
             <img id="profilePic" src="" alt="Profile Picture" />
             <div class="profile-info">
                 <div>
-                    <label>Username:</label>
                     <div id="usernameProfile"></div>
                 </div>
                 <div>
-                    <label>Full Name:</label>
                     <div id="fullnameProfile"></div>
                 </div>
                 <div>
-                    <label>Birth Date:</label>
                     <div id="birthProfile"></div>
                 </div>
                 <div>
-                    <label>Bio:</label>
                     <div id="bioProfile"></div>
                 </div>
             </div>
@@ -230,14 +248,17 @@
                             <p class="h4">Player 1: <span id="player1_endgame">0</span></p>
                             <p class="h4">Player 2: <span id="player2_endgame">0</span></p>
                             <p class="h4">Winner: <span id="winner_endgame"></span></p>
+                            <p id="gameDuration">Duration: </p>
+                            <p id="totalBalls">Total balls served: </p>
                         </div>
                         <div class="card-footer text-muted text-center">
                             <button id="playAgain" type="button" class="btn btn-outline-success fs-2 btn-sm btn-play-again">Play Again</button>
+                            <button id="returnHome" type="button" class="btn btn-outline-success fs-2 btn-sm">Return to Home</button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>        
 
         <div id="multiplayer" class="d-none text-center">
             <div class="form-group">
@@ -322,6 +343,7 @@
         });
     });
 </script>
+<script src="javascript/main.js"></script>
 <script src="javascript/ui.js"></script>
 <script src="javascript/webSocket.js"></script>
 <script src="javascript/gamesocket.js"></script>
@@ -331,6 +353,7 @@
 <script src="javascript/profile.js"></script>
 <script src="javascript/navbar.js"></script>
 <script src="javascript/tournament.js"></script>
-<script src="javascript/main.js"></script>
+<script src="javascript/stats.js"></script>
+<script src="javascript/statistics_page.js"></script>
 </body>
 </html>

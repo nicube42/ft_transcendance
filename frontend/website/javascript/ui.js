@@ -8,7 +8,7 @@ const ui = {
     },
 
     showOnlyOneSection: function(sectionId, isPopState = false, queryParams = {}) {
-        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage'];
+        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage', 'playerStats'];
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
@@ -67,19 +67,23 @@ const ui = {
         },
         async 'PLAY'() {
             game.setGameMode('multiplayer');
+            settings.populateSettings();
             this.showOnlyOneSection('play');
         },
         async 'playDistantBtn' () {
             game.setGameMode('distant');
+            settings.populateSettings();
             this.showOnlyOneSection('play');
             gameSocket.sendGameStart();
         },
         async 'SINGLEPLAYER'() {
             game.setGameMode('singlePlayer');
+            settings.populateSettings();
             this.showOnlyOneSection('play');
         },
         async 'MULTIPLAYER'() {
             this.showOnlyOneSection('multiplayer');
+            settings.populateSettings();
             gameSocket.listRooms();
         },
         async 'TOURNAMENT'() {
@@ -179,6 +183,9 @@ const ui = {
         },
         async 'startTournamentBtn'() {
             tournament.generateNextRoundMatches();
+        },
+        async 'STATISTICS'() {
+            this.showOnlyOneSection('playerStats');
         }
     },
 

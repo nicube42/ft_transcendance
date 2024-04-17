@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 class CustomUser(AbstractUser):
     # Add additional fields here
@@ -10,7 +11,6 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     profile_pic = models.ImageField(upload_to='profile_pics/', default='profile_pics/default.jpg')
 
-
 class MyModel(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -18,7 +18,23 @@ class MyModel(models.Model):
         app_label = 'backend'
 
 class Player(models.Model):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class Game(models.Model):
+    player1 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='games')
+    player2 = models.CharField(max_length=100)
+    player1_score = models.IntegerField(default=0)
+    player2_score = models.IntegerField(default=0)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+
+    @property
+    def duration(self):
+        return (self.end_time - self.start_time).total_seconds()
 
 class GameSettings(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='game_settings', null=True)
@@ -27,6 +43,7 @@ class GameSettings(models.Model):
     ball_speed = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
     paddle_speed = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
     winning_score = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
+
 
 class Room(models.Model):
     name = models.CharField(max_length=100, unique=True)

@@ -150,11 +150,20 @@ const auth = {
             }
             return response.json();
         })
+        .then(data => {
+            if (data.error) {
+                console.error('Error fetching user info:', data.error);
+            } else {
+                console.log('User info retrieved:', data);  // Log or use data as needed
+            }
+            return data;  // Return data for further handling
+        })
         .catch(error => {
             console.error('Error fetching user info:', error);
-            throw error;
+            throw error;  // Re-throw to handle it in further catch blocks
         });
     },
+    
     is_connected: function() {
         this.checkAuthentication();
     },
@@ -208,6 +217,7 @@ const auth = {
             alert('Error checking user login status.');
         }
     },
+
 };
 
 function getCookie(name) {

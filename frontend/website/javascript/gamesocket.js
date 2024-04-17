@@ -172,6 +172,10 @@ var gameSocket = {
 
     updateRoomList: function(rooms) {
         const roomListDiv = document.getElementById('roomList');
+        if (!roomListDiv) {
+            console.error('Element with ID "roomList" not found.');
+            return; // Exit the function if the element is not found
+        }
         roomListDiv.innerHTML = '';
     
         rooms.forEach((room) => {
@@ -204,7 +208,7 @@ var gameSocket = {
     
             roomListDiv.appendChild(roomElement);
         });
-    },    
+    },      
 
     updateUserList: function(users, roomName) {
         const usersListDiv = document.getElementById('roomUsersList');
