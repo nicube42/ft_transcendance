@@ -10,5 +10,4 @@ To do transcendance
 -search for user profiles
 -finish pong game
 -ui optimisation
--chat ?
 -sql injection
