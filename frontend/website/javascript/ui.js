@@ -61,7 +61,9 @@ const ui = {
     actionHandlers: {
         async 'navHome'() {
             if (this.connected)
+            { 
                 this.showOnlyOneSection('homepage');
+            }
             else
                 this.showOnlyOneSection('firstPage');
         },

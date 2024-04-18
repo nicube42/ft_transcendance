@@ -6,11 +6,11 @@ To do updated
 
 - vérifier injections sql
 
-- framework en back OK 1
+                - framework en back OK 1
 
-- framework en front OK 0.5
+                - framework en front OK 0.5
 
-- base de donnée en back OK 0.5
+                - base de donnée en back OK 0.5
 
 - gestion d'utilisateur KO 1
     - avatar
@@ -31,6 +31,5 @@ To do updated
 - IA KO 1 (nicolas)
     - implementer le modèle de ml au containeur existant
 
-- tableau de bord utilisateurs + stats (nicolas) KO 0.5
-    - vérifier vainqueurs/perdants dans le cas de matchs distants
+- tableau de bord utilisateurs + stats (nicolas) OK 0.5
 

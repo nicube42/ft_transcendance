@@ -38,7 +38,7 @@ const stats = {
     
         auth.retrieveInfos().then(userInfo => {
             if (userInfo && userInfo.username) {
-                const postData = {
+                var postData = {
                     player1: userInfo.username,
                     player2: game.settings.player2Name,
                     player1_score: player1Score,
@@ -46,7 +46,20 @@ const stats = {
                     start_time: stats.startTime.toISOString(),
                     end_time: stats.endTime.toISOString()
                 };
-    
+                if (game.gameMode === 'distant')
+                {
+                    if (game.playerRole === 'right')
+                    {
+                        postData = {
+                            player1: userInfo.username,
+                            player2: game.settings.player1Name,
+                            player1_score: player2Score,
+                            player2_score: player1Score,
+                            start_time: stats.startTime.toISOString(),
+                            end_time: stats.endTime.toISOString()
+                       };
+                    }
+                }
                 fetch('/api/game_record/', {
                     method: 'POST',
                     headers: {
