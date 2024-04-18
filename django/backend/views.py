@@ -303,10 +303,13 @@ def player_stats(request):
 
 
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 from .models import Game
 
+@login_required
 def recent_games(request):
-    games = Game.objects.all().order_by('-start_time')[:5]
+    current_user = request.user
+    games = Game.objects.filter(Q(player1=current_user) | Q(player2=current_user.username)).order_by('-start_time')[:5]
     games_data = [{
         'player1': game.player1.username,
         'player2': game.player2,
@@ -320,17 +323,22 @@ def recent_games(request):
     
     return JsonResponse(games_data, safe=False)
 
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 from .models import Game
 from django.db.models.functions import TruncMonth
 
+@login_required
 def win_rate_over_time(request):
-    games_by_month = Game.objects.annotate(
+    current_user = request.user
+    games_by_month = Game.objects.filter(
+        Q(player1=current_user) | Q(player2=current_user.username)
+    ).annotate(
         month=TruncMonth('created_at')
     ).values('month').annotate(
         total_games=Count('id'),
-        wins=Count('id', filter=Q(player1_score__gt=F('player2_score')))
+        wins=Count('id', filter=Q(player1=current_user, player1_score__gt=F('player2_score')) | Q(player2=current_user.username, player2_score__gt=F('player1_score')))
     ).order_by('month')
 
     data = {

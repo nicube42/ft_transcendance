@@ -30,16 +30,20 @@ const GameStats = {
                 });
             })
             .catch(error => console.error('Error fetching recent games:', error));
-    },
+    },    
     
     fetchWinRateData: function() {
         fetch('/api/winrate_over_time/')
             .then(response => response.json())
             .then(data => {
-                this.renderWinRateChart(data);
+                if (data.error) {
+                    console.error('Error fetching win rate data:', data.error);
+                } else {
+                    this.renderWinRateChart(data);
+                }
             })
             .catch(error => console.error('Error fetching win rate data:', error));
-    },
+    },    
     
     renderWinRateChart: function(data) {
         const ctx = document.getElementById('winRateChart').getContext('2d');
