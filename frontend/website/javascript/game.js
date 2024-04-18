@@ -75,7 +75,9 @@ const game = {
             this.resetVars();
             this.drawPong();
             window.removeEventListener('keydown', this.handleKeyDown.bind(this));
+            window.removeEventListener('keyup', this.handleKeyUp.bind(this));
             window.addEventListener('keydown', this.handleKeyDown.bind(this));
+            window.addEventListener('keyup', this.handleKeyUp.bind(this));
         }
     },
 
@@ -116,27 +118,34 @@ const game = {
         this.player1_name = this.settings.player1;
         this.player2_name = this.settings.player2;
         this.aiPaddleDirection = 1;
+        this.leftPaddleMovingUp = false;
+        this.leftPaddleMovingDown = false;
+        this.rightPaddleMovingUp = false;
+        this.rightPaddleMovingDown = false;
         
     },
 
-    handleKeyDown: function(e) {
+    handleKeyDown: function (e) {
+
         let direction = null;
-    
+
+        console.log("key pressed", e.key);
+
         if (game.gameMode === 'distant') {
             switch(e.key) {
                 case 'w':
                     direction = 'up';
                     if (game.playerRole === 'left')
-                        game.leftPaddleY = Math.max(game.leftPaddleY - game.paddleSpeed, 0);
+                        this.leftPaddleMovingUp = true;
                     else
-                        game.rightPaddleY = Math.max(game.rightPaddleY - game.paddleSpeed, 0);
+                        this.rightPaddleMovingUp = true;
                     break;
                 case 's':
                     direction = 'down';
                     if (game.playerRole === 'left')
-                        game.leftPaddleY = Math.min(game.leftPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
+                        this.leftPaddleMovingDown = true;
                     else
-                        game.rightPaddleY = Math.min(game.rightPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
+                        this.rightPaddleMovingDown = true;
                     break;
             }
     
@@ -144,27 +153,104 @@ const game = {
                 gameSocket.sendPaddleMovement(direction);
             }
         }
-        else
-        {
-
-            switch(e.key) {
+        else {
+            switch (e.key) {
                 case 'ArrowUp':
-                    if (this.gameMode === 'multiplayer')
-                        this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
+                    this.rightPaddleMovingUp = true;
                     break;
                 case 'ArrowDown':
-                    if (this.gameMode === 'multiplayer')
-                        this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+                    this.rightPaddleMovingDown = true;
                     break;
                 case 'w':
-                    this.leftPaddleY = Math.max(this.leftPaddleY - this.paddleSpeed, 0);
+                    this.leftPaddleMovingUp = true;
                     break;
                 case 's':
-                    this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+                    this.leftPaddleMovingDown = true;
                     break;
             }
         }
     },
+
+    handleKeyUp: function (e) {
+        if (this.gameMode !== 'distant'){
+            switch (e.key) {
+                case 'ArrowUp':
+                    this.rightPaddleMovingUp = false;
+                    break;
+                case 'ArrowDown':
+                    this.rightPaddleMovingDown = false;
+                    break;
+                case 'w':
+                    this.leftPaddleMovingUp = false;
+                    break;
+                case 's':
+                    this.leftPaddleMovingDown = false;
+                    break;
+            }
+        }
+    },
+
+    movePaddles: function () {
+        if (this.leftPaddleMovingUp) {
+            this.leftPaddleY = Math.max(this.leftPaddleY - this.paddleSpeed, 0);
+        }
+        if (this.leftPaddleMovingDown) {
+            this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+        }
+        if (this.rightPaddleMovingUp) {
+            this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
+        }
+        if (this.rightPaddleMovingDown) {
+            this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+        }
+    },
+
+    // handleKeyDown: function(e) {
+    //     let direction = null;
+    
+    //     if (game.gameMode === 'distant') {
+    //         switch(e.key) {
+    //             case 'w':
+    //                 direction = 'up';
+    //                 if (game.playerRole === 'left')
+    //                     game.leftPaddleY = Math.max(game.leftPaddleY - game.paddleSpeed, 0);
+    //                 else
+    //                     game.rightPaddleY = Math.max(game.rightPaddleY - game.paddleSpeed, 0);
+    //                 break;
+    //             case 's':
+    //                 direction = 'down';
+    //                 if (game.playerRole === 'left')
+    //                     game.leftPaddleY = Math.min(game.leftPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
+    //                 else
+    //                     game.rightPaddleY = Math.min(game.rightPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
+    //                 break;
+    //         }
+    
+    //         if (direction) {
+    //             gameSocket.sendPaddleMovement(direction);
+    //         }
+    //     }
+    //     else
+    //     {
+
+    //         switch(e.key) {
+    //             case 'ArrowUp':
+    //                 if (this.gameMode === 'multiplayer')
+    //                     this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
+    //                 break;
+    //             case 'ArrowDown':
+    //                 if (this.gameMode === 'multiplayer')
+    //                     this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+    //                 break;
+    //             case 'w':
+    //                 this.leftPaddleY = Math.max(this.leftPaddleY - this.paddleSpeed, 0);
+    //                 break;
+    //             case 's':
+    //                 this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+    //                 break;
+    //         }
+    //     }
+    // },
 
     pause: function() {
         if (this.animationFrameId) {
@@ -306,12 +392,7 @@ const game = {
             }
 
             // Ball movement logic
-            // TODO: check the nextframe collision before set the new position of the ball
-
             this.checkColisions();
-            //if (this.ballPosY <= 0 || this.ballPosY >= this.canvas.height) {
-            //    this.ballSpeedY = -this.ballSpeedY;
-            //}
 
             // Score update logic
             if (this.ballPosX <= 0 || this.ballPosX >= this.canvas.width) {
@@ -342,7 +423,8 @@ const game = {
         }
     
         this.checkBonusCollision();
-        this.displayPoints();
+        //this.displayPoints();
+        this.movePaddles();
     
         this.ctx.fillStyle = 'white';
 
@@ -455,9 +537,9 @@ const game = {
         if (!bonus.active || this.bonusTouched) {
             return; // Skip drawing if the bonus is not active or if any bonus has been touched
         }
-        const pulsatingRadius = bonus.baseRadius + Math.sin(this.frame * 0.1) * 2; // Adjust for pulsating effect
+        const pulsatingRadius = bonus.baseRadius + Math.sin(this.frame * 0.1) * 5; // Adjust for pulsating effect
         this.ctx.beginPath();
-        this.ctx.arc(bonus.x, bonus.y, pulsatingRadius, 0, Math.PI * 2);
+        this.ctx.arc(bonus.x, bonus.y, pulsatingRadius, 0, Math.PI * 5);
         this.ctx.fillStyle = bonus.color;
         this.ctx.fill();
     },
@@ -499,16 +581,5 @@ const game = {
         else if (Math.abs(this.ballSpeedX) < this.settings.ballSpeed / 2)
             this.ball_color = 'red';
     },      
-    
-    displayPoints: function() {
-        if (game.player1Score % 5 === 0 && game.player1Score > 0) {
-            // Afficher les points lorsque le joueur 1 marque 5 points
-            alert('Player 1 scores 5 points!');
-        }
-        if (game.player2Score % 5 === 0 && game.player2Score > 0) {
-            // Afficher les points lorsque le joueur 2 marque 5 points
-            alert('Player 2 scores 5 points!');
-        }
-    },
 
 };
