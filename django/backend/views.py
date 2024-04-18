@@ -314,7 +314,28 @@ def recent_games(request):
         'player2_score': game.player2_score,
         'duration': game.duration,
         'start_time': game.start_time.strftime('%Y-%m-%d %H:%M:%S'),
-        'end_time': game.end_time.strftime('%Y-%m-%d %H:%M:%S')
+        'end_time': game.end_time.strftime('%Y-%m-%d %H:%M:%S'),
+        'created_at': game.created_at.strftime('%Y-%m-%d %H:%M:%S')
     } for game in games]
     
     return JsonResponse(games_data, safe=False)
+
+from django.db.models import Count, Q
+from django.http import JsonResponse
+from .models import Game
+from django.db.models.functions import TruncMonth
+
+def win_rate_over_time(request):
+    games_by_month = Game.objects.annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        total_games=Count('id'),
+        wins=Count('id', filter=Q(player1_score__gt=F('player2_score')))
+    ).order_by('month')
+
+    data = {
+        'dates': [game['month'].strftime('%Y-%m') for game in games_by_month if game['month']],
+        'winRates': [(game['wins'] / game['total_games'] * 100) if game['total_games'] > 0 else 0 for game in games_by_month]
+    }
+
+    return JsonResponse(data)

@@ -31,10 +31,15 @@ class Game(models.Model):
     player2_score = models.IntegerField(default=0)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     @property
     def duration(self):
         return (self.end_time - self.start_time).total_seconds()
+    
+    @property
+    def player1_wins(self):
+        return self.player1_score > self.player2_score
 
 class GameSettings(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='game_settings', null=True)
