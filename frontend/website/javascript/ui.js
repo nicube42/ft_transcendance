@@ -72,9 +72,11 @@ const ui = {
         },
         async 'playDistantBtn' () {
             game.setGameMode('distant');
-            settings.populateSettings();
-            this.showOnlyOneSection('play');
-            gameSocket.sendGameStart();
+            //settings.populateSettings();
+            setTimeout(() => {
+                gameSocket.sendGameStart();
+                console.log('Game started');
+            }, 5000);
         },
         async 'SINGLEPLAYER'() {
             game.setGameMode('singlePlayer');
