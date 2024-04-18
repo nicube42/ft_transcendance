@@ -24,6 +24,7 @@ const game = {
     ctx: null,
     ballPosX: 0,
     ballPosY: 0,
+    ballRadius: 10,
     ballSpeedX: 5,
     ballSpeedY: 5,
     paddleSpeed: 15,
@@ -237,6 +238,58 @@ const game = {
         }, 9000);
     },
 
+    updateBallPos: function (delta, obstacle, isX, paddleCenter) {
+        let tmpX, tmpY;
+        console.log(paddleCenter);
+        console.log("delta:",delta);
+        if (isX && paddleCenter){
+            tmpX = obstacle;
+            tmpY = this.ballPosY + this.ballSpeedY * delta;
+            this.ballSpeedX *= -1;
+        }   
+        else {
+            tmpX = this.ballPosX + this.ballSpeedX * delta;
+            tmpY = obstacle;
+            this.ballSpeedY *= -1;
+        }
+        this.ballPosX = tmpX + this.ballSpeedX * (1 - delta);
+        this.ballPosY = tmpY + this.ballSpeedY * (1 - delta);
+        
+        
+    },
+
+    checkColisions: function () {
+        //check the potential nextFrame position if no collisions occurs
+        nextFrameBallX = this.ballPosX + this.ballSpeedX;
+        nextFrameBallY = this.ballPosY + this.ballSpeedY;
+        let deltaFrame = Infinity;
+ 
+        if (nextFrameBallX - this.ballRadius < this.paddleWidth && nextFrameBallY > this.leftPaddleY && nextFrameBallY < this.leftPaddleY + this.paddleHeight){
+            //check colision with left paddle
+            deltaFrame = Math.abs((this.paddleWidth - (this.ballPosX - this.ballRadius))/this.ballSpeedX);
+            this.updateBallPos(deltaFrame, this.paddleWidth + this.ballRadius, true, this.leftPaddleY + this.paddleHeight / 2);
+        }
+        else if (nextFrameBallX + this.ballRadius > this.canvas.width - this.paddleWidth && nextFrameBallY > this.rightPaddleY && nextFrameBallY < this.rightPaddleY + this.paddleHeight){
+            //check collision with right paddle
+            deltaFrame = Math.abs((this.canvas.width - this.paddleWidth - (this.ballPosX + this.ballRadius)) / this.ballSpeedX);
+            this.updateBallPos(deltaFrame, this.canvas.width - this.paddleWidth - this.ballRadius, true,this.rightPaddleY + this.paddleHeight / 2);
+        }
+        else if (nextFrameBallY - this.ballRadius < 0){
+            //check colision with up wall
+            deltaFrame = Math.abs((0 - (this.ballPosY - this.ballRadius)) / this.ballSpeedY);
+            this.updateBallPos(deltaFrame, this.ballRadius, false, null);
+        }
+        else if (nextFrameBallY + this.ballRadius > this.canvas.height){
+            //check colision with bottom wall
+            deltaFrame = Math.abs((this.canvas.height - (this.ballPosY + this.ballRadius)) / this.ballSpeedY);
+            this.updateBallPos(deltaFrame, this.canvas.height - this.ballRadius, false, null);
+        }
+        else {
+            this.ballPosX = nextFrameBallX;
+            this.ballPosY = nextFrameBallY;
+        }
+    },
+
     drawPong: function() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (this.messageDisplayCounter === 0)
@@ -253,17 +306,12 @@ const game = {
             }
 
             // Ball movement logic
-            this.ballPosX += this.ballSpeedX;
-            this.ballPosY += this.ballSpeedY;
-            if (this.ballPosY <= 0 || this.ballPosY >= this.canvas.height) {
-                this.ballSpeedY = -this.ballSpeedY;
-            }
+            // TODO: check the nextframe collision before set the new position of the ball
 
-            // Paddle and ball collision logic
-            if ((this.ballPosX <= this.paddleWidth && this.ballPosY > this.leftPaddleY && this.ballPosY < this.leftPaddleY + this.paddleHeight) || 
-                (this.ballPosX >= this.canvas.width - this.paddleWidth && this.ballPosY > this.rightPaddleY && this.ballPosY < this.rightPaddleY + this.paddleHeight)) {
-                this.ballSpeedX = -this.ballSpeedX;
-            }
+            this.checkColisions();
+            //if (this.ballPosY <= 0 || this.ballPosY >= this.canvas.height) {
+            //    this.ballSpeedY = -this.ballSpeedY;
+            //}
 
             // Score update logic
             if (this.ballPosX <= 0 || this.ballPosX >= this.canvas.width) {
@@ -335,7 +383,7 @@ const game = {
     drawBall: function() {
         this.ctx.fillStyle = this.ball_color;
         this.ctx.beginPath();
-        this.ctx.arc(this.ballPosX, this.ballPosY, 10, 0, Math.PI * 2, true);
+        this.ctx.arc(this.ballPosX, this.ballPosY, this.ballRadius, 0, Math.PI * 2, true);
         this.ctx.fill();
     },
 
