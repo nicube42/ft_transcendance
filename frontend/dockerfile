@@ -3,7 +3,9 @@ FROM nginx:alpine
 COPY ./website /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY default.conf /etc/nginx/conf.d/default.conf
+COPY ./certs/t.key /etc/nginx/certs/
+COPY ./certs/t.crt /etc/nginx/certs/
 
-EXPOSE 80
+EXPOSE 443
 
 CMD ["nginx", "-g", "daemon off;"]

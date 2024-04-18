@@ -6,8 +6,11 @@ To do transcendance
 -error popup for room search elements
 -delete room when end of game
 -add more settings
--https
 -search for user profiles
 -finish pong game
 -ui optimisation
 -sql injection
+- module majeur authentication with 42 #marco
+
+Done
+-https #marco
