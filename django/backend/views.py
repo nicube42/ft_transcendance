@@ -122,7 +122,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-@csrf_exempt
+from django.middleware.csrf import get_token
+# from django.shortcuts import render
+# from django.core.context_processors import csrf
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+@ensure_csrf_cookie
 def api_login(request):
     if request.method == 'POST':
         try:
@@ -131,11 +136,14 @@ def api_login(request):
             password = data.get('password')
             if username is None or password is None:
                 return JsonResponse({'error': 'Username or password is missing'}, status=400)
+
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                request.session.save()
-                return JsonResponse({'message': 'Login successful'})
+                csrf_token = get_token(request)
+                response = JsonResponse({'message': 'Login successful'})
+                response.set_cookie('csrftoken', csrf_token, httponly=False)
+                return response
             else:
                 return JsonResponse({'error': 'Invalid credentials'}, status=400)
         except json.JSONDecodeError:
@@ -147,6 +155,7 @@ def api_login(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+
 from django.http import JsonResponse
 import logging
 
@@ -157,9 +166,9 @@ def user_info(request):
     try:
         if request.user.is_authenticated:
             user_data = {
-                'id': request.user.id,  # Return user id
+                'id': request.user.id,
                 'username': request.user.username,
-                'fullname': request.user.get_full_name(),  # Assuming you use the built-in get_full_name method
+                'fullname': request.user.get_full_name(),
                 'date_of_birth': request.user.date_of_birth,
                 'bio': request.user.bio,
             }
@@ -167,7 +176,7 @@ def user_info(request):
         else:
             return JsonResponse({'error': 'User not authenticated'}, status=401)
     except Exception as e:
-        logging.exception("Unexpected error in user_info: %s", e)  # Ensure logging is properly configured
+        logging.exception("Unexpected error in user_info: %s", e)
         return JsonResponse({'error': 'Internal Server Error'}, status=500)
 
 
@@ -347,3 +356,128 @@ def win_rate_over_time(request):
     }
 
     return JsonResponse(data)
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth import get_user_model
+from django.views.decorators.csrf import csrf_exempt
+
+@require_POST
+def check_user(request):
+    data = json.loads(request.body)
+    username = data.get('username')
+    exists = get_user_model().objects.filter(username=username).exists()
+    return JsonResponse({'exists': exists})
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@login_required
+@require_POST
+def add_friend(request):
+    try:
+        data = json.loads(request.body)
+        friend_username = data.get('friend_username')
+        if not friend_username:
+            return JsonResponse({'error': 'Friend username is required'}, status=400)
+
+        friend = CustomUser.objects.filter(username=friend_username).first()
+        if not friend:
+            return JsonResponse({'error': 'User not found'}, status=404)
+
+        request.user.friends.add(friend)
+        return JsonResponse({'message': 'Friend added successfully'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+
+@login_required
+def list_friends(request):
+    friends_list = request.user.friends.all()
+    friends_data = [{'username': friend.username, 'fullname': friend.fullname} for friend in friends_list]
+    return JsonResponse({'friends': friends_data}, safe=False)
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from .models import CustomUser
+
+@login_required
+def get_user_profile(request, username):
+    try:
+        user = CustomUser.objects.get(username=username)
+        user_data = {
+            'username': user.username,
+            'fullname': user.fullname,
+            'date_of_birth': user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else 'Not provided',
+            'bio': user.bio,
+            'profile_pic': user.profile_pic.url if user.profile_pic else '/static/default_profile_pic.jpg'
+        }
+        return JsonResponse(user_data)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+
+from django.shortcuts import get_object_or_404
+
+@login_required
+def recent_games_all(request, username):
+    user = get_object_or_404(CustomUser, username=username)
+    games = Game.objects.filter(Q(player1=user) | Q(player2=user.username)).order_by('-start_time')[:5]
+    games_data = [{
+        'player1': game.player1.username,
+        'player2': game.player2,
+        'player1_score': game.player1_score,
+        'player2_score': game.player2_score,
+        'duration': game.duration,
+        'start_time': game.start_time.strftime('%Y-%m-%d %H:%M:%S'),
+        'end_time': game.end_time.strftime('%Y-%m-%d %H:%M:%S'),
+        'created_at': game.created_at.strftime('%Y-%m-%d %H:%M:%S')
+    } for game in games]
+    
+    return JsonResponse(games_data, safe=False)
+
+@login_required
+def win_rate_over_time_all(request, username):
+    user = get_object_or_404(CustomUser, username=username)
+    games_by_month = Game.objects.filter(
+        Q(player1=user) | Q(player2=user.username)
+    ).annotate(
+        month=TruncMonth('start_time')
+    ).values('month').annotate(
+        total_games=Count('id'),
+        wins=Count('id', filter=Q(player1=user, player1_score__gt=F('player2_score')) | Q(player2=user.username, player2_score__gt=F('player1_score')))
+    ).order_by('month')
+
+    data = {
+        'dates': [game['month'].strftime('%Y-%m') for game in games_by_month if game['month']],
+        'winRates': [(game['wins'] / game['total_games'] * 100) if game['total_games'] > 0 else 0 for game in games_by_month]
+    }
+
+    return JsonResponse(data)
+
+@login_required
+def player_stats_all(request, username):
+    user = get_object_or_404(CustomUser, username=username)
+
+    try:
+        games_won = Game.objects.filter(player1=user, player1_score__gt=F('player2_score')).count()
+        games_lost = Game.objects.filter(player1=user, player1_score__lt=F('player2_score')).count()
+
+        total_games = games_won + games_lost
+        total_score = Game.objects.filter(player1=user).aggregate(total=Sum('player1_score'))['total'] or 0
+
+        data = {
+            'gamesPlayed': total_games,
+            'totalWins': games_won,
+            'totalLosses': games_lost,
+            'totalScore': total_score
+        }
+        return JsonResponse(data)
+    except Exception as e:
+        logging.exception("Error fetching player stats for %s", username)
+        return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)
+

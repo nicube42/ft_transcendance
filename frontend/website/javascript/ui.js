@@ -8,7 +8,7 @@ const ui = {
     },
 
     showOnlyOneSection: function(sectionId, isPopState = false, queryParams = {}) {
-        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage', 'playerStats'];
+        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage', 'playerStats', 'friends', 'profilePageNoChange'];
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
@@ -22,7 +22,6 @@ const ui = {
             }
             history.pushState({section: sectionId, queryParams: queryParams}, '', url);
         }
-    
         game.handleVisibilityChange?.();
     },         
 
@@ -134,6 +133,10 @@ const ui = {
         },
         async 'navLogout'() {
             await auth.logout();
+        },
+        async 'navFriends'() {
+            this.showOnlyOneSection('friends');
+            friendsPage.initialize();
         },
         async 'login_initial'() {
             this.showOnlyOneSection('loginContainer');

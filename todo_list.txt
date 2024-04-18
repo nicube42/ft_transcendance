@@ -2,9 +2,9 @@ To do updated
 
 - finir tournoi (nicolas)
 
-- game name dans les settings
+- game name dans les settings (thomas)
 
-- vérifier injections sql
+- vérifier injections sql (marco ?)
 
                 - framework en back OK 1
 
@@ -13,16 +13,19 @@ To do updated
                 - base de donnée en back OK 0.5
 
 - gestion d'utilisateur KO 1
-    - avatar
-    - ajouter amis + status en ligne
-    - afficher stats et historique des joueurs sur le profil
+    - avatar (marco)$
+    - status en ligne (nicolas)
+                    - ajouter amis (nicolas) (besoin de mettre au propre mais fonctionne)
+                    - afficher stats et historique des joueurs sur le profil (nicolas) (besoin de mettre au propre mais fonctionne)
 
 - auth a distance (Marco) KO 1
 
-- joueurs a distance KO 1
+- joueurs a distance KO (thomas) 1
     - gérer déconection de manière simple (exemple si un joueur se déconnecte faire gagner l'autre joueur)
     - pause/play
     - supprimer room a la fin d'une partie
+    - double points marqués en multi distant (fix rapide je pense, le premier qui a
+      la flemme de faire un gros truc peut faire ca)
 
 - personnalisation du jeu KO 0.5 (nadji)
     - activer ou non les bonus dans les settings
@@ -31,5 +34,5 @@ To do updated
 - IA KO 1 (nicolas)
     - implementer le modèle de ml au containeur existant
 
-- tableau de bord utilisateurs + stats (nicolas) OK 0.5
+                - tableau de bord utilisateurs + stats (nicolas) OK 0.5
 

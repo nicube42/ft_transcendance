@@ -27,6 +27,7 @@
                             <li><a class="dropdown-item" href="#" id="navRegister" style="color: #000000;">Register</a></li>
                             <li><a class="dropdown-item" href="#" id="navLogin" style="color: #000000;">Login</a></li>
                             <li><a class="dropdown-item d-none" href="#" id="navProfile" style="color: #000000;">Profile</a></li>
+                            <li><a class="dropdown-item d-none" href="#" id="navFriends" style="color: #000000;">Friends</a></li>
                             <li><a class="dropdown-item d-none" href="#" id="navLogout" style="color: #000000;">Logout</a></li>
                         </ul>
                     </div>                    
@@ -167,6 +168,17 @@
             </form>
         </div>
 
+        <div id="friends" class="container mt-5 d-none">
+            <h1 class="text-center">Friends</h1>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Search for new friends" id="searchFriendsInput">
+                <button class="btn btn-outline-success" type="button" id="searchFriendsBtn">Add</button>
+            </div>
+            <div id="friendsList" class="list-group">
+                <!-- Dynamically populated list of friends will go here -->
+            </div>
+        </div>        
+
         <div id="loginContainer" class="d-none">
             <div class="login-container">
                 <h2 class="display-1">Login</h2>
@@ -239,6 +251,25 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Mettre à jour</button>
             </form>
+        </div>
+
+        <div id="profilePageNoChange" class="d-none">
+            <h1>User Profile</h1>
+            <img id="profilePicNoChange" src="" alt="Profile Picture" />
+            <div class="profile-info">
+                <div>
+                    <div id="usernameProfileNoChange"></div>
+                </div>
+                <div>
+                    <div id="fullnameProfileNoChange"></div>
+                </div>
+                <div>
+                    <div id="birthProfileNoChange"></div>
+                </div>
+                <div>
+                    <div id="bioProfileNoChange"></div>
+                </div>
+            </div>
         </div>
 
         <div id="endgameStats" class="d-none container mt-5">
@@ -359,6 +390,7 @@
 <script src="javascript/navbar.js"></script>
 <script src="javascript/tournament.js"></script>
 <script src="javascript/stats.js"></script>
+<script src="javascript/friends.js"></script>
 <script src="javascript/statistics_page.js"></script>
 </body>
 </html>
