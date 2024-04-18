@@ -10,15 +10,6 @@ const game = {
         winningScore: 5,
     },
 
-    updateGameSettings: function(settings) {
-        this.ballSpeedX = settings.ballSpeed / 2;
-        this.ballSpeedY = settings.ballSpeed / 2;
-        this.paddleSpeed = settings.paddleSpeed;
-        this.winningScore = settings.winningScore;
-        this.player1_name = settings.player1;
-        this.player2_name = settings.player2;
-    },
-
     canvas: null,
     playerRole: null,
     ctx: null,
@@ -119,8 +110,8 @@ const game = {
         this.player2Score = 0;
         this.scoreMessage = '';
         this.messageDisplayCounter = 0;
-        this.player1_name = this.settings.player1;
-        this.player2_name = this.settings.player2;
+        this.player1_name = this.settings.player1Name;
+        this.player2_name = this.settings.player2Name;
         this.aiPaddleDirection = 1;
         this.leftPaddleMovingUp = false;
         this.leftPaddleMovingDown = false;

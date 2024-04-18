@@ -41,6 +41,7 @@ def save_settings(request):
         return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
 
 
+
 from django.http import JsonResponse
 from .models import GameSettings
 from django.contrib.auth.decorators import login_required
@@ -156,8 +157,9 @@ def user_info(request):
     try:
         if request.user.is_authenticated:
             user_data = {
+                'id': request.user.id,  # Return user id
                 'username': request.user.username,
-                'fullname': request.user.fullname,
+                'fullname': request.user.get_full_name(),  # Assuming you use the built-in get_full_name method
                 'date_of_birth': request.user.date_of_birth,
                 'bio': request.user.bio,
             }
@@ -165,8 +167,9 @@ def user_info(request):
         else:
             return JsonResponse({'error': 'User not authenticated'}, status=401)
     except Exception as e:
-        logger.exception("Unexpected error in user_info: %s", e)
+        logging.exception("Unexpected error in user_info: %s", e)  # Ensure logging is properly configured
         return JsonResponse({'error': 'Internal Server Error'}, status=500)
+
 
 
 from django.contrib.auth import logout
@@ -234,3 +237,113 @@ def profile_pic_update(request):
     else:
         form = ProfilePicUpdateForm(instance=request.user)
     return render(request, 'app/profile_update.html', {'form': form})
+
+from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import get_user_model
+from .models import Game
+from dateutil import parser
+from django.contrib.auth.decorators import login_required
+
+@csrf_exempt
+@login_required
+def game_record(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            player1_username = data.get('player1')
+            player2_name = data.get('player2')
+            start_time = parser.parse(data['start_time'])
+            end_time = parser.parse(data['end_time'])
+
+            user = get_user_model().objects.get(username=player1_username)
+
+            Game.objects.create(
+                player1=user,
+                player2=player2_name,
+                player1_score=data['player1_score'],
+                player2_score=data['player2_score'],
+                start_time=start_time,
+                end_time=end_time,
+            )
+            return JsonResponse({'status': 'success'}, status=201)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+from django.http import JsonResponse
+import logging
+from .models import Game
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q, Sum, F
+
+@login_required
+def player_stats(request):
+    user = request.user
+
+    try:
+        games_won = Game.objects.filter(player1=user, player1_score__gt=F('player2_score')).count()
+        games_lost = Game.objects.filter(player1=user, player1_score__lt=F('player2_score')).count()
+
+        total_games = games_won + games_lost
+        total_score = Game.objects.filter(player1=user).aggregate(total=Sum('player1_score'))['total'] or 0
+
+        data = {
+            'gamesPlayed': total_games,
+            'totalWins': games_won,
+            'totalLosses': games_lost,
+            'totalScore': total_score
+        }
+        print(f"Stats for {user.username}: {data}")
+        return JsonResponse(data)
+    except Exception as e:
+        logging.exception("Error fetching player stats")
+        return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)
+
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Game
+
+@login_required
+def recent_games(request):
+    current_user = request.user
+    games = Game.objects.filter(Q(player1=current_user) | Q(player2=current_user.username)).order_by('-start_time')[:5]
+    games_data = [{
+        'player1': game.player1.username,
+        'player2': game.player2,
+        'player1_score': game.player1_score,
+        'player2_score': game.player2_score,
+        'duration': game.duration,
+        'start_time': game.start_time.strftime('%Y-%m-%d %H:%M:%S'),
+        'end_time': game.end_time.strftime('%Y-%m-%d %H:%M:%S'),
+        'created_at': game.created_at.strftime('%Y-%m-%d %H:%M:%S')
+    } for game in games]
+    
+    return JsonResponse(games_data, safe=False)
+
+from django.db.models import Count, Q, F
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Game
+from django.db.models.functions import TruncMonth
+
+@login_required
+def win_rate_over_time(request):
+    current_user = request.user
+    games_by_month = Game.objects.filter(
+        Q(player1=current_user) | Q(player2=current_user.username)
+    ).annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        total_games=Count('id'),
+        wins=Count('id', filter=Q(player1=current_user, player1_score__gt=F('player2_score')) | Q(player2=current_user.username, player2_score__gt=F('player1_score')))
+    ).order_by('month')
+
+    data = {
+        'dates': [game['month'].strftime('%Y-%m') for game in games_by_month if game['month']],
+        'winRates': [(game['wins'] / game['total_games'] * 100) if game['total_games'] > 0 else 0 for game in games_by_month]
+    }
+
+    return JsonResponse(data)

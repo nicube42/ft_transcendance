@@ -8,7 +8,7 @@ const ui = {
     },
 
     showOnlyOneSection: function(sectionId, isPopState = false, queryParams = {}) {
-        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage'];
+        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage', 'playerStats'];
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
@@ -61,25 +61,33 @@ const ui = {
     actionHandlers: {
         async 'navHome'() {
             if (this.connected)
+            { 
                 this.showOnlyOneSection('homepage');
+            }
             else
                 this.showOnlyOneSection('firstPage');
         },
         async 'PLAY'() {
             game.setGameMode('multiplayer');
+            settings.populateSettings();
             this.showOnlyOneSection('play');
         },
         async 'playDistantBtn' () {
             game.setGameMode('distant');
-            this.showOnlyOneSection('play');
-            gameSocket.sendGameStart();
+            //settings.populateSettings();
+            setTimeout(() => {
+                gameSocket.sendGameStart();
+                console.log('Game started');
+            }, 5000);
         },
         async 'SINGLEPLAYER'() {
             game.setGameMode('singlePlayer');
+            settings.populateSettings();
             this.showOnlyOneSection('play');
         },
         async 'MULTIPLAYER'() {
             this.showOnlyOneSection('multiplayer');
+            settings.populateSettings();
             gameSocket.listRooms();
         },
         async 'TOURNAMENT'() {
@@ -179,6 +187,10 @@ const ui = {
         },
         async 'startTournamentBtn'() {
             tournament.generateNextRoundMatches();
+        },
+        async 'STATISTICS'() {
+            this.showOnlyOneSection('playerStats');
+            GameStats.init();
         }
     },
 

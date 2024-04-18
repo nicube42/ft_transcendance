@@ -172,6 +172,10 @@ var gameSocket = {
 
     updateRoomList: function(rooms) {
         const roomListDiv = document.getElementById('roomList');
+        if (!roomListDiv) {
+            console.error('Element with ID "roomList" not found.');
+            return; // Exit the function if the element is not found
+        }
         roomListDiv.innerHTML = '';
     
         rooms.forEach((room) => {
@@ -204,7 +208,7 @@ var gameSocket = {
     
             roomListDiv.appendChild(roomElement);
         });
-    },    
+    },      
 
     updateUserList: function(users, roomName) {
         const usersListDiv = document.getElementById('roomUsersList');
@@ -241,23 +245,21 @@ var gameSocket = {
     },
 
     sendBallState: function() {
-        // Ensure only the left player sends the ball's state
-        if (game.playerRole === 'left') {
-            // Check all required ball state variables are not null
-            if (game.ballPosX !== null && game.ballPosY !== null && game.ballSpeedX !== null && game.ballSpeedY !== null) {
-                const message = {
-                    action: 'update_ball_state',
-                    ballPosX: game.ballPosX,
-                    ballPosY: game.ballPosY,
-                    ballSpeedX: game.ballSpeedX,
-                    ballSpeedY: game.ballSpeedY,
-                    room_name: this.currentRoom,
-                };
-                this.socket.send(JSON.stringify(message));
-            }
+        if (this.socket.readyState === WebSocket.OPEN) {
+            const message = {
+                action: 'update_ball_state',
+                ballPosX: game.ballPosX,
+                ballPosY: game.ballPosY,
+                ballSpeedX: game.ballSpeedX,
+                ballSpeedY: game.ballSpeedY,
+                room_name: this.currentRoom,
+            };
+            this.socket.send(JSON.stringify(message));
+        } else {
+            console.log("WebSocket is not open. Waiting before retrying...");
+            setTimeout(() => this.sendBallState(), 1000); // Try again after a delay
         }
-    },
-    
+    },    
     
     sendPaddleMovement: function(direction) {
         if (this.socket.readyState === WebSocket.OPEN) {

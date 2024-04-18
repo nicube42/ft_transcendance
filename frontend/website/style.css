@@ -76,6 +76,36 @@ button:hover {
     font-family: 'VeniteAdoremus', sans-serif;
 }
 
+#tournament {
+    font-size: 25px;
+    color: #198754;
+    font-family: 'VeniteAdoremus', sans-serif;
+}
+
+#tournamentStage {
+    font-size: 25px;
+    color: #198754;
+    font-family: 'VeniteAdoremus', sans-serif;
+}
+
+#tournamentTree {
+    font-size: 15px;
+    color: #ffffff;
+    font-family: 'VeniteAdoremus', sans-serif;
+}
+
+#participantCount {
+    font-size: 15px;
+    color: #ffffff;
+    font-family: 'VeniteAdoremus', sans-serif;
+}
+
+#playerStats {
+    font-size: 15px;
+    color: #198754;
+    font-family: 'VeniteAdoremus', sans-serif;
+}
+
 #roomList {
     font-size: 25px;
     color: #198754;

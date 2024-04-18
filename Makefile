@@ -5,11 +5,13 @@ linux-up:
 
 linux-down:
 	docker compose -f docker-compose.yml -p trancendance down
+all: build up
+
 build:
 	docker-compose build
 
 up:
-	docker-compose up
+	docker-compose up -d
 
 down:
 	docker-compose down
@@ -26,5 +28,10 @@ migrate:
 collectstatic:
 	docker-compose run --rm django python manage.py collectstatic --no-input
 
+clean: down
+	docker-compose down --volumes
 
-.PHONY: build up down migrate makemigrations createsuperuser shell logs
+re: clean all migrate
+
+
+.PHONY: build up down migrate makemigrations logs
