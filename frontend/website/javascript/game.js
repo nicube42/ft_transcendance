@@ -48,6 +48,10 @@ const game = {
     currentBonus: null,
     nextBonusTimeout: null,
     bonusTouched: false,
+    leftPaddleMovingUp: false,
+    leftPaddleMovingDown: false,
+    rightPaddleMovingUp: false,
+    rightPaddleMovingDown: false,
 
     bonusGreen: {
         x: 100,
@@ -172,6 +176,32 @@ const game = {
     },
 
     handleKeyUp: function (e) {
+        let direction = null;
+
+        console.log("key pressed", e.key);
+
+        if (game.gameMode === 'distant') {
+            switch(e.key) {
+                case 'w':
+                    direction = 'up';
+                    if (game.playerRole === 'left')
+                        this.leftPaddleMovingUp = false;
+                    else
+                        this.rightPaddleMovingUp = false;
+                    break;
+                case 's':
+                    direction = 'down';
+                    if (game.playerRole === 'left')
+                        this.leftPaddleMovingDown = false;
+                    else
+                        this.rightPaddleMovingDown = false;
+                    break;
+            }
+    
+            if (direction) {
+                gameSocket.sendPaddleMovement(direction);
+            }
+        }
         if (this.gameMode !== 'distant'){
             switch (e.key) {
                 case 'ArrowUp':
