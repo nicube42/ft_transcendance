@@ -1,5 +1,12 @@
 all: build up
 
+linux-build:
+	docker compose -f docker-compose.yml -p trancendance build
+linux-up:
+	docker compose -f docker-compose.yml -p trancendance up	
+
+linux-down:
+	docker compose -f docker-compose.yml -p trancendance down
 build:
 	docker-compose build
 
