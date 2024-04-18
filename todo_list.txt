@@ -1,16 +1,37 @@
-To do transcendance
+To do updated
 
--enhence rooms : admin, password, invite, kick |||| admin ok
--upload profile photo + refine profiles
--distant game gestion : pause, play, quit in game, disconnection gestion
--error popup for room search elements
--delete room when end of game
--add more settings
--search for user profiles
--finish pong game
--ui optimisation
--sql injection
-- module majeur authentication with 42 #marco
+- finir tournoi (nicolas)
 
-Done
--https #marco
+- game name dans les settings
+
+- vérifier injections sql
+
+- framework en back OK 1
+
+- framework en front OK 0.5
+
+- base de donnée en back OK 0.5
+
+- gestion d'utilisateur KO 1
+    - avatar
+    - ajouter amis + status en ligne
+    - afficher stats et historique des joueurs sur le profil
+
+- auth a distance (Marco) KO 1
+
+- joueurs a distance KO 1
+    - gérer déconection de manière simple (exemple si un joueur se déconnecte faire gagner l'autre joueur)
+    - pause/play
+    - supprimer room a la fin d'une partie
+
+- personnalisation du jeu KO 0.5 (nadji)
+    - activer ou non les bonus dans les settings
+    - gérer les bonus dans les modes distants
+
+- IA KO 1 (nicolas)
+    - implementer le modèle de ml au containeur existant
+
+- tableau de bord utilisateurs + stats (nicolas) KO 0.5
+    - charts ne pas utiliser extensions joueurs
+    - vérifier vainqueurs/perdants dans le cas de matchs distants
+
