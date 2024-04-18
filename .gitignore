@@ -3,5 +3,8 @@ venv
 .env
 .idea/
 .pyc
-.csr
-.key
+t.crt
+t.csr
+t.key
+certs
+frontend/certs/

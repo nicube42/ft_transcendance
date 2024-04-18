@@ -16,6 +16,7 @@ const game = {
     ctx: null,
     ballPosX: 0,
     ballPosY: 0,
+    ballRadius: 10,
     ballSpeedX: 5,
     ballSpeedY: 5,
     paddleSpeed: 15,
@@ -39,6 +40,10 @@ const game = {
     currentBonus: null,
     nextBonusTimeout: null,
     bonusTouched: false,
+    leftPaddleMovingUp: false,
+    leftPaddleMovingDown: false,
+    rightPaddleMovingUp: false,
+    rightPaddleMovingDown: false,
 
     bonusGreen: {
         x: 100,
@@ -66,7 +71,9 @@ const game = {
             this.resetVars();
             this.drawPong();
             window.removeEventListener('keydown', this.handleKeyDown.bind(this));
+            window.removeEventListener('keyup', this.handleKeyUp.bind(this));
             window.addEventListener('keydown', this.handleKeyDown.bind(this));
+            window.addEventListener('keyup', this.handleKeyUp.bind(this));
         }
     },
 
@@ -107,27 +114,34 @@ const game = {
         this.player1_name = this.settings.player1Name;
         this.player2_name = this.settings.player2Name;
         this.aiPaddleDirection = 1;
-        
+        this.leftPaddleMovingUp = false;
+        this.leftPaddleMovingDown = false;
+        this.rightPaddleMovingUp = false;
+        this.rightPaddleMovingDown = false;
+
     },
 
-    handleKeyDown: function(e) {
+    handleKeyDown: function (e) {
+
         let direction = null;
-    
+
+        console.log("key pressed", e.key);
+
         if (game.gameMode === 'distant') {
             switch(e.key) {
                 case 'w':
                     direction = 'up';
                     if (game.playerRole === 'left')
-                        game.leftPaddleY = Math.max(game.leftPaddleY - game.paddleSpeed, 0);
+                        this.leftPaddleMovingUp = true;
                     else
-                        game.rightPaddleY = Math.max(game.rightPaddleY - game.paddleSpeed, 0);
+                        this.rightPaddleMovingUp = true;
                     break;
                 case 's':
                     direction = 'down';
                     if (game.playerRole === 'left')
-                        game.leftPaddleY = Math.min(game.leftPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
+                        this.leftPaddleMovingDown = true;
                     else
-                        game.rightPaddleY = Math.min(game.rightPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
+                        this.rightPaddleMovingDown = true;
                     break;
             }
     
@@ -135,27 +149,130 @@ const game = {
                 gameSocket.sendPaddleMovement(direction);
             }
         }
-        else
-        {
-
-            switch(e.key) {
+        else {
+            switch (e.key) {
                 case 'ArrowUp':
-                    if (this.gameMode === 'multiplayer')
-                        this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
+                    this.rightPaddleMovingUp = true;
                     break;
                 case 'ArrowDown':
-                    if (this.gameMode === 'multiplayer')
-                        this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+                    this.rightPaddleMovingDown = true;
                     break;
                 case 'w':
-                    this.leftPaddleY = Math.max(this.leftPaddleY - this.paddleSpeed, 0);
+                    this.leftPaddleMovingUp = true;
                     break;
                 case 's':
-                    this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+                    this.leftPaddleMovingDown = true;
                     break;
             }
         }
     },
+
+    handleKeyUp: function (e) {
+        let direction = null;
+
+        console.log("key pressed", e.key);
+
+        if (game.gameMode === 'distant') {
+            switch(e.key) {
+                case 'w':
+                    direction = 'up';
+                    if (game.playerRole === 'left')
+                        this.leftPaddleMovingUp = false;
+                    else
+                        this.rightPaddleMovingUp = false;
+                    break;
+                case 's':
+                    direction = 'down';
+                    if (game.playerRole === 'left')
+                        this.leftPaddleMovingDown = false;
+                    else
+                        this.rightPaddleMovingDown = false;
+                    break;
+            }
+
+            if (direction) {
+                gameSocket.sendPaddleMovement(direction);
+            }
+        }
+        if (this.gameMode !== 'distant'){
+            switch (e.key) {
+                case 'ArrowUp':
+                    this.rightPaddleMovingUp = false;
+                    break;
+                case 'ArrowDown':
+                    this.rightPaddleMovingDown = false;
+                    break;
+                case 'w':
+                    this.leftPaddleMovingUp = false;
+                    break;
+                case 's':
+                    this.leftPaddleMovingDown = false;
+                    break;
+            }
+        }
+    },
+
+    movePaddles: function () {
+        if (this.leftPaddleMovingUp) {
+            this.leftPaddleY = Math.max(this.leftPaddleY - this.paddleSpeed, 0);
+        }
+        if (this.leftPaddleMovingDown) {
+            this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+        }
+        if (this.rightPaddleMovingUp) {
+            this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
+        }
+        if (this.rightPaddleMovingDown) {
+            this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+        }
+    },
+
+    // handleKeyDown: function(e) {
+    //     let direction = null;
+
+    //     if (game.gameMode === 'distant') {
+    //         switch(e.key) {
+    //             case 'w':
+    //                 direction = 'up';
+    //                 if (game.playerRole === 'left')
+    //                     game.leftPaddleY = Math.max(game.leftPaddleY - game.paddleSpeed, 0);
+    //                 else
+    //                     game.rightPaddleY = Math.max(game.rightPaddleY - game.paddleSpeed, 0);
+    //                 break;
+    //             case 's':
+    //                 direction = 'down';
+    //                 if (game.playerRole === 'left')
+    //                     game.leftPaddleY = Math.min(game.leftPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
+    //                 else
+    //                     game.rightPaddleY = Math.min(game.rightPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
+    //                 break;
+    //         }
+
+    //         if (direction) {
+    //             gameSocket.sendPaddleMovement(direction);
+    //         }
+    //     }
+    //     else
+    //     {
+
+    //         switch(e.key) {
+    //             case 'ArrowUp':
+    //                 if (this.gameMode === 'multiplayer')
+    //                     this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
+    //                 break;
+    //             case 'ArrowDown':
+    //                 if (this.gameMode === 'multiplayer')
+    //                     this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+    //                 break;
+    //             case 'w':
+    //                 this.leftPaddleY = Math.max(this.leftPaddleY - this.paddleSpeed, 0);
+    //                 break;
+    //             case 's':
+    //                 this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+    //                 break;
+    //         }
+    //     }
+    // },
 
     pause: function() {
         if (this.animationFrameId) {
@@ -229,6 +346,58 @@ const game = {
         }, 9000);
     },
 
+    updateBallPos: function (delta, obstacle, isX, paddleCenter) {
+        let tmpX, tmpY;
+        console.log(paddleCenter);
+        console.log("delta:",delta);
+        if (isX && paddleCenter){
+            tmpX = obstacle;
+            tmpY = this.ballPosY + this.ballSpeedY * delta;
+            this.ballSpeedX *= -1;
+        }
+        else {
+            tmpX = this.ballPosX + this.ballSpeedX * delta;
+            tmpY = obstacle;
+            this.ballSpeedY *= -1;
+        }
+        this.ballPosX = tmpX + this.ballSpeedX * (1 - delta);
+        this.ballPosY = tmpY + this.ballSpeedY * (1 - delta);
+
+
+    },
+
+    checkColisions: function () {
+        //check the potential nextFrame position if no collisions occurs
+        nextFrameBallX = this.ballPosX + this.ballSpeedX;
+        nextFrameBallY = this.ballPosY + this.ballSpeedY;
+        let deltaFrame = Infinity;
+
+        if (nextFrameBallX - this.ballRadius < this.paddleWidth && nextFrameBallY > this.leftPaddleY && nextFrameBallY < this.leftPaddleY + this.paddleHeight){
+            //check colision with left paddle
+            deltaFrame = Math.abs((this.paddleWidth - (this.ballPosX - this.ballRadius))/this.ballSpeedX);
+            this.updateBallPos(deltaFrame, this.paddleWidth + this.ballRadius, true, this.leftPaddleY + this.paddleHeight / 2);
+        }
+        else if (nextFrameBallX + this.ballRadius > this.canvas.width - this.paddleWidth && nextFrameBallY > this.rightPaddleY && nextFrameBallY < this.rightPaddleY + this.paddleHeight){
+            //check collision with right paddle
+            deltaFrame = Math.abs((this.canvas.width - this.paddleWidth - (this.ballPosX + this.ballRadius)) / this.ballSpeedX);
+            this.updateBallPos(deltaFrame, this.canvas.width - this.paddleWidth - this.ballRadius, true,this.rightPaddleY + this.paddleHeight / 2);
+        }
+        else if (nextFrameBallY - this.ballRadius < 0){
+            //check colision with up wall
+            deltaFrame = Math.abs((0 - (this.ballPosY - this.ballRadius)) / this.ballSpeedY);
+            this.updateBallPos(deltaFrame, this.ballRadius, false, null);
+        }
+        else if (nextFrameBallY + this.ballRadius > this.canvas.height){
+            //check colision with bottom wall
+            deltaFrame = Math.abs((this.canvas.height - (this.ballPosY + this.ballRadius)) / this.ballSpeedY);
+            this.updateBallPos(deltaFrame, this.canvas.height - this.ballRadius, false, null);
+        }
+        else {
+            this.ballPosX = nextFrameBallX;
+            this.ballPosY = nextFrameBallY;
+        }
+    },
+
     drawPong: function() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (this.messageDisplayCounter === 0)
@@ -245,20 +414,7 @@ const game = {
             }
 
             // Ball movement logic
-            this.ballPosX += this.ballSpeedX;
-            this.ballPosY += this.ballSpeedY;
-            if (this.ballPosY <= 0 || this.ballPosY >= this.canvas.height) {
-                this.ballSpeedY = -this.ballSpeedY;
-                this.ballDirectionChanged = true; // Vertical direction change
-            }
-
-            // Paddle and ball collision logic
-            if ((this.ballPosX <= this.paddleWidth && this.ballPosY > this.leftPaddleY && this.ballPosY < this.leftPaddleY + this.paddleHeight) || 
-                (this.ballPosX >= this.canvas.width - this.paddleWidth && this.ballPosY > this.rightPaddleY && this.ballPosY < this.rightPaddleY + this.paddleHeight)) {
-                this.ballSpeedX = -this.ballSpeedX;
-                this.ballDirectionChanged = true; // Horizontal direction change
-            }
-
+            this.checkColisions();
 
             // Score update logic
             if (this.ballPosX <= 0 || this.ballPosX >= this.canvas.width) {
@@ -290,7 +446,8 @@ const game = {
     
         this.checkBonusCollision();
         //this.displayPoints();
-    
+        this.movePaddles();
+
         this.ctx.fillStyle = 'white';
 
         // Draw paddles
@@ -330,7 +487,7 @@ const game = {
     drawBall: function() {
         this.ctx.fillStyle = this.ball_color;
         this.ctx.beginPath();
-        this.ctx.arc(this.ballPosX, this.ballPosY, 10, 0, Math.PI * 2, true);
+        this.ctx.arc(this.ballPosX, this.ballPosY, this.ballRadius, 0, Math.PI * 2, true);
         this.ctx.fill();
     },
 
@@ -402,9 +559,9 @@ const game = {
         if (!bonus.active || this.bonusTouched) {
             return; // Skip drawing if the bonus is not active or if any bonus has been touched
         }
-        const pulsatingRadius = bonus.baseRadius + Math.sin(this.frame * 0.1) * 2; // Adjust for pulsating effect
+        const pulsatingRadius = bonus.baseRadius + Math.sin(this.frame * 0.1) * 5; // Adjust for pulsating effect
         this.ctx.beginPath();
-        this.ctx.arc(bonus.x, bonus.y, pulsatingRadius, 0, Math.PI * 2);
+        this.ctx.arc(bonus.x, bonus.y, pulsatingRadius, 0, Math.PI * 5);
         this.ctx.fillStyle = bonus.color;
         this.ctx.fill();
     },
@@ -445,17 +602,6 @@ const game = {
             this.ball_color = 'green';
         else if (Math.abs(this.ballSpeedX) < this.settings.ballSpeed / 2)
             this.ball_color = 'red';
-    },      
-    
-    displayPoints: function() {
-        if (game.player1Score % 5 === 0 && game.player1Score > 0) {
-            // Afficher les points lorsque le joueur 1 marque 5 points
-            alert('Player 1 scores 5 points!');
-        }
-        if (game.player2Score % 5 === 0 && game.player2Score > 0) {
-            // Afficher les points lorsque le joueur 2 marque 5 points
-            alert('Player 2 scores 5 points!');
-        }
     },
 
 };

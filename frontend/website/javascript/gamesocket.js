@@ -49,11 +49,11 @@ var gameSocket = {
                 if(data.role === game.playerRole) {
                 } else {
                     if (game.playerRole === 'left') {
-                        game.rightPaddleY += paddleAdjustment;
-                        game.rightPaddleY = Math.max(Math.min(game.rightPaddleY, game.canvas.height - game.paddleHeight), 0);
+                        game.rightPaddleMovingUp = data.direction == "up" ? !game.rightPaddleMovingUp : game.rightPaddleMovingUp;
+                        game.rightPaddleMovingDown = data.direction == "down" ? !game.rightPaddleMovingDown : game.rightPaddleMovingDown;
                     } else if (game.playerRole === 'right') {
-                        game.leftPaddleY += paddleAdjustment;
-                        game.leftPaddleY = Math.max(Math.min(game.leftPaddleY, game.canvas.height - game.paddleHeight), 0);
+                        game.leftPaddleMovingUp = data.direction === "up" ? !game.leftPaddleMovingUp : game.leftPaddleMovingUp;
+                        game.leftPaddleMovingDown = data.direction === "down" ? !game.leftPaddleMovingDown : game.leftPaddleMovingDown;
                     }
                 }
             } else if (data.action === 'assign_role') {
