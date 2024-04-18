@@ -1,10 +1,3 @@
-linux-build:
-	docker compose -f docker-compose.yml -p trancendance build
-linux-up:
-	docker compose -f docker-compose.yml -p trancendance up	
-
-linux-down:
-	docker compose -f docker-compose.yml -p trancendance down
 all: build up
 
 build:
@@ -33,5 +26,12 @@ clean: down
 
 re: clean all migrate
 
+linux-build:
+	docker compose -f docker-compose.yml -p trancendance build
+linux-up:
+	docker compose -f docker-compose.yml -p trancendance up	
+
+linux-down:
+	docker compose -f docker-compose.yml -p trancendance down
 
 .PHONY: build up down migrate makemigrations logs
