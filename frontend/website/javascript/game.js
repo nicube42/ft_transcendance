@@ -1,6 +1,7 @@
 const game = {
 
     gameMode: 'multiplayer',
+    ballDirectionChanged: false,
 
     settings: {
         player1Name: 'Player 1',
@@ -233,7 +234,7 @@ const game = {
         if (this.messageDisplayCounter === 0)
         {
             this.frame++;
-            if (this.gameMode === 'distant')
+            if (this.gameMode === 'distant' && this.ballDirectionChanged)
             {
                 gameSocket.sendBallState();
             }
@@ -248,13 +249,16 @@ const game = {
             this.ballPosY += this.ballSpeedY;
             if (this.ballPosY <= 0 || this.ballPosY >= this.canvas.height) {
                 this.ballSpeedY = -this.ballSpeedY;
+                this.ballDirectionChanged = true; // Vertical direction change
             }
 
             // Paddle and ball collision logic
             if ((this.ballPosX <= this.paddleWidth && this.ballPosY > this.leftPaddleY && this.ballPosY < this.leftPaddleY + this.paddleHeight) || 
                 (this.ballPosX >= this.canvas.width - this.paddleWidth && this.ballPosY > this.rightPaddleY && this.ballPosY < this.rightPaddleY + this.paddleHeight)) {
                 this.ballSpeedX = -this.ballSpeedX;
+                this.ballDirectionChanged = true; // Horizontal direction change
             }
+
 
             // Score update logic
             if (this.ballPosX <= 0 || this.ballPosX >= this.canvas.width) {
