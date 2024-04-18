@@ -1,6 +1,7 @@
 const game = {
 
     gameMode: 'multiplayer',
+    ballDirectionChanged: false,
 
     settings: {
         player1Name: 'Player 1',
@@ -117,7 +118,7 @@ const game = {
         this.leftPaddleMovingDown = false;
         this.rightPaddleMovingUp = false;
         this.rightPaddleMovingDown = false;
-        
+
     },
 
     handleKeyDown: function (e) {
@@ -188,7 +189,7 @@ const game = {
                         this.rightPaddleMovingDown = false;
                     break;
             }
-    
+
             if (direction) {
                 gameSocket.sendPaddleMovement(direction);
             }
@@ -228,7 +229,7 @@ const game = {
 
     // handleKeyDown: function(e) {
     //     let direction = null;
-    
+
     //     if (game.gameMode === 'distant') {
     //         switch(e.key) {
     //             case 'w':
@@ -246,7 +247,7 @@ const game = {
     //                     game.rightPaddleY = Math.min(game.rightPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
     //                 break;
     //         }
-    
+
     //         if (direction) {
     //             gameSocket.sendPaddleMovement(direction);
     //         }
@@ -353,7 +354,7 @@ const game = {
             tmpX = obstacle;
             tmpY = this.ballPosY + this.ballSpeedY * delta;
             this.ballSpeedX *= -1;
-        }   
+        }
         else {
             tmpX = this.ballPosX + this.ballSpeedX * delta;
             tmpY = obstacle;
@@ -361,8 +362,8 @@ const game = {
         }
         this.ballPosX = tmpX + this.ballSpeedX * (1 - delta);
         this.ballPosY = tmpY + this.ballSpeedY * (1 - delta);
-        
-        
+
+
     },
 
     checkColisions: function () {
@@ -370,7 +371,7 @@ const game = {
         nextFrameBallX = this.ballPosX + this.ballSpeedX;
         nextFrameBallY = this.ballPosY + this.ballSpeedY;
         let deltaFrame = Infinity;
- 
+
         if (nextFrameBallX - this.ballRadius < this.paddleWidth && nextFrameBallY > this.leftPaddleY && nextFrameBallY < this.leftPaddleY + this.paddleHeight){
             //check colision with left paddle
             deltaFrame = Math.abs((this.paddleWidth - (this.ballPosX - this.ballRadius))/this.ballSpeedX);
@@ -402,7 +403,7 @@ const game = {
         if (this.messageDisplayCounter === 0)
         {
             this.frame++;
-            if (this.gameMode === 'distant')
+            if (this.gameMode === 'distant' && this.ballDirectionChanged)
             {
                 gameSocket.sendBallState();
             }
@@ -446,7 +447,7 @@ const game = {
         this.checkBonusCollision();
         //this.displayPoints();
         this.movePaddles();
-    
+
         this.ctx.fillStyle = 'white';
 
         // Draw paddles
@@ -601,6 +602,6 @@ const game = {
             this.ball_color = 'green';
         else if (Math.abs(this.ballSpeedX) < this.settings.ballSpeed / 2)
             this.ball_color = 'red';
-    },      
+    },
 
 };
