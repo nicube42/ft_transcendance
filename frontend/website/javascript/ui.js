@@ -188,6 +188,7 @@ const ui = {
         },
         async 'STATISTICS'() {
             this.showOnlyOneSection('playerStats');
+            GameStats.init();
         }
     },
 

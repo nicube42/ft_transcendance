@@ -32,6 +32,5 @@ To do updated
     - implementer le modèle de ml au containeur existant
 
 - tableau de bord utilisateurs + stats (nicolas) KO 0.5
-    - charts ne pas utiliser extensions joueurs
     - vérifier vainqueurs/perdants dans le cas de matchs distants
 

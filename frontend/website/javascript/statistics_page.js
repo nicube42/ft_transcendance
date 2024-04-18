@@ -39,46 +39,88 @@ const GameStats = {
                 if (data.error) {
                     console.error('Error fetching win rate data:', data.error);
                 } else {
-                    this.renderWinRateChart(data);
+                    GameStats.drawLineChart(data);
                 }
             })
             .catch(error => console.error('Error fetching win rate data:', error));
+    },
+    
+    drawLineChart: function(data) {
+        const canvas = document.getElementById('winRateChart');
+        const ctx = canvas.getContext('2d');
+    
+        // Clear previous drawing
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+        // Setup
+        const padding = 50;
+        const pointRadius = 5;
+        const chartHeight = canvas.height - 2 * padding;
+        const chartWidth = canvas.width - 2 * padding;
+        const maxWinRate = 100; // Win rate goes from 0% to 100%
+    
+        // Draw axes
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, padding + chartHeight);
+        ctx.lineTo(padding + chartWidth, padding + chartHeight);
+        ctx.stroke();
+    
+        // Handle single data point scenario
+        if (data.dates.length === 1) {
+            // Calculate single point
+            const x = padding + chartWidth / 2; // Center the point
+            const y = padding + chartHeight * (1 - data.winRates[0] / maxWinRate);
+    
+            // Draw point
+            ctx.fillStyle = 'rgb(75, 192, 192)';
+            ctx.beginPath();
+            ctx.arc(x, y, pointRadius, 0, Math.PI * 2);
+            ctx.fill();
+    
+            // Label the point
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(data.dates[0], x, padding + chartHeight + 10);
+            ctx.fillText(`${data.winRates[0]}%`, x, y - 10);
+        } else {
+            // Calculate points for multiple dates
+            const xIncrement = chartWidth / (data.dates.length - 1);
+            const points = data.winRates.map((rate, index) => ({
+                x: padding + xIncrement * index,
+                y: padding + chartHeight * (1 - rate / maxWinRate)
+            }));
+    
+            // Draw line
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            points.forEach(point => ctx.lineTo(point.x, point.y));
+            ctx.stroke();
+    
+            // Draw points
+            ctx.fillStyle = 'rgb(75, 192, 192)';
+            points.forEach(point => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, pointRadius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+    
+            // Label axes for multiple points
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            data.dates.forEach((date, index) => {
+                ctx.fillText(date, padding + xIncrement * index, padding + chartHeight + 10);
+            });
+        }
+    
+        // Label y-axis
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        for (let i = 0; i <= maxWinRate; i += 10) {
+            ctx.fillText(`${i}%`, padding - 10, padding + chartHeight * (1 - i / maxWinRate));
+        }
     },    
     
-    renderWinRateChart: function(data) {
-        const ctx = document.getElementById('winRateChart').getContext('2d');
-        const winRateChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.dates, // Assuming 'dates' is an array of date strings
-                datasets: [{
-                    label: 'Win Rate',
-                    data: data.winRates, // Assuming 'winRates' is an array of win rate values
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100, // As win rate percentage
-                        title: {
-                            display: true,
-                            text: 'Win Rate (%)'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true
-                    }
-                }
-            }
-        });
-    },
-
     init: function() {
         document.addEventListener('DOMContentLoaded', () => {
             this.fetchPlayerStats();
@@ -87,5 +129,4 @@ const GameStats = {
         });
     } 
 };
-
 GameStats.init();
