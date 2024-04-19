@@ -153,8 +153,10 @@ var friendsPage = {
                                     <button class="btn btn-outline-success" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.goToStats('${friend.username}')">View Stats</button>`;
                 friendsList.appendChild(item);
     
-                gameSocket.sendUserStatusRequest(friend.username);
-                gameSocket.checkIfUserInGame(friend.username);
+                setTimeout(() => {
+                    gameSocket.sendUserStatusRequest(friend.username);
+                    gameSocket.checkIfUserInGame(friend.username);
+                }, 2000);
             });
         })
         .catch(error => console.error('Error listing friends:', error));

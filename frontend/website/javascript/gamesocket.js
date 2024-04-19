@@ -367,7 +367,7 @@ var gameSocket = {
             alert('Please enter a username to invite.');
             return;
         }
-    
+    c
         gameSocket.sendMessage({
             action: 'invite_to_tournament',
             tournamentId: this.tournamentId,
