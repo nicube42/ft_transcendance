@@ -279,6 +279,7 @@ const game = {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
             console.log('Game paused');
+            auth.updateUserGameStatus('false');;
             this.resetVars();
             this.stopControlAndDisconnect();
         }
@@ -288,6 +289,7 @@ const game = {
         if (!this.animationFrameId) {
             this.resetVars();
             this.drawPong();
+            auth.updateUserGameStatus('true');;
             console.log('Game resumed');
             if (this.gameMode === 'singlePlayer')
             {

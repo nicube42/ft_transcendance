@@ -118,6 +118,15 @@ class GameConsumer(AsyncWebsocketConsumer):
             else:
                 # Handle the case where tournament_id is not provided or is invalid
                 await self.send_message_safe(json.dumps({'error': 'tournament_id is required for updating participants'}))
+        elif action == 'send_user_status':
+            username = text_data_json.get('username')
+            if username:
+                await self.send_user_status(username)
+            else:
+                await self.send_message_safe(json.dumps({'error': 'username is required to send user status'}))
+        elif action == 'check_user_in_game':
+            username = text_data_json.get('username')
+            await self.check_if_user_in_game(username)
         # elif action == 'start_tournament_matches':
         #     await self.start_tournament_matches(text_data_json)
 
@@ -707,3 +716,42 @@ class GameConsumer(AsyncWebsocketConsumer):
     #     # Example response
     #     match_info = {'action': 'matches_started', 'matches': 'details_here'}
     #     await self.send(text_data=json.dumps(match_info))
+
+    async def send_user_status(self, username):
+        async with get_redis_connection() as redis:
+            online_status = await redis.get(f"user_channel:{username}")
+            status = 'online' if online_status else 'offline'
+            await self.send(text_data=json.dumps({
+                'action': 'user_status',
+                'username': username,
+                'status': status
+            }))
+
+    @database_sync_to_async
+    def get_user_by_username(self, username):
+        try:
+            return get_user_model().objects.get(username=username)
+        except get_user_model().DoesNotExist:
+            return None
+
+    async def check_if_user_in_game(self, username):
+        user = await self.get_user_by_username(username)
+        if user:
+            in_game_status = user.is_in_game
+            response = {
+                'action': 'user_in_game_status',
+                'username': username,
+                'in_game': in_game_status
+            }
+        else:
+            response = {
+                'action': 'error',
+                'message': 'User not found'
+            }
+        await self.send_message_safe(json.dumps(response))
+
+    async def send_message_safe(self, message):
+        if not self.user.is_anonymous:
+            await self.send(text_data=message)
+        else:
+            logger.info("Attempted to send message to anonymous user, action skipped.")

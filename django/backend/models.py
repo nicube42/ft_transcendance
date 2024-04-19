@@ -10,6 +10,7 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     profile_pic = models.ImageField(upload_to='profile_pics/', default='profile_pics/default.jpg')
     friends = models.ManyToManyField('self', related_name='my_friends', blank=True)
+    is_in_game = models.BooleanField(default=False)
 
 class MyModel(models.Model):
     name = models.CharField(max_length=100)

@@ -28,5 +28,5 @@ urlpatterns = [
     path('api/player_stats/<str:username>/', views.player_stats_all, name='player_stats_all'),
     path('api/recent_games/<str:username>/', views.recent_games_all, name='recent_games_all'),
     path('api/win_rate_over_time/<str:username>/', views.win_rate_over_time_all, name='win_rate_over_time_all'),
-
+    path('api/update_game_status/', views.update_game_status, name='update_game_status')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

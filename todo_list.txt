@@ -14,9 +14,9 @@ To do updated
 
 - gestion d'utilisateur KO 1
     - avatar (marco)$
-    - status en ligne (nicolas)
-                    - ajouter amis (nicolas) (besoin de mettre au propre mais fonctionne)
-                    - afficher stats et historique des joueurs sur le profil (nicolas) (besoin de mettre au propre mais fonctionne)
+                    - status en ligne OK (il faut recharger la page de temps en temps, eventuellement régler ca mais ca devrait passer comme ca)
+                    - ajouter amis OK
+                    - afficher stats et historique des joueurs sur le profil OK
 
 - auth a distance (Marco) KO 1
 

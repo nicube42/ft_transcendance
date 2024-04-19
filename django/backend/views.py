@@ -481,3 +481,30 @@ def player_stats_all(request, username):
         logging.exception("Error fetching player stats for %s", username)
         return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)
 
+
+from django.contrib.auth import get_user_model
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect
+
+@require_POST
+@login_required
+@csrf_protect
+def update_game_status(request):
+    User = get_user_model()
+    try:
+        data = json.loads(request.body)
+        in_game = data.get('is_in_game', 'false').lower() == 'true'
+        user = request.user
+        if not isinstance(user, User):
+            raise ValueError("User instance not of type CustomUser")
+        
+        user.is_in_game = in_game
+        user.save()
+        return JsonResponse({'status': 'updated', 'is_in_game': user.is_in_game})
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

@@ -70,6 +70,26 @@ var gameSocket = {
                 tournament.handleTournamentCreated(data);
             } else if (data.action === 'update_participant_count') {
                 tournament.updateParticipantCount(data.participant_count, data.max_players, data.participants);
+            } else if (data.action === 'user_status') {
+                const statusIndicator = document.getElementById(`status-${data.username}`);
+                console.log(`Updating status for ${data.username} to ${data.status}`);
+                if (statusIndicator) {
+                    statusIndicator.style.color = data.status === 'online' ? 'green' : 'red';
+                }
+            } else if (data.action === 'user_in_game') {
+                if (data.in_game) {
+                    console.log(`${data.username} is in a game.`);
+                } else {
+                    console.log(`${data.username} is not in a game.`);
+                }
+            } else if (data.action === 'user_in_game_status') {
+                if (data.in_game == false)
+                    return ;
+                const statusIndicator = document.getElementById(`status-${data.username}`);
+                console.log(`Updating status for ${data.username} to ${data.in_game}`);
+                if (statusIndicator) {
+                    statusIndicator.style.color = 'orange';
+                }
             }
         });
     
@@ -174,7 +194,7 @@ var gameSocket = {
         const roomListDiv = document.getElementById('roomList');
         if (!roomListDiv) {
             console.error('Element with ID "roomList" not found.');
-            return; // Exit the function if the element is not found
+            return;
         }
         roomListDiv.innerHTML = '';
     
@@ -257,7 +277,7 @@ var gameSocket = {
             this.socket.send(JSON.stringify(message));
         } else {
             console.log("WebSocket is not open. Waiting before retrying...");
-            setTimeout(() => this.sendBallState(), 1000); // Try again after a delay
+            setTimeout(() => this.sendBallState(), 1000);
         }
     },    
     
@@ -282,13 +302,43 @@ var gameSocket = {
     },
     
     sendMessage: function(message) {
-        if (this.socket.readyState === WebSocket.OPEN) {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(message));
         } else {
-            console.log("WebSocket is not open. Waiting before retrying...");
-            setTimeout(() => this.sendMessage(message), 1000);
+            console.log("WebSocket is not open. Retrying to send message...");
+            this.waitForSocketReady(() => {
+                this.socket.send(JSON.stringify(message));
+            });
         }
     },
+
+    waitForSocketReady: function(callback, attempts = 5) {
+        const interval = 1000;
+        let attemptsLeft = attempts;
+    
+        const checkSocket = () => {
+            if (!this.socket) {
+                console.error("WebSocket has not been initialized.");
+                return;
+            }
+    
+            if (this.socket.readyState === WebSocket.OPEN) {
+                console.log("WebSocket is now open.");
+                callback();
+            } else {
+                if (attemptsLeft <= 0) {
+                    console.error("Failed to send message: WebSocket is not open and max attempts reached.");
+                } else {
+                    attemptsLeft--;
+                    console.log("Waiting for WebSocket to be open...", attemptsLeft, "attempts left.");
+                    setTimeout(checkSocket, interval);
+                }
+            }
+        };
+    
+        checkSocket();
+    },
+    
 
     sendInvite: function(username, roomName) {
         this.sendMessage({
@@ -351,7 +401,24 @@ var gameSocket = {
             this.updateInterval = null;
         }
     },
-    
+
+    sendUserStatusRequest: function(username) {
+        const message = {
+            action: 'send_user_status',
+            username: username
+        };
+
+        this.sendMessage(message);
+    },
+
+    checkIfUserInGame: function(username) {
+        const message = {
+            action: 'check_user_in_game',
+            username: username
+        };
+
+        this.sendMessage(message);
+    }
 };
 
 window.addEventListener('beforeunload', function() {

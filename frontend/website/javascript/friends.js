@@ -148,14 +148,17 @@ var friendsPage = {
             friendsList.innerHTML = '';
             data.friends.forEach(friend => {
                 const item = document.createElement('li');
-                item.innerHTML = `${friend.username} (${friend.fullname}) 
-                                  <button onclick="friendsPage.showUserProfile('${friend.username}')">View Profile</button>
-                                  <button onclick="friendsPage.goToStats('${friend.username}')">View Stats</button>`;
+                item.innerHTML = `<span class="status-indicator" id="status-${friend.username}">●</span> ${friend.username} (${friend.fullname})
+                                    <button class="btn btn-outline-success" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.showUserProfile('${friend.username}')">View Profile</button>
+                                    <button class="btn btn-outline-success" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.goToStats('${friend.username}')">View Stats</button>`;
                 friendsList.appendChild(item);
+    
+                gameSocket.sendUserStatusRequest(friend.username);
+                gameSocket.checkIfUserInGame(friend.username);
             });
         })
         .catch(error => console.error('Error listing friends:', error));
-    },
+    },    
 
     searchFriends: function() {
         var searchQuery = document.getElementById('searchFriendsInput').value;
