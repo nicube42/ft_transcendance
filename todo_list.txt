@@ -5,7 +5,11 @@ To do updated
 
 - game name dans les settings (thomas)
 
-- vérifier injections sql (marco ?)
+- vérifier injections sql (marco ?) check avec HAJAR SQL injections/XSS.
+
+- form validation (date pas dans le futur, username, add max length, not empty ect
+
+- vérifier que l'utilisateur est bien connecté avant d'utiliser toutes les API (if request.user.is_authenticated)
 
                     - framework en back OK 1
 
@@ -14,7 +18,7 @@ To do updated
                     - base de donnée en back OK 0.5
 
 - gestion d'utilisateur KO 1
-    - avatar (marco)$
+- avatar (marco)$
                     - status en ligne OK
                     - ajouter amis OK
                     - afficher stats et historique des joueurs sur le profil OK
@@ -36,4 +40,14 @@ To do updated
     - implementer le modèle de ml au containeur existant
 
                     - tableau de bord utilisateurs + stats (nicolas) OK 0.5
+
+LAST CHECKLIST
+
+- no .env
+- no certs
+- no todofile
+- remove console.log
+- remove "todo" comments
+- remove commented code
+- clean comments
 
