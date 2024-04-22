@@ -124,6 +124,7 @@ const game = {
     handleKeyDown: function (e) {
 
         let direction = null;
+        let keyEvent = "pressed";
 
         console.log("key pressed", e.key);
 
@@ -131,22 +132,42 @@ const game = {
             switch(e.key) {
                 case 'w':
                     direction = 'up';
-                    if (game.playerRole === 'left')
+                    if (game.playerRole === 'left') {
                         this.leftPaddleMovingUp = true;
-                    else
+                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
+
+                        // gameSocket.sendPaddleMovement(direction);
+                    }
+                    else {
                         this.rightPaddleMovingUp = true;
+                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
+
+                        // gameSocket.sendPaddleMovement(direction);
+                    }
                     break;
                 case 's':
                     direction = 'down';
-                    if (game.playerRole === 'left')
+                    if (game.playerRole === 'left'){
                         this.leftPaddleMovingDown = true;
-                    else
+                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
+
+                        // gameSocket.sendPaddleMovement(direction);
+                    }
+                    else {
                         this.rightPaddleMovingDown = true;
+                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
+
+                        // gameSocket.sendPaddleMovement(direction);
+                    }
                     break;
             }
     
             if (direction) {
-                gameSocket.sendPaddleMovement(direction);
+                gameSocket.sendPaddleMovement(direction, keyEvent);
             }
         }
         else {
@@ -169,6 +190,7 @@ const game = {
 
     handleKeyUp: function (e) {
         let direction = null;
+        let keyEvent = "unpressed"
 
         console.log("key pressed", e.key);
 
@@ -176,22 +198,36 @@ const game = {
             switch(e.key) {
                 case 'w':
                     direction = 'up';
-                    if (game.playerRole === 'left')
+                    if (game.playerRole === 'left'){
                         this.leftPaddleMovingUp = false;
-                    else
+                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
+                    }
+                    else {
                         this.rightPaddleMovingUp = false;
+                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
+                    }
+
                     break;
                 case 's':
                     direction = 'down';
-                    if (game.playerRole === 'left')
+                    if (game.playerRole === 'left') {
                         this.leftPaddleMovingDown = false;
-                    else
+                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
+                    }
+                    else {
                         this.rightPaddleMovingDown = false;
+                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
+                    }
+
                     break;
             }
 
             if (direction) {
-                gameSocket.sendPaddleMovement(direction);
+                gameSocket.sendPaddleMovement(direction, keyEvent);
             }
         }
         if (this.gameMode !== 'distant'){
@@ -212,67 +248,38 @@ const game = {
         }
     },
 
-    movePaddles: function () {
-        if (this.leftPaddleMovingUp) {
-            this.leftPaddleY = Math.max(this.leftPaddleY - this.paddleSpeed, 0);
-        }
-        if (this.leftPaddleMovingDown) {
-            this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
-        }
-        if (this.rightPaddleMovingUp) {
-            this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
-        }
-        if (this.rightPaddleMovingDown) {
-            this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+    sendPaddlePosition: function (role, paddleY) {
+
+        if (this.gameMode === "distant"){
+                
+            auth.retrieveInfos().then(userInfo => {
+                if (userInfo && userInfo.username){
+                    console.log("call api", gameSocket.currentRoom);
+                    gameSocket.updatePaddleRemote(role, paddleY, userInfo.username, gameSocket.currentRoom);
+                }
+            })
+
         }
     },
 
-    // handleKeyDown: function(e) {
-    //     let direction = null;
-
-    //     if (game.gameMode === 'distant') {
-    //         switch(e.key) {
-    //             case 'w':
-    //                 direction = 'up';
-    //                 if (game.playerRole === 'left')
-    //                     game.leftPaddleY = Math.max(game.leftPaddleY - game.paddleSpeed, 0);
-    //                 else
-    //                     game.rightPaddleY = Math.max(game.rightPaddleY - game.paddleSpeed, 0);
-    //                 break;
-    //             case 's':
-    //                 direction = 'down';
-    //                 if (game.playerRole === 'left')
-    //                     game.leftPaddleY = Math.min(game.leftPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
-    //                 else
-    //                     game.rightPaddleY = Math.min(game.rightPaddleY + game.paddleSpeed, game.canvas.height - game.paddleHeight);
-    //                 break;
-    //         }
-
-    //         if (direction) {
-    //             gameSocket.sendPaddleMovement(direction);
-    //         }
-    //     }
-    //     else
-    //     {
-
-    //         switch(e.key) {
-    //             case 'ArrowUp':
-    //                 if (this.gameMode === 'multiplayer')
-    //                     this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
-    //                 break;
-    //             case 'ArrowDown':
-    //                 if (this.gameMode === 'multiplayer')
-    //                     this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
-    //                 break;
-    //             case 'w':
-    //                 this.leftPaddleY = Math.max(this.leftPaddleY - this.paddleSpeed, 0);
-    //                 break;
-    //             case 's':
-    //                 this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
-    //                 break;
-    //         }
-    //     }
-    // },
+    movePaddles: function () {
+        if (this.leftPaddleMovingUp) {
+            this.leftPaddleY = Math.max(this.leftPaddleY - this.paddleSpeed, 0);
+            // this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
+        }
+        else if (this.leftPaddleMovingDown) {
+            this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+            // this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
+        }
+        if (this.rightPaddleMovingUp) {
+            this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
+            // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
+        }
+        else if (this.rightPaddleMovingDown) {
+            this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+            // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
+        }
+    },
 
     pause: function() {
         if (this.animationFrameId) {
@@ -447,6 +454,7 @@ const game = {
         this.checkBonusCollision();
         //this.displayPoints();
         this.movePaddles();
+
 
         this.ctx.fillStyle = 'white';
 
