@@ -242,6 +242,33 @@ const auth = {
         .catch(error => {
             console.error('Error updating game status:', error);
         });
+    },
+
+    updateUserTournamentStatus: function(isInTournament) {
+        console.log('Attempting to update tournament status to:', isInTournament);
+        fetch('/api/update_tournament_status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': this.getCSRFToken()
+            },
+            body: JSON.stringify({
+                is_in_tournament: isInTournament
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Failed to update tournament status');
+            }
+        })
+        .then(data => {
+            console.log('Tournament status updated:', data);
+        })
+        .catch(error => {
+            console.error('Error updating tournament status:', error);
+        });
     },    
 
     getCSRFToken: function() {

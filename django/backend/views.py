@@ -168,7 +168,7 @@ def user_info(request):
             user_data = {
                 'id': request.user.id,
                 'username': request.user.username,
-                'fullname': request.user.get_full_name(),
+                'fullname': request.user.fullname,
                 'date_of_birth': request.user.date_of_birth,
                 'bio': request.user.bio,
             }
@@ -508,3 +508,43 @@ def update_game_status(request):
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+from django.contrib.auth import get_user_model
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect
+
+@require_POST
+@login_required
+@csrf_protect
+def update_tournament_status(request):
+    User = get_user_model()
+    try:
+        data = json.loads(request.body)
+        in_tournament = data.get('is_in_tournament', 'false').lower() == 'true'
+        user = request.user
+        if not isinstance(user, User):
+            raise ValueError("User instance not of type CustomUser")
+        
+        user.is_in_tournament = in_tournament
+        user.save()
+        return JsonResponse({'status': 'updated', 'is_in_tournament': user.is_in_tournament})
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+
+@login_required
+@require_http_methods(["GET"])
+def check_user_in_tournament(request):
+    user = request.user
+    return JsonResponse({
+        'is_in_tournament': user.is_in_tournament
+    })

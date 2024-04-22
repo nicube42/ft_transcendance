@@ -214,11 +214,15 @@ const ui = {
         const tournamentId = localStorage.getItem('tournamentId');
         const maxPlayers = localStorage.getItem('maxPlayers');
         const currentParticipants = localStorage.getItem('currentParticipants');
-        // const participants = localStorage.getItem('participants');
+        const participants = localStorage.getItem('participants');
+        const initialNumPlayers = localStorage.getItem('initialNumPlayers');
+        const currentRound = localStorage.getItem('currentRound');
     
         if (tournamentId && maxPlayers && currentParticipants) {
             tournament.updateParticipantCount(parseInt(currentParticipants, 10), parseInt(maxPlayers, 10));
             tournament.tournamentId = tournamentId;
+            tournament.initialNumPlayers = parseInt(initialNumPlayers, 10);
+            tournament.currentRound = parseInt(currentRound, 10);
         }
     },
 

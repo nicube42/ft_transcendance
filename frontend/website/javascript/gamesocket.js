@@ -63,9 +63,9 @@ var gameSocket = {
                 console.error(data.error);
             } else if (data.action === 'receive_invite') {
                 console.log(data.message);
-                this.showInvitePopup(data.room_name, data.from_user);
+                this.showInvitePopup(data.room_name, data.from_user, 'room');
             } else if(data.action === 'receive_tournament_invite') {
-                tournament.showInvitePopup(data.tournament_id, data.from_user);
+                this.showInvitePopup(data.tournament_id, data.from_user, 'tournament');
             } else if (data.action === 'tournament_created') {
                 tournament.handleTournamentCreated(data);
             } else if (data.action === 'update_participant_count') {
@@ -98,40 +98,69 @@ var gameSocket = {
         });
     },
 
-    showInvitePopup: function(roomName, fromUser) {
-        const popupDiv = document.createElement('div');
-        popupDiv.id = 'invitePopup';
-        popupDiv.style.position = 'fixed';
-        popupDiv.style.left = '50%';
-        popupDiv.style.top = '50%';
-        popupDiv.style.transform = 'translate(-50%, -50%)';
-        popupDiv.style.backgroundColor = 'white';
-        popupDiv.style.padding = '20px';
-        popupDiv.style.zIndex = '1000';
-        popupDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+    // showInvitePopup: function(roomName, fromUser) {
+    //     const popupDiv = document.createElement('div');
+    //     popupDiv.id = 'invitePopup';
+    //     popupDiv.style.position = 'fixed';
+    //     popupDiv.style.left = '50%';
+    //     popupDiv.style.top = '50%';
+    //     popupDiv.style.transform = 'translate(-50%, -50%)';
+    //     popupDiv.style.backgroundColor = 'white';
+    //     popupDiv.style.padding = '20px';
+    //     popupDiv.style.zIndex = '1000';
+    //     popupDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
         
-        const message = document.createElement('p');
-        message.textContent = `You have been invited to join the room '${roomName}' by ${fromUser}. Do you accept?`;
-        popupDiv.appendChild(message);
+    //     const message = document.createElement('p');
+    //     message.textContent = `You have been invited to join the room '${roomName}' by ${fromUser}. Do you accept?`;
+    //     popupDiv.appendChild(message);
         
-        const acceptButton = document.createElement('button');
-        acceptButton.textContent = 'Accept';
-        acceptButton.onclick = () => {
-            this.joinRoom(roomName);
-            document.body.removeChild(popupDiv);
-        };
-        popupDiv.appendChild(acceptButton);
+    //     const acceptButton = document.createElement('button');
+    //     acceptButton.textContent = 'Accept';
+    //     acceptButton.onclick = () => {
+    //         this.joinRoom(roomName);
+    //         document.body.removeChild(popupDiv);
+    //     };
+    //     popupDiv.appendChild(acceptButton);
     
-        const refuseButton = document.createElement('button');
-        refuseButton.textContent = 'Refuse';
-        refuseButton.style.marginLeft = '10px';
-        refuseButton.onclick = () => {
-            document.body.removeChild(popupDiv);
-        };
-        popupDiv.appendChild(refuseButton);
+    //     const refuseButton = document.createElement('button');
+    //     refuseButton.textContent = 'Refuse';
+    //     refuseButton.style.marginLeft = '10px';
+    //     refuseButton.onclick = () => {
+    //         document.body.removeChild(popupDiv);
+    //     };
+    //     popupDiv.appendChild(refuseButton);
         
-        document.body.appendChild(popupDiv);
-    },
+    //     document.body.appendChild(popupDiv);
+    // },
+
+    showInvitePopup: function(inviteId, fromUser, inviteType) {
+        const inviteModal = new bootstrap.Modal(document.getElementById('invitePopupModal'));
+        const inviteMessage = document.getElementById('inviteMessage');
+        const acceptButton = document.getElementById('acceptInvite');
+        const refuseButton = document.getElementById('refuseInvite');
+    
+        // Set the invitation message based on the type
+        if (inviteType === 'tournament') {
+            inviteMessage.textContent = `You have been invited to join the tournament by ${fromUser}. Do you accept?`;
+            acceptButton.onclick = () => {
+                tournament.acceptTournamentInvite(inviteId);
+                inviteModal.hide();
+            };
+        } else if (inviteType === 'room') {
+            inviteMessage.textContent = `You have been invited to join the room '${inviteId}' by ${fromUser}. Do you accept?`;
+            acceptButton.onclick = () => {
+                this.joinRoom(inviteId);
+                inviteModal.hide();
+            };
+        }
+    
+        refuseButton.onclick = () => {
+            inviteModal.hide();
+        };
+    
+        // Show the modal
+        inviteModal.show();
+    },      
 
     closeAndReinitialize: function() {
         if (this.socket) {
@@ -298,6 +327,13 @@ var gameSocket = {
         this.sendMessage({
             action: 'start_game',
             room_name: this.currentRoom,
+        });
+    },
+
+    sendGameStart2: function(roomName) {
+        this.sendMessage({
+            action: 'start_game',
+            room_name: roomName,
         });
     },
     

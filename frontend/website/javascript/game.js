@@ -64,7 +64,22 @@ const game = {
     },
     
     
-    init: function() {
+    // init: function() {
+    //     this.canvas = document.getElementById('pong');
+    //     if (this.canvas.getContext) {
+    //         this.ctx = this.canvas.getContext('2d');
+    //         this.resetVars();
+    //         this.drawPong();
+    //         window.removeEventListener('keydown', this.handleKeyDown.bind(this));
+    //         window.removeEventListener('keyup', this.handleKeyUp.bind(this));
+    //         window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    //         window.addEventListener('keyup', this.handleKeyUp.bind(this));
+    //     }
+    // },
+
+    init: async function() {
+        await settings.populateSettings();  // Populate settings before the game starts.
+        stats.initStats();                  // Initialize game stats.
         this.canvas = document.getElementById('pong');
         if (this.canvas.getContext) {
             this.ctx = this.canvas.getContext('2d');
@@ -118,6 +133,7 @@ const game = {
         this.leftPaddleMovingDown = false;
         this.rightPaddleMovingUp = false;
         this.rightPaddleMovingDown = false;
+        stats.endTime = null;
 
     },
 
@@ -402,6 +418,12 @@ const game = {
 
     drawPong: function() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if ((this.player1Score >= this.winningScore || this.player2Score >= this.winningScore) && !stats.endTime) {
+            stats.recordEndTime();
+            stats.displayEndGameStats();
+            this.resetVars();
+            return;
+        }
         if (this.messageDisplayCounter === 0)
         {
             this.frame++;
@@ -409,11 +431,11 @@ const game = {
             {
                 gameSocket.sendBallState();
             }
-            if (this.player1Score >= this.winningScore || this.player2Score >= this.winningScore)
-            {
-                this.resetVars();
-                ui.showOnlyOneSection('endgameStats');
-            }
+            // if (this.player1Score >= this.winningScore || this.player2Score >= this.winningScore)
+            // {
+            //     this.resetVars();
+            //     ui.showOnlyOneSection('endgameStats');
+            // }
 
             // Ball movement logic
             this.checkColisions();
@@ -493,12 +515,21 @@ const game = {
         this.ctx.fill();
     },
 
+    // resetBall: function() {
+    //     this.ballPosX = this.canvas.width / 2;
+    //     this.ballPosY = this.canvas.height / 2;
+    //     this.ballSpeedX = -this.ballSpeedX;
+    //     this.ballSpeedY = this.ballSpeedY;
+    // },
+
     resetBall: function() {
+        stats.updateGameRestart();  // Update game stats each time the ball is reset.
         this.ballPosX = this.canvas.width / 2;
         this.ballPosY = this.canvas.height / 2;
-        this.ballSpeedX = -this.ballSpeedX;
-        this.ballSpeedY = this.ballSpeedY;
+        this.ballSpeedX = -this.ballSpeedX;  // Invert ball's horizontal direction.
+        this.ballSpeedY = this.ballSpeedY;   // Maintain ball's vertical speed.
     },
+    
 
     controlRightPaddleWithAI: function() {
         const movePaddle = (aiAction) => {
