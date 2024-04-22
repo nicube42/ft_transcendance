@@ -135,14 +135,14 @@ const game = {
                     if (game.playerRole === 'left') {
                         this.leftPaddleMovingUp = true;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
+                        // this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
 
                         // gameSocket.sendPaddleMovement(direction);
                     }
                     else {
                         this.rightPaddleMovingUp = true;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
+                        // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
 
                         // gameSocket.sendPaddleMovement(direction);
                     }
@@ -152,23 +152,23 @@ const game = {
                     if (game.playerRole === 'left'){
                         this.leftPaddleMovingDown = true;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
+                        // this.sendPaddlePosition(this.playerRole, this.leftPaddleY); 
 
                         // gameSocket.sendPaddleMovement(direction);
                     }
                     else {
                         this.rightPaddleMovingDown = true;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
+                        // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
 
                         // gameSocket.sendPaddleMovement(direction);
                     }
                     break;
             }
     
-            if (direction) {
-                gameSocket.sendPaddleMovement(direction, keyEvent);
-            }
+            // if (direction) {
+            //     gameSocket.sendPaddleMovement(direction, keyEvent);
+            // }
         }
         else {
             switch (e.key) {
@@ -201,12 +201,12 @@ const game = {
                     if (game.playerRole === 'left'){
                         this.leftPaddleMovingUp = false;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
+                        // this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
                     }
                     else {
                         this.rightPaddleMovingUp = false;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
+                        // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
                     }
 
                     break;
@@ -215,20 +215,20 @@ const game = {
                     if (game.playerRole === 'left') {
                         this.leftPaddleMovingDown = false;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
+                        // this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
                     }
                     else {
                         this.rightPaddleMovingDown = false;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
+                        // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
                     }
 
                     break;
             }
 
-            if (direction) {
-                gameSocket.sendPaddleMovement(direction, keyEvent);
-            }
+            // if (direction) {
+            //     gameSocket.sendPaddleMovement(direction, keyEvent);
+            // }
         }
         if (this.gameMode !== 'distant'){
             switch (e.key) {
@@ -357,10 +357,16 @@ const game = {
         let tmpX, tmpY;
         console.log(paddleCenter);
         console.log("delta:",delta);
+        const originalSpeed = Math.sqrt(this.ballSpeedX * this.ballSpeedX + this.ballSpeedY * this.ballSpeedY);
         if (isX && paddleCenter){
             tmpX = obstacle;
             tmpY = this.ballPosY + this.ballSpeedY * delta;
-            this.ballSpeedX *= -1;
+            let currentAngle = Math.atan2(this.ballSpeedY, this.ballSpeedX);
+            let refraction_coefficient = Math.abs((this.ballPosY - paddleCenter) / (this.paddleHeight / 2));
+            console.log(refraction_coefficient);
+            let newAngle = currentAngle + refraction_coefficient; // Modify this line to control how much the angle changes
+            this.ballSpeedX = -originalSpeed * Math.cos(newAngle);
+            this.ballSpeedY = originalSpeed * Math.sin(newAngle);
         }
         else {
             tmpX = this.ballPosX + this.ballSpeedX * delta;
