@@ -88,6 +88,9 @@ const ui = {
             this.showOnlyOneSection('multiplayer');
             settings.populateSettings();
             gameSocket.listRooms();
+            setInterval(() => {
+                gameSocket.updateRoomList(gameSocket.listRooms());
+            }, 5000);
         },
         async 'TOURNAMENT'() {
             this.showOnlyOneSection('tournament');
