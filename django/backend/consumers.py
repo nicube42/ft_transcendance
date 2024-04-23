@@ -101,6 +101,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.game_start()
         elif action == 'update_ball_state':
             await self.update_ball_state(text_data_json)
+        elif action == 'update_bonus':
+            await self.update_bonus(text_data_json)
         elif action == 'delete_room':
             await self.delete_room(text_data_json)
         elif action == 'send_invite':
@@ -442,6 +444,30 @@ class GameConsumer(AsyncWebsocketConsumer):
             'player': event['player'],
             'keyEvent': event['keyEvent']
         }))
+
+    async def update_bonus(self, data):
+        room_name = data['room_name']
+        bonusGreen = data['bonusGreen']
+        bonusRed = data['bonusRed']
+
+        await self.channel_layer.group_send(
+            room_name,
+            {
+                'action': 'update_bonus',
+                'type': 'broadcast_bonus',  # This refers to the function that will actually send updates to clients.
+                'bonusGreen': bonusGreen,
+                'bonusRed': bonusRed,
+                'sender_channel_name': self.channel_name,
+            }
+        )
+
+    async def broadcast_bonus(self, event):
+        await self.send_message_safe(json.dumps({
+            'action': 'update_bonus',
+            'bonusGreen': event['bonusGreen'],
+            'bonusRed': event['bonusRed'],
+        }))
+
 
     async def update_ball_state(self, data):
         room_name = data['room_name']

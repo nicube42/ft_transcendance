@@ -65,6 +65,14 @@ var gameSocket = {
                         }
                     }
                 }
+            } else if (data.action === 'update_bonus') {
+                console.log('game bonuses from right', game.bonusGreen, game.bonusRed);
+                console.log(data);
+                if (game.playerRole === 'right') {
+                    console.log('update_bonus');
+                    game.bonusGreen = data.bonusGreen;
+                    game.bonusRed = data.bonusRed;
+                }
             } else if (data.action === 'assign_role') {
                 game.playerRole = data.role; // 'left' or 'right'
                 console.log(`Assigned role: ${data.role}`);
@@ -230,6 +238,10 @@ var gameSocket = {
     },    
 
     updateRoomList: function(rooms) {
+
+        if (!rooms){
+            return ;
+        }
         const roomListDiv = document.getElementById('roomList');
         if (!roomListDiv) {
             console.error('Element with ID "roomList" not found.');
@@ -301,6 +313,14 @@ var gameSocket = {
             action: 'join_room',
             room_name: roomName,
             mode: 'distant'
+        });
+    },
+    sendBonusState: function (bonusGreen, bonusRed) {
+        this.sendMessage({
+            'action': 'update_bonus',
+            'room_name': this.currentRoom,
+            'bonusGreen': bonusGreen,
+            'bonusRed': bonusRed,
         });
     },
 
