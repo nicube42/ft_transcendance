@@ -11,8 +11,6 @@ To do updated
 
 - form validation (date pas dans le futur, username, add max length, not empty ect
 
-- update frontend navbar when logout or login (only work when refresh right now) NEW
-
 - vérifier que l'utilisateur est bien connecté avant d'utiliser toutes les API (if request.user.is_authenticated)
 
                     - framework en back OK 1

@@ -31,7 +31,7 @@ const auth = {
                         settings.saveSettings();
                         settings.populateSettings();
                         ui.showOnlyOneSection('homepage');
-                        navbarManager.updateNavbar({ isAuthenticated: true });
+                        navbarManager.updateNavbar(true);
                     })
                     .catch(error => {
                         console.error('Failed to fetch/display user info:', error);
@@ -102,9 +102,8 @@ const auth = {
             console.log('Logout success:', data);
             sessionStorage.removeItem('isLoggedIn');
             ui.showOnlyOneSection('loginContainer');
-            navbarManager.updateNavbar({ isAuthenticated: false });
+            navbarManager.updateNavbar(false);
             ui.connected = false;
-           // location.reload()
         })
         .catch(error => console.error('Logout error:', error));
     },
@@ -116,7 +115,6 @@ const auth = {
             password: document.getElementById('password').value,
             fullname: document.getElementById('fullname').value,
             date_of_birth: document.getElementById('birth').value,
-            bio: document.getElementById('bio').value
         };
         fetch('/api/register/', {
             method: 'POST',
@@ -152,7 +150,6 @@ const auth = {
             password: document.getElementById('password').value,
             fullname: document.getElementById('fullname').value,
             date_of_birth: document.getElementById('birth').value,
-            bio: document.getElementById('bio').value
         };
         fetch('/api/register/', {
             method: 'POST',
@@ -179,7 +176,6 @@ const auth = {
             registrationErrorModal.show();
         });
     },
-
     retrieveInfos: function() {
         console.log('Retrieving user info...');
         return fetch('/api/user-info/', {
@@ -217,7 +213,7 @@ const auth = {
         })
         .then(response => {
             if (response.status === 401 || response.status === 403) {
-                return { isAuthenticated: false };
+                return false;
             } else if (!response.ok) {
                 throw new Error('Server error or network issue.');
             }
@@ -226,14 +222,14 @@ const auth = {
         .then(data => {
             if (data.is_authenticated) {
                 console.log("User is authenticated.");
-                return { isAuthenticated: true };
+                return true;
             } else {
-                return { isAuthenticated: false };
+                return false;
             }
         })
         .catch(error => {
             console.error(error.message);
-            return { isAuthenticated: false };
+            return false;
         });
     },
     checkIfUserLoggedIn: async function(username) {

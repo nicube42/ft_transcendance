@@ -68,7 +68,7 @@ const ui = {
                 this.showOnlyOneSection('homepage');
             }
             else
-                this.showOnlyOneSection('callback');
+                this.showOnlyOneSection('firstPage');
         },
         async 'PLAY'() {
             game.setGameMode('multiplayer');
@@ -208,10 +208,8 @@ const ui = {
     callback: function() {
         const url = new URL(window.location.href);
         console.log('url:', url.href);
-
         this.showOnlyOneSection('callback');
         console.log('callback exception2 called');
-
         const code = url.searchParams.get("code");
         if (code === null) {
             console.error("No code in URL");
@@ -242,7 +240,7 @@ const ui = {
                         settings.saveSettings();
                         settings.populateSettings();
                         ui.showOnlyOneSection('homepage');
-                        navbarManager.updateNavbar({ isAuthenticated: true });
+                        navbarManager.updateNavbar(true);
                     })
                     .catch(error => {
                         console.error('Failed to fetch/display user info:', error);
@@ -286,8 +284,7 @@ const ui = {
         });
         console.log('after the popstate', window.location.pathname);
 
-        if (window.location.pathname !== '/callback/') //todo maybe remove this
-            this.loadTournamentData();
+        this.loadTournamentData();
     },
 
     loadTournamentData: function() {
@@ -310,7 +307,7 @@ const ui = {
     checkAuthenticationAndInitializePage: function() {
         console.log('checkAuthenticationAndInitializePage called');
         auth.checkAuthentication().then((authStatus) => {
-            if (authStatus.isAuthenticated) {
+            if (authStatus) {
                 this.connected = true;
                 navbarManager.updateNavbar(this.connected);
                 const path = window.location.pathname.substring(1) || 'homepage';

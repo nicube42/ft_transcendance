@@ -1,7 +1,6 @@
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 import os
-# Load .env file
 load_dotenv()
 from pathlib import Path
 
@@ -15,12 +14,6 @@ DATABASES = {
         'PASSWORD': os.getenv('DATABASE_PASSWORD'),
         'HOST': os.getenv('DATABASE_HOST'),
         'PORT': os.getenv('DATABASE_PORT'),
-
-      #  'NAME': 'postgres',
-      #  'USER': 'postgres',
-      #  'PASSWORD': 'postgres',
-      #  'HOST': 'db',
-      #  'PORT': '5432',
     }
 }
 

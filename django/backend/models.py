@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 
 class CustomUser(AbstractUser):
-    bio = models.TextField(null=True, blank=True)
     fullname = models.CharField(max_length=255, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     profile_pic = models.ImageField(upload_to='profile_pics/', default='profile_pics/default.jpg')

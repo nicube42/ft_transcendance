@@ -12,7 +12,6 @@ const userInfoDisplayer = {
         this.updateUsernameProfile(data);
         this.updateFullNameProfile(data);
         this.updateBirthProfile(data);
-        this.updateBioProfile(data);
     },
 
     fetchAndUpdateUserProfile: function() {
@@ -92,17 +91,6 @@ const userInfoDisplayer = {
                 dobDiv.innerHTML = `<p>Date of birth: ${data.date_of_birth}</p>`;
             } else {
                 console.error('Error: dobProfile element not found');
-            }
-        }
-    },
-
-    updateBioProfile: function(data) {
-        if (data.bio) {
-            const bioDiv = document.getElementById('bioProfile');
-            if (bioDiv) {
-                bioDiv.innerHTML = `<p>Bio: ${data.bio}</p>`;
-            } else {
-                console.error('Error: bioProfile element not found');
             }
         }
     },

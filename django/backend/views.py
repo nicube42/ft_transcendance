@@ -90,8 +90,6 @@ def register(request):
             password = data.get('password')
             fullname = data.get('fullname')
             date_of_birth = data.get('date_of_birth')
-            bio = data.get('bio')
-
             
             if CustomUser.objects.filter(username=username).exists():
                 return JsonResponse({'error': 'Username already exists'}, status=400)
@@ -101,7 +99,6 @@ def register(request):
                 password=make_password(password),
                 fullname=fullname,
                 date_of_birth=date_of_birth,
-                bio=bio
             )
             
             user.full_clean()
@@ -119,12 +116,10 @@ from django.http import HttpResponseRedirect
 
 def intraAuthorize(request):
     if request.method == 'GET':
-
         print("intraAuthorize")
         client_id = os.getenv('AUTH_CLIENT_ID')
-        redirect_uri = os.getenv('REDIRECT_AUTH_URL') # todo remove https://localhost:4242/callback/
+        redirect_uri = os.getenv('REDIRECT_AUTH_URL')
         response_type = 'code'
-
         authorization_url = f"https://api.intra.42.fr/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type={response_type}"
 
         return HttpResponseRedirect(authorization_url)
@@ -133,7 +128,7 @@ def intraAuthorize(request):
 import requests
 
 def intraCallback(request):
-    if request.method == 'GET': #todo change all this code
+    if request.method == 'GET':
         code = request.GET.get('code')
         if not code:
             return JsonResponse({"error": "Authorization code not provided"}, status=400)
@@ -161,7 +156,6 @@ def intraCallback(request):
             return JsonResponse({"error": "Could not get token from intra"}, status=400)
 
         #Get user data from intra
-
         headers = {
             'Authorization': f'Bearer {auth_token}'
         }
@@ -169,14 +163,10 @@ def intraCallback(request):
         user_data = response.json()
         #End user data from intra
 
-        print('user_data')
-        print("MDR")
-
         try:
             print("MDR2")
 
             username = user_data.get('login')
-            # password = make_password('password')
             fullname = user_data.get('usual_full_name')
 
             user, is_created = CustomUser.objects.get_or_create(
@@ -184,18 +174,10 @@ def intraCallback(request):
                 fullname=fullname,
             )
 
-            # user = authenticate(request, username=username, password=password)
-
-            print("MDR3")
-
-            print("save user")
             # Login the created user
-            print(request), print(user)
-            print("---")
+            print("MDR3")
             login(request, user)
-
             print("MDR4")
-
             csrf_token = get_token(request)
             print("MDR5")
 
@@ -267,7 +249,6 @@ def user_info(request):
                 'username': request.user.username,
                 'fullname': request.user.fullname,
                 'date_of_birth': request.user.date_of_birth,
-                'bio': request.user.bio,
             }
             return JsonResponse(user_data)
         else:
@@ -511,7 +492,6 @@ def get_user_profile(request, username):
             'username': user.username,
             'fullname': user.fullname,
             'date_of_birth': user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else 'Not provided',
-            'bio': user.bio,
             'profile_pic': user.profile_pic.url if user.profile_pic else '/static/default_profile_pic.jpg'
         }
         return JsonResponse(user_data)

@@ -23,7 +23,6 @@ var friendsPage = {
                 document.getElementById('usernameProfileNoChange').textContent = `Username: ${data.username}`;
                 document.getElementById('fullnameProfileNoChange').textContent = `Full Name: ${data.fullname}`;
                 document.getElementById('birthProfileNoChange').textContent = `Date of Birth: ${data.date_of_birth}`;
-                document.getElementById('bioProfileNoChange').textContent = `Bio: ${data.bio}`;
                 document.getElementById('profilePicNoChange').src = data.profile_pic;
                 document.getElementById('csrfTokenProfilePic').value = this.getCSRFToken();
             }

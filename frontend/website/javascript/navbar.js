@@ -1,6 +1,6 @@
 const navbarManager = {
     updateNavbar: function(authentication) {
-        console.log("updateNavbar called with after", authentication.isAuthenticated.valueOf());
+        console.log("updateNavbar called with after", authentication);
 
         const dropdownMenu = document.querySelector('.navbar .dropdown-menu');
         const loginLink = dropdownMenu.querySelector('#navLogin');
@@ -10,13 +10,7 @@ const navbarManager = {
         const profileLink = dropdownMenu.querySelector('#navProfile');
         const friendsLink = dropdownMenu.querySelector('#navFriends');
 
-        console.log("updateNavbar called with authentication:2", authentication);
-
-        console.log("IsAuth ");
-        if (authentication.isAuthenticated.valueOf()) {
-
-            console.log("updateNavbar: Yes. OOOOOOOOOOOOOO", authentication.isAuthenticated.valueOf());
-
+        if (authentication) {
             loginLink.classList.add('d-none');
             login42Link.classList.add('d-none');
             registerLink.classList.add('d-none');
@@ -25,7 +19,6 @@ const navbarManager = {
             friendsLink.classList.remove('d-none');
             document.getElementById('navSet').classList.remove('d-none');
         } else {
-            console.log("updateNavbar: NOO. AUHGFGHJKHGFGHJKJHGFGHJ");
             loginLink.classList.remove('d-none');
             login42Link.classList.remove('d-none');
             registerLink.classList.remove('d-none');
