@@ -133,7 +133,7 @@ const game = {
         this.leftPaddleMovingDown = false;
         this.rightPaddleMovingUp = false;
         this.rightPaddleMovingDown = false;
-        stats.endTime = null;
+        // stats.endTime = null;
 
     },
 

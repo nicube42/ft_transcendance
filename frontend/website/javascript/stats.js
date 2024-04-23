@@ -6,6 +6,7 @@ const stats = {
     initStats: function() {
         this.startTime = new Date();
         this.totalBallsServed = 0;
+        this.endTime = null;
     },
 
     updateGameRestart: function() {
@@ -36,7 +37,9 @@ const stats = {
         document.getElementById('winner_endgame').textContent = winner;
         document.getElementById('gameDuration').textContent = `Duration: ${duration.toFixed(2)} seconds`;
         document.getElementById('totalBalls').textContent = `Total balls served: ${totalBalls}`;
-    
+        if (this.endTime === null) {
+            this.recordEndTime();
+        }
         auth.retrieveInfos().then(userInfo => {
             username = userInfo.username;
             if (userInfo && userInfo.username) {
@@ -91,6 +94,7 @@ const stats = {
                     if (player1Score > player2Score)
                     {
                         tournament.deleteUserFromTournament(username);
+                        auth.updateUserTournamentStatus('false');
                         ui.showOnlyOneSection('homepage');
                         return;
                     }
@@ -100,6 +104,7 @@ const stats = {
                     if (player1Score < player2Score)
                     {
                         tournament.deleteUserFromTournament(username);
+                        auth.updateUserTournamentStatus('false');
                         ui.showOnlyOneSection('homepage');
                         return;
                     }

@@ -51,6 +51,7 @@ const tournament = {
         }
         this.initialNumPlayers = numPlayers;
         localStorage.setItem('initialNumPlayers', this.initialNumPlayers);
+        auth.updateUserTournamentStatus('true');
     
         gameSocket.sendMessage({
             action: 'create_tournament',
@@ -125,6 +126,7 @@ const tournament = {
         localStorage.setItem('initialNumPlayers', this.initialNumPlayers);
         this.currentRound = 1;
         localStorage.setItem('currentRound', this.currentRound);
+        auth.updateUserTournamentStatus('true');
         gameSocket.sendMessage({
             action: 'update_participants',
             tournament_id: this.tournamentId
@@ -263,6 +265,7 @@ const tournament = {
             if (this.maxPlayers === 1 && this.participants[0] === username) {
                 auth.retrieveInfos().then(userInfo => {
                     this.finalizeTournament(userInfo.username);
+                    auth.updateUserTournamentStatus('false');
                 });
                 return;
             }
