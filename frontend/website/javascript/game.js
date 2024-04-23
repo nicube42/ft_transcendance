@@ -11,6 +11,8 @@ const game = {
         winningScore: 5,
     },
 
+    predictedPos: null,
+
     canvas: null,
     playerRole: null,
     ctx: null,
@@ -458,6 +460,24 @@ const game = {
 
         this.drawBall();
 
+
+
+
+
+
+
+                this.drawPredictedPosition(this.ctx, this.predictedPos);
+
+
+
+
+
+
+
+
+
+
+
         // bonus logic
 
         this.attemptBonusGeneration();
@@ -566,29 +586,33 @@ const game = {
 
     controlRightPaddleWithAI: function() {
         const movePaddle = (aiAction) => {
-            // Calculate the end position early, considering the direction for continuous movement for 1 second.
-            const endPosition = aiAction === 'UP' ? this.rightPaddleY - this.paddleSpeed * 60 : this.rightPaddleY + this.paddleSpeed * 60;
-        
+            // Use clearInterval to stop any existing paddle movement
             if (this.aiPaddleMovementInterval) {
                 clearInterval(this.aiPaddleMovementInterval);
             }
         
-            // Use setInterval to move the paddle every frame (assuming 60fps) towards the end position for 1 second.
+            // Define the movement function
             this.aiPaddleMovementInterval = setInterval(() => {
-                if (aiAction === 'UP')
-                    this.rightPaddleY -= this.paddleSpeed;
-                if (aiAction === 'DOWN')
-                    this.rightPaddleY += this.paddleSpeed;
+                // Determine the current center of the paddle
+                const paddleCenter = this.rightPaddleY + this.paddleHeight / 2;
         
-                // Clamp the paddle position within the canvas bounds.
+                // Determine if the paddle needs to move up or down to reach the predicted position
+                if (paddleCenter < this.predictedPos && aiAction === 'DOWN') {
+                    this.rightPaddleY += this.paddleSpeed;
+                } else if (paddleCenter > this.predictedPos && aiAction === 'UP') {
+                    this.rightPaddleY -= this.paddleSpeed;
+                }
+        
+                // Clamp the paddle position within the canvas bounds to prevent it from going off-screen
                 this.rightPaddleY = Math.max(Math.min(this.rightPaddleY, this.canvas.height - this.paddleHeight), 0);
         
-                // Check if the paddle has moved for about 1 second or reached the end position, then clear the interval.
-                if ((aiAction === 'UP' && this.rightPaddleY <= endPosition) || (aiAction === 'DOWN' && this.rightPaddleY >= endPosition)) {
+                // Check if the paddle has aligned with the predicted position or needs to stop moving
+                if (Math.abs(paddleCenter - this.predictedPos) < this.paddleSpeed / 2) {
                     clearInterval(this.aiPaddleMovementInterval);
+                    console.log('Paddle is aligned with the predicted position.');
                 }
-            }, 1000 / 60); // 60fps
-        };
+            }, 1000 / 60); // Run this interval at a rate corresponding to 60fps
+        };        
         
         const requestAIActionContinuously = () => {
             if (this.processAIActions && websocket.aiSocket.readyState === WebSocket.OPEN && this.gameMode === 'singlePlayer') {
@@ -597,26 +621,32 @@ const game = {
                     const data = JSON.parse(response);
                     const aiAction = data.action;
                     const predictedPos = data.predicted_pos_y;
+                    this.predictedPos = predictedPos;
                     const paddleCenter = this.rightPaddleY + this.paddleHeight / 2;
         
-                    if (Math.abs(predictedPos - paddleCenter) < 5) { // Assuming a threshold for when to stop moving
-                        clearInterval(this.aiPaddleMovementInterval); // Stop moving if close enough
-                        console.log('Paddle is aligned with the ball.');
-                    } else if (this.processAIActions) { // Check if AI actions should be processed
+                    if (this.processAIActions) { // Check if AI actions should be processed
                         movePaddle(aiAction);
                     }
         
                     // Continue to request AI actions based on a flag
                     if (this.processAIActions) {
                         console.log('Requesting AI action again');
-                        setTimeout(requestAIActionContinuously, 1000); // Adjust timing as needed
+                        setTimeout(requestAIActionContinuously, 1000);
                     }
                 };
             }
         };
         
         requestAIActionContinuously(); // Start the process initially
-    },    
+    },
+
+    drawPredictedPosition: function(ctx, predictedY) {
+        ctx.fillStyle = 'red'; // Use red color to mark the predicted position
+        ctx.beginPath();
+        ctx.arc(this.canvas.width - 10, predictedY, 5, 0, 2 * Math.PI); // Draw a small circle at the right paddle's X and predicted Y
+        ctx.fill();
+    },
+    
 
     stopControlAndDisconnect: function() {
         if (this.processAIActions === false && this.aiPaddleMovementInterval) {
