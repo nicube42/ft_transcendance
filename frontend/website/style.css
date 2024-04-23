@@ -145,10 +145,15 @@ button:hover {
 }
 
 #registerErrorModal .btn-outline-success:hover {
-    background-color: #198754;
+    background-color: #299a65;
     color: black;
 }
 
+#invitePopupModal .modal-content {
+    background-color: #27aa6a;
+    color: black;
+    font-family: 'VeniteAdoremus', sans-serif;
+}
 
 .section {
     margin: 20px;
@@ -188,6 +193,16 @@ button:hover {
 .navbar-nav .nav-link:hover, .navbar-nav .nav-link:focus {
     background-color: #ddd;
     color: black;
+}
+
+.status-indicator {
+    font-size: 50px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    display: inline-block;
+    text-align: center;
+    color: grey;
 }
 
 canvas {

@@ -6,6 +6,7 @@ const stats = {
     initStats: function() {
         this.startTime = new Date();
         this.totalBallsServed = 0;
+        this.endTime = null;
     },
 
     updateGameRestart: function() {
@@ -29,14 +30,18 @@ const stats = {
         const player1Score = game.player1Score;
         const player2Score = game.player2Score;
         const winner = player1Score > player2Score ? game.settings.player1Name : game.settings.player2Name;
+        var username = '';
     
         document.getElementById('player1_endgame').textContent = player1Score;
         document.getElementById('player2_endgame').textContent = player2Score;
         document.getElementById('winner_endgame').textContent = winner;
         document.getElementById('gameDuration').textContent = `Duration: ${duration.toFixed(2)} seconds`;
         document.getElementById('totalBalls').textContent = `Total balls served: ${totalBalls}`;
-    
+        if (this.endTime === null) {
+            this.recordEndTime();
+        }
         auth.retrieveInfos().then(userInfo => {
+            username = userInfo.username;
             if (userInfo && userInfo.username) {
                 var postData = {
                     player1: userInfo.username,
@@ -57,7 +62,7 @@ const stats = {
                             player2_score: player1Score,
                             start_time: stats.startTime.toISOString(),
                             end_time: stats.endTime.toISOString()
-                       };
+                        };
                     }
                 }
                 fetch('/api/game_record/', {
@@ -77,9 +82,51 @@ const stats = {
         }).catch(error => {
             console.error('Error in retrieving user info:', error);
         });
+        console.log('Went here \n\n\n\n\n\n\n\n');
+        tournament.checkUserInTournament().then(isInTournament => {
+            const returnHomeButton = document.getElementById('returnHome');
+            const playAgainButton = document.getElementById('playAgain');
+            console.log('Tournament status (inside then):', isInTournament);
     
-        ui.showOnlyOneSection('endgameStats');
-        document.getElementById('returnHome').addEventListener('click', stats.returnToHome);
+            if (isInTournament) {
+                if (game.playerRole === 'right')
+                {
+                    if (player1Score > player2Score)
+                    {
+                        tournament.deleteUserFromTournament(username);
+                        auth.updateUserTournamentStatus('false');
+                        ui.showOnlyOneSection('homepage');
+                        return;
+                    }
+                }
+                else
+                {
+                    if (player1Score < player2Score)
+                    {
+                        tournament.deleteUserFromTournament(username);
+                        auth.updateUserTournamentStatus('false');
+                        ui.showOnlyOneSection('homepage');
+                        return;
+                    }
+                }
+                tournament.currentRound += 1;
+                localStorage.setItem('currentRound', this.currentRound);
+                console.log('Current round:', tournament.currentRound);
+                tournament.navigateToTournamentStage();
+                setTimeout(() => {
+                    tournament.generateMatchTree();
+                },10000);
+            } else {
+                playAgainButton.textContent = 'Play Again';
+                playAgainButton.onclick = this.playAgain;
+    
+                returnHomeButton.textContent = 'Return to Home';
+                returnHomeButton.onclick = this.returnToHome;
+                ui.showOnlyOneSection('endgameStats');
+            }
+        }).catch(error => {
+            console.error('Error checking tournament status:', error);
+        });
     },
         
     returnToHome: function() {
@@ -87,27 +134,3 @@ const stats = {
     }
 };
 
-game.init = (function(oldInit) {
-    return async function() {
-        await settings.populateSettings();
-        stats.initStats();
-        oldInit.apply(game, arguments);
-    };
-}(game.init));
-
-game.resetBall = (function(oldResetBall) {
-    return function() {
-        stats.updateGameRestart();
-        oldResetBall.apply(game, arguments);
-    };
-}(game.resetBall));
-
-game.drawPong = (function(oldDrawPong) {
-    return function() {
-        if ((game.player1Score >= game.winningScore || game.player2Score >= game.winningScore) && !stats.endTime) {
-            stats.recordEndTime();
-            stats.displayEndGameStats();
-        }
-        oldDrawPong.apply(game, arguments);
-    };
-}(game.drawPong));

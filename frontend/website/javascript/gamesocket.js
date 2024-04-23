@@ -72,13 +72,33 @@ var gameSocket = {
                 console.error(data.error);
             } else if (data.action === 'receive_invite') {
                 console.log(data.message);
-                this.showInvitePopup(data.room_name, data.from_user);
+                this.showInvitePopup(data.room_name, data.from_user, 'room');
             } else if(data.action === 'receive_tournament_invite') {
-                tournament.showInvitePopup(data.tournament_id, data.from_user);
+                this.showInvitePopup(data.tournament_id, data.from_user, 'tournament');
             } else if (data.action === 'tournament_created') {
                 tournament.handleTournamentCreated(data);
             } else if (data.action === 'update_participant_count') {
                 tournament.updateParticipantCount(data.participant_count, data.max_players, data.participants);
+            } else if (data.action === 'user_status') {
+                const statusIndicator = document.getElementById(`status-${data.username}`);
+                console.log(`Updating status for ${data.username} to ${data.status}`);
+                if (statusIndicator) {
+                    statusIndicator.style.color = data.status === 'online' ? 'green' : 'red';
+                }
+            } else if (data.action === 'user_in_game') {
+                if (data.in_game) {
+                    console.log(`${data.username} is in a game.`);
+                } else {
+                    console.log(`${data.username} is not in a game.`);
+                }
+            } else if (data.action === 'user_in_game_status') {
+                if (data.in_game == false)
+                    return ;
+                const statusIndicator = document.getElementById(`status-${data.username}`);
+                console.log(`Updating status for ${data.username} to ${data.in_game}`);
+                if (statusIndicator) {
+                    statusIndicator.style.color = 'orange';
+                }
             }
         });
     
@@ -87,41 +107,69 @@ var gameSocket = {
         });
     },
 
-
-    showInvitePopup: function(roomName, fromUser) {
-        const popupDiv = document.createElement('div');
-        popupDiv.id = 'invitePopup';
-        popupDiv.style.position = 'fixed';
-        popupDiv.style.left = '50%';
-        popupDiv.style.top = '50%';
-        popupDiv.style.transform = 'translate(-50%, -50%)';
-        popupDiv.style.backgroundColor = 'white';
-        popupDiv.style.padding = '20px';
-        popupDiv.style.zIndex = '1000';
-        popupDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+    // showInvitePopup: function(roomName, fromUser) {
+    //     const popupDiv = document.createElement('div');
+    //     popupDiv.id = 'invitePopup';
+    //     popupDiv.style.position = 'fixed';
+    //     popupDiv.style.left = '50%';
+    //     popupDiv.style.top = '50%';
+    //     popupDiv.style.transform = 'translate(-50%, -50%)';
+    //     popupDiv.style.backgroundColor = 'white';
+    //     popupDiv.style.padding = '20px';
+    //     popupDiv.style.zIndex = '1000';
+    //     popupDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
         
-        const message = document.createElement('p');
-        message.textContent = `You have been invited to join the room '${roomName}' by ${fromUser}. Do you accept?`;
-        popupDiv.appendChild(message);
+    //     const message = document.createElement('p');
+    //     message.textContent = `You have been invited to join the room '${roomName}' by ${fromUser}. Do you accept?`;
+    //     popupDiv.appendChild(message);
         
-        const acceptButton = document.createElement('button');
-        acceptButton.textContent = 'Accept';
-        acceptButton.onclick = () => {
-            this.joinRoom(roomName);
-            document.body.removeChild(popupDiv);
-        };
-        popupDiv.appendChild(acceptButton);
+    //     const acceptButton = document.createElement('button');
+    //     acceptButton.textContent = 'Accept';
+    //     acceptButton.onclick = () => {
+    //         this.joinRoom(roomName);
+    //         document.body.removeChild(popupDiv);
+    //     };
+    //     popupDiv.appendChild(acceptButton);
     
-        const refuseButton = document.createElement('button');
-        refuseButton.textContent = 'Refuse';
-        refuseButton.style.marginLeft = '10px';
-        refuseButton.onclick = () => {
-            document.body.removeChild(popupDiv);
-        };
-        popupDiv.appendChild(refuseButton);
+    //     const refuseButton = document.createElement('button');
+    //     refuseButton.textContent = 'Refuse';
+    //     refuseButton.style.marginLeft = '10px';
+    //     refuseButton.onclick = () => {
+    //         document.body.removeChild(popupDiv);
+    //     };
+    //     popupDiv.appendChild(refuseButton);
         
-        document.body.appendChild(popupDiv);
-    },
+    //     document.body.appendChild(popupDiv);
+    // },
+
+    showInvitePopup: function(inviteId, fromUser, inviteType) {
+        const inviteModal = new bootstrap.Modal(document.getElementById('invitePopupModal'));
+        const inviteMessage = document.getElementById('inviteMessage');
+        const acceptButton = document.getElementById('acceptInvite');
+        const refuseButton = document.getElementById('refuseInvite');
+    
+        // Set the invitation message based on the type
+        if (inviteType === 'tournament') {
+            inviteMessage.textContent = `You have been invited to join the tournament by ${fromUser}. Do you accept?`;
+            acceptButton.onclick = () => {
+                tournament.acceptTournamentInvite(inviteId);
+                inviteModal.hide();
+            };
+        } else if (inviteType === 'room') {
+            inviteMessage.textContent = `You have been invited to join the room '${inviteId}' by ${fromUser}. Do you accept?`;
+            acceptButton.onclick = () => {
+                this.joinRoom(inviteId);
+                inviteModal.hide();
+            };
+        }
+    
+        refuseButton.onclick = () => {
+            inviteModal.hide();
+        };
+    
+        // Show the modal
+        inviteModal.show();
+    },      
 
     closeAndReinitialize: function() {
         if (this.socket) {
@@ -170,6 +218,7 @@ var gameSocket = {
 
     deleteRoom: function(roomName) {
         this.sendMessage({'action': 'delete_room', 'room_name': roomName});
+        ui.showOnlyOneSection('multiplayer');
     },
 
     listRooms: function() {
@@ -184,7 +233,7 @@ var gameSocket = {
         const roomListDiv = document.getElementById('roomList');
         if (!roomListDiv) {
             console.error('Element with ID "roomList" not found.');
-            return; // Exit the function if the element is not found
+            return;
         }
         roomListDiv.innerHTML = '';
     
@@ -200,6 +249,7 @@ var gameSocket = {
             roomName.style.color = 'white';
             roomElement.appendChild(roomName);
     
+
             if (room.is_admin) {
                 const deleteButton = document.createElement('button');
                 deleteButton.type = 'button';
@@ -267,7 +317,7 @@ var gameSocket = {
             this.socket.send(JSON.stringify(message));
         } else {
             console.log("WebSocket is not open. Waiting before retrying...");
-            setTimeout(() => this.sendBallState(), 1000); // Try again after a delay
+            setTimeout(() => this.sendBallState(), 1000);
         }
     },    
     
@@ -291,15 +341,52 @@ var gameSocket = {
             room_name: this.currentRoom,
         });
     },
+
+    sendGameStart2: function(roomName) {
+        this.sendMessage({
+            action: 'start_game',
+            room_name: roomName,
+        });
+    },
     
     sendMessage: function(message) {
-        if (this.socket.readyState === WebSocket.OPEN) {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(message));
         } else {
-            console.log("WebSocket is not open. Waiting before retrying...");
-            setTimeout(() => this.sendMessage(message), 1000);
+            console.log("WebSocket is not open. Retrying to send message...");
+            this.waitForSocketReady(() => {
+                this.socket.send(JSON.stringify(message));
+            });
         }
     },
+
+    waitForSocketReady: function(callback, attempts = 5) {
+        const interval = 1000;
+        let attemptsLeft = attempts;
+    
+        const checkSocket = () => {
+            if (!this.socket) {
+                console.error("WebSocket has not been initialized.");
+                return;
+            }
+    
+            if (this.socket.readyState === WebSocket.OPEN) {
+                console.log("WebSocket is now open.");
+                callback();
+            } else {
+                if (attemptsLeft <= 0) {
+                    console.error("Failed to send message: WebSocket is not open and max attempts reached.");
+                } else {
+                    attemptsLeft--;
+                    console.log("Waiting for WebSocket to be open...", attemptsLeft, "attempts left.");
+                    setTimeout(checkSocket, interval);
+                }
+            }
+        };
+    
+        checkSocket();
+    },
+    
 
     sendInvite: function(username, roomName) {
         this.sendMessage({
@@ -328,7 +415,7 @@ var gameSocket = {
             alert('Please enter a username to invite.');
             return;
         }
-    
+    c
         gameSocket.sendMessage({
             action: 'invite_to_tournament',
             tournamentId: this.tournamentId,
@@ -362,7 +449,24 @@ var gameSocket = {
             this.updateInterval = null;
         }
     },
-    
+
+    sendUserStatusRequest: function(username) {
+        const message = {
+            action: 'send_user_status',
+            username: username
+        };
+
+        this.sendMessage(message);
+    },
+
+    checkIfUserInGame: function(username) {
+        const message = {
+            action: 'check_user_in_game',
+            username: username
+        };
+
+        this.sendMessage(message);
+    }
 };
 
 window.addEventListener('beforeunload', function() {

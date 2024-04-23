@@ -118,6 +118,17 @@ class GameConsumer(AsyncWebsocketConsumer):
             else:
                 # Handle the case where tournament_id is not provided or is invalid
                 await self.send_message_safe(json.dumps({'error': 'tournament_id is required for updating participants'}))
+        elif action == 'send_user_status':
+            username = text_data_json.get('username')
+            if username:
+                await self.send_user_status(username)
+            else:
+                await self.send_message_safe(json.dumps({'error': 'username is required to send user status'}))
+        elif action == 'check_user_in_game':
+            username = text_data_json.get('username')
+            await self.check_if_user_in_game(username)
+        elif action == 'delete_participant_from_tournament':
+            await self.delete_participant_from_tournament(text_data_json)
         # elif action == 'start_tournament_matches':
         #     await self.start_tournament_matches(text_data_json)
 
@@ -708,3 +719,77 @@ class GameConsumer(AsyncWebsocketConsumer):
     #     # Example response
     #     match_info = {'action': 'matches_started', 'matches': 'details_here'}
     #     await self.send(text_data=json.dumps(match_info))
+
+    async def send_user_status(self, username):
+        async with get_redis_connection() as redis:
+            online_status = await redis.get(f"user_channel:{username}")
+            status = 'online' if online_status else 'offline'
+            await self.send(text_data=json.dumps({
+                'action': 'user_status',
+                'username': username,
+                'status': status
+            }))
+
+    @database_sync_to_async
+    def get_user_by_username(self, username):
+        try:
+            return get_user_model().objects.get(username=username)
+        except get_user_model().DoesNotExist:
+            return None
+
+    async def check_if_user_in_game(self, username):
+        user = await self.get_user_by_username(username)
+        if user:
+            in_game_status = user.is_in_game
+            response = {
+                'action': 'user_in_game_status',
+                'username': username,
+                'in_game': in_game_status
+            }
+        else:
+            response = {
+                'action': 'error',
+                'message': 'User not found'
+            }
+        await self.send_message_safe(json.dumps(response))
+
+    async def send_message_safe(self, message):
+        if not self.user.is_anonymous:
+            await self.send(text_data=message)
+        else:
+            logger.info("Attempted to send message to anonymous user, action skipped.")
+
+    async def delete_participant_from_tournament(self, data):
+        # Extract the tournament ID and the username of the participant to be removed
+        tournament_id = data.get('tournament_id')
+        username_to_remove = data.get('username')
+
+        if not tournament_id or not username_to_remove:
+            await self.send_error_message('Tournament ID and username are required.')
+            return
+
+        # Remove the participant from the tournament
+        user_removed, message = await self.remove_user_from_tournament(tournament_id, username_to_remove)
+        
+        if user_removed:
+            await self.send_message_safe(json.dumps({
+                'message': f'User {username_to_remove} has been removed from the tournament.'
+            }))
+            # Broadcast the updated tournament state to all connected clients
+            await self.broadcast_tournament_participant_update(tournament_id)
+        else:
+            await self.send_error_message(message)
+
+    @database_sync_to_async
+    def remove_user_from_tournament(self, tournament_id, username):
+        try:
+            tournament = Tournament.objects.get(id=tournament_id)
+            user = get_user_model().objects.get(username=username)
+            tournament.participants.remove(user)
+            tournament.max_players -= 1
+            tournament.save()
+            return True, f"User {username} removed successfully from the tournament."
+        except Tournament.DoesNotExist:
+            return False, "Tournament not found."
+        except get_user_model().DoesNotExist:
+            return False, "User not found."

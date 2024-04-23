@@ -8,7 +8,7 @@ const ui = {
     },
 
     showOnlyOneSection: function(sectionId, isPopState = false, queryParams = {}) {
-        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage', 'playerStats'];
+        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage', 'playerStats', 'friends', 'profilePageNoChange'];
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
@@ -22,7 +22,6 @@ const ui = {
             }
             history.pushState({section: sectionId, queryParams: queryParams}, '', url);
         }
-    
         game.handleVisibilityChange?.();
     },         
 
@@ -135,6 +134,10 @@ const ui = {
         async 'navLogout'() {
             await auth.logout();
         },
+        async 'navFriends'() {
+            this.showOnlyOneSection('friends');
+            friendsPage.initialize();
+        },
         async 'login_initial'() {
             this.showOnlyOneSection('loginContainer');
         },
@@ -186,6 +189,7 @@ const ui = {
             tournament.invitePlayers();
         },
         async 'startTournamentBtn'() {
+            stats.initStats();
             tournament.generateNextRoundMatches();
         },
         async 'STATISTICS'() {
@@ -211,11 +215,15 @@ const ui = {
         const tournamentId = localStorage.getItem('tournamentId');
         const maxPlayers = localStorage.getItem('maxPlayers');
         const currentParticipants = localStorage.getItem('currentParticipants');
-        // const participants = localStorage.getItem('participants');
+        const participants = localStorage.getItem('participants');
+        const initialNumPlayers = localStorage.getItem('initialNumPlayers');
+        const currentRound = localStorage.getItem('currentRound');
     
         if (tournamentId && maxPlayers && currentParticipants) {
             tournament.updateParticipantCount(parseInt(currentParticipants, 10), parseInt(maxPlayers, 10));
             tournament.tournamentId = tournamentId;
+            tournament.initialNumPlayers = parseInt(initialNumPlayers, 10);
+            tournament.currentRound = parseInt(currentRound, 10);
         }
     },
 

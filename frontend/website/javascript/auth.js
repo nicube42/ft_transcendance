@@ -154,13 +154,13 @@ const auth = {
             if (data.error) {
                 console.error('Error fetching user info:', data.error);
             } else {
-                console.log('User info retrieved:', data);  // Log or use data as needed
+                console.log('User info retrieved:', data);
             }
-            return data;  // Return data for further handling
+            return data;
         })
         .catch(error => {
             console.error('Error fetching user info:', error);
-            throw error;  // Re-throw to handle it in further catch blocks
+            throw error;
         });
     },
     
@@ -216,6 +216,74 @@ const auth = {
             console.error('Error checking user login status:', error);
             alert('Error checking user login status.');
         }
+    },
+    updateUserGameStatus: function(isInGame) {
+        console.log('Attempting to update game status to:', isInGame);
+        fetch('/api/update_game_status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': this.getCSRFToken()
+            },
+            body: JSON.stringify({
+                is_in_game: isInGame
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Failed to update game status');
+            }
+        })
+        .then(data => {
+            console.log('Game status updated:', data);
+        })
+        .catch(error => {
+            console.error('Error updating game status:', error);
+        });
+    },
+
+    updateUserTournamentStatus: function(isInTournament) {
+        console.log('Attempting to update tournament status to:', isInTournament);
+        fetch('/api/update_tournament_status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': this.getCSRFToken()
+            },
+            body: JSON.stringify({
+                is_in_tournament: isInTournament
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Failed to update tournament status');
+            }
+        })
+        .then(data => {
+            console.log('Tournament status updated:', data);
+        })
+        .catch(error => {
+            console.error('Error updating tournament status:', error);
+        });
+    },    
+
+    getCSRFToken: function() {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === ('csrftoken=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     },
 
 };

@@ -11,6 +11,8 @@ const game = {
         winningScore: 5,
     },
 
+    predictedPos: null,
+
     canvas: null,
     playerRole: null,
     ctx: null,
@@ -64,7 +66,22 @@ const game = {
     },
     
     
-    init: function() {
+    // init: function() {
+    //     this.canvas = document.getElementById('pong');
+    //     if (this.canvas.getContext) {
+    //         this.ctx = this.canvas.getContext('2d');
+    //         this.resetVars();
+    //         this.drawPong();
+    //         window.removeEventListener('keydown', this.handleKeyDown.bind(this));
+    //         window.removeEventListener('keyup', this.handleKeyUp.bind(this));
+    //         window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    //         window.addEventListener('keyup', this.handleKeyUp.bind(this));
+    //     }
+    // },
+
+    init: async function() {
+        await settings.populateSettings();  // Populate settings before the game starts.
+        stats.initStats();                  // Initialize game stats.
         this.canvas = document.getElementById('pong');
         if (this.canvas.getContext) {
             this.ctx = this.canvas.getContext('2d');
@@ -118,6 +135,7 @@ const game = {
         this.leftPaddleMovingDown = false;
         this.rightPaddleMovingUp = false;
         this.rightPaddleMovingDown = false;
+        // stats.endTime = null;
 
     },
 
@@ -250,6 +268,7 @@ const game = {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
             console.log('Game paused');
+            auth.updateUserGameStatus('false');;
             this.resetVars();
             this.stopControlAndDisconnect();
         }
@@ -259,6 +278,7 @@ const game = {
         if (!this.animationFrameId) {
             this.resetVars();
             this.drawPong();
+            auth.updateUserGameStatus('true');;
             console.log('Game resumed');
             if (this.gameMode === 'singlePlayer')
             {
@@ -384,6 +404,12 @@ const game = {
 		if (!this.bonusTouched) {
 			this.ball_color = 'white';
 		}
+        if ((this.player1Score >= this.winningScore || this.player2Score >= this.winningScore) && !stats.endTime) {
+            stats.recordEndTime();
+            stats.displayEndGameStats();
+            this.resetVars();
+            return;
+        }
         if (this.messageDisplayCounter === 0)
         {
             this.frame++;
@@ -391,11 +417,11 @@ const game = {
             {
                 gameSocket.sendBallState();
             }
-            if (this.player1Score >= this.winningScore || this.player2Score >= this.winningScore)
-            {
-                this.resetVars();
-                ui.showOnlyOneSection('endgameStats');
-            }
+            // if (this.player1Score >= this.winningScore || this.player2Score >= this.winningScore)
+            // {
+            //     this.resetVars();
+            //     ui.showOnlyOneSection('endgameStats');
+            // }
 
             // Ball movement logic
             this.checkColisions();
@@ -429,6 +455,24 @@ const game = {
   	  this.resetBall();  // Appelle resetBall pour réinitialiser la position, la vitesse, et la couleur de la balle
   	  this.messageDisplayCounter = 180;  // Reset du compteur pour l'affichage du message
 	}
+
+
+
+
+
+
+
+
+                this.drawPredictedPosition(this.ctx, this.predictedPos);
+
+
+
+
+
+
+
+
+
 
 
         // bonus logic
@@ -491,6 +535,8 @@ const game = {
 
 	resetBall: function() {
 		// Réinitialise la position de la balle au centre du canvas
+        stats.updateGameRestart();  // Update game stats each time the ball is reset.
+
 		this.ballPosX = this.canvas.width / 2;
 		this.ballPosY = this.canvas.height / 2;
 	
@@ -508,49 +554,103 @@ const game = {
 	},
 	
 
+    // controlRightPaddleWithAI: function(predictedPosY) {
+    //     const direction = this.rightPaddleY + this.paddleHeight / 2 < predictedPosY ? 'DOWN' : 'UP';
+    
+    //     // Calculate the desired end position for the paddle
+    //     const framesPerSecond = 60;
+    //     const intervalTime = 1000 / framesPerSecond;
+    //     let hasReachedDestination = false;
+    
+    //     if (this.aiPaddleMovementInterval) {
+    //         clearInterval(this.aiPaddleMovementInterval);
+    //     }
+    
+    //     this.aiPaddleMovementInterval = setInterval(() => {
+    //         if (direction === 'UP' && this.rightPaddleY > 0) {
+    //             this.rightPaddleY -= this.paddleSpeed;
+    //             if (this.rightPaddleY + this.paddleHeight / 2 <= predictedPosY) {
+    //                 hasReachedDestination = true;
+    //             }
+    //         } else if (direction === 'DOWN' && this.rightPaddleY < this.canvas.height - this.paddleHeight) {
+    //             this.rightPaddleY += this.paddleSpeed;
+    //             if (this.rightPaddleY + this.paddleHeight / 2 >= predictedPosY) {
+    //                 hasReachedDestination = true;
+    //             }
+    //         }
+    
+    //         if (hasReachedDestination) {
+    //             clearInterval(this.aiPaddleMovementInterval);
+    //             this.aiPaddleMovementInterval = null;
+    //             console.log('Paddle reached the predicted position:', predictedPosY);
+    //         }
+    //     }, intervalTime);
+    // },    
+    
+
     controlRightPaddleWithAI: function() {
         const movePaddle = (aiAction) => {
-            // Calculate the end position early, considering the direction for continuous movement for 1 second.
-            const endPosition = aiAction === 'UP' ? this.rightPaddleY - this.paddleSpeed * 60 : this.rightPaddleY + this.paddleSpeed * 60;
-    
+            // Use clearInterval to stop any existing paddle movement
             if (this.aiPaddleMovementInterval) {
                 clearInterval(this.aiPaddleMovementInterval);
             }
-
-            // Use setInterval to move the paddle every frame (assuming 60fps) towards the end position for 1 second.
+        
+            // Define the movement function
             this.aiPaddleMovementInterval = setInterval(() => {
-                if (aiAction === 'UP')
-                    this.rightPaddleY -= this.paddleSpeed;
-                if (aiAction === 'DOWN')
+                // Determine the current center of the paddle
+                const paddleCenter = this.rightPaddleY + this.paddleHeight / 2;
+        
+                // Determine if the paddle needs to move up or down to reach the predicted position
+                if (paddleCenter < this.predictedPos && aiAction === 'DOWN') {
                     this.rightPaddleY += this.paddleSpeed;
-    
-                // Clamp the paddle position within the canvas bounds.
-                this.rightPaddleY = Math.max(Math.min(this.rightPaddleY, this.canvas.height - this.paddleHeight), 0);
-    
-                // Check if the paddle has moved for about 1 second or reached the end position, then clear the interval.
-                if ((aiAction === 'UP' && this.rightPaddleY <= endPosition) || (aiAction === 'DOWN' && this.rightPaddleY >= endPosition)) {
-                    clearInterval(this.aiPaddleMovementInterval);
+                } else if (paddleCenter > this.predictedPos && aiAction === 'UP') {
+                    this.rightPaddleY -= this.paddleSpeed;
                 }
-            }, 1000 / 60); // 60fps
-        };
-    
+        
+                // Clamp the paddle position within the canvas bounds to prevent it from going off-screen
+                this.rightPaddleY = Math.max(Math.min(this.rightPaddleY, this.canvas.height - this.paddleHeight), 0);
+        
+                // Check if the paddle has aligned with the predicted position or needs to stop moving
+                if (Math.abs(paddleCenter - this.predictedPos) < this.paddleSpeed / 2) {
+                    clearInterval(this.aiPaddleMovementInterval);
+                    console.log('Paddle is aligned with the predicted position.');
+                }
+            }, 1000 / 60); // Run this interval at a rate corresponding to 60fps
+        };        
+        
         const requestAIActionContinuously = () => {
             if (this.processAIActions && websocket.aiSocket.readyState === WebSocket.OPEN && this.gameMode === 'singlePlayer') {
                 websocket.requestAIAction();
-                websocket.onAIAction = (aiAction) => {
+                websocket.onAIAction = (response) => {
+                    const data = JSON.parse(response);
+                    const aiAction = data.action;
+                    const predictedPos = data.predicted_pos_y;
+                    this.predictedPos = predictedPos;
+                    const paddleCenter = this.rightPaddleY + this.paddleHeight / 2;
+        
                     if (this.processAIActions) { // Check if AI actions should be processed
                         movePaddle(aiAction);
                     }
+        
                     // Continue to request AI actions based on a flag
                     if (this.processAIActions) {
-                        setTimeout(requestAIActionContinuously, 1000); // Adjust timing as needed
+                        console.log('Requesting AI action again');
+                        setTimeout(requestAIActionContinuously, 1000);
                     }
                 };
             }
-        }
-    
+        };
+        
         requestAIActionContinuously(); // Start the process initially
-    },    
+    },
+
+    drawPredictedPosition: function(ctx, predictedY) {
+        ctx.fillStyle = 'red'; // Use red color to mark the predicted position
+        ctx.beginPath();
+        ctx.arc(this.canvas.width - 10, predictedY, 5, 0, 2 * Math.PI); // Draw a small circle at the right paddle's X and predicted Y
+        ctx.fill();
+    },
+    
 
     stopControlAndDisconnect: function() {
         if (this.processAIActions === false && this.aiPaddleMovementInterval) {

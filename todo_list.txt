@@ -1,28 +1,40 @@
 To do updated
 
-- finir tournoi (nicolas)
+                    - finir tournoi (nicolas) (fonctionnel besoin d'opti 2/3 trucs (ex verifier que tous les joueurs
+                        sont co dans la room avant de lancer un timing pour lancer les games))
 
-- game name dans les settings
+- game name dans les settings (thomas)
 
-- vérifier injections sql
+- vérifier injections sql (marco ?) check avec HAJAR SQL injections/XSS.
+- add TLS
 
-                - framework en back OK 1
 
-                - framework en front OK 0.5
+- form validation (date pas dans le futur, username, add max length, not empty ect
 
-                - base de donnée en back OK 0.5
+- vérifier que l'utilisateur est bien connecté avant d'utiliser toutes les API (if request.user.is_authenticated)
+
+                    - framework en back OK 1
+
+                    - framework en front OK 0.5
+
+                    - base de donnée en back OK 0.5
+
+
 
 - gestion d'utilisateur KO 1
-    - avatar
-    - ajouter amis + status en ligne
-    - afficher stats et historique des joueurs sur le profil
+- avatar (marco)$
+                    - status en ligne OK
+                    - ajouter amis OK
+                    - afficher stats et historique des joueurs sur le profil OK
 
 - auth a distance (Marco) KO 1
 
-- joueurs a distance KO 1 (Thomas)
+- joueurs a distance KO (thomas) 1
     - gérer déconection de manière simple (exemple si un joueur se déconnecte faire gagner l'autre joueur)
     - pause/play
     - supprimer room a la fin d'une partie
+    - double points marqués en multi distant (fix rapide je pense, le premier qui a
+      la flemme de faire un gros truc peut faire ca)
 
 - personnalisation du jeu KO 0.5 (nadji)
     - activer ou non les bonus dans les settings
@@ -31,5 +43,17 @@ To do updated
 - IA KO 1 (nicolas)
     - implementer le modèle de ml au containeur existant
 
-- tableau de bord utilisateurs + stats (nicolas) OK 0.5
+                    - tableau de bord utilisateurs + stats (nicolas) OK 0.5
+
+LAST CHECKLIST
+
+- no .env
+- no certs
+- no todofile
+- remove console.log
+- remove "todo" comments
+- remove commented code
+- clean comments
+- clean imports (remove unused) and put them on top
+- remove logging in settings.py
 

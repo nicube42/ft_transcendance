@@ -98,3 +98,11 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'backend', 'static'),
 ]
+
+# CSRF_COOKIE_NAME = 'csrftoken'
+
+# CSRF_COOKIE_SECURE = True
+
+# CSRF_COOKIE_DOMAIN = None
+
+# CSRF_COOKIE_HTTPONLY = False
