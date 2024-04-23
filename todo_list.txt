@@ -1,24 +1,10 @@
 To do updated
 
-                    - finir tournoi (nicolas) (fonctionnel besoin d'opti 2/3 trucs (ex verifier que tous les joueurs
-                        sont co dans la room avant de lancer un timing pour lancer les games))
-
 - game name dans les settings (thomas)
 
 - vérifier injections sql (marco ?) check avec HAJAR SQL injections/XSS.
-- add TLS
-
 
 - form validation (date pas dans le futur, username, add max length, not empty ect
-
-- vérifier que l'utilisateur est bien connecté avant d'utiliser toutes les API (if request.user.is_authenticated)
-
-                    - framework en back OK 1
-
-                    - framework en front OK 0.5
-
-                    - base de donnée en back OK 0.5
-
 
 
 - gestion d'utilisateur KO 1
@@ -29,21 +15,40 @@ To do updated
 
 - auth a distance (Marco) KO 1
 
-- joueurs a distance KO (thomas) 1
-    - gérer déconection de manière simple (exemple si un joueur se déconnecte faire gagner l'autre joueur)
-    - pause/play
-    - supprimer room a la fin d'une partie
-    - double points marqués en multi distant (fix rapide je pense, le premier qui a
-      la flemme de faire un gros truc peut faire ca)
 
-- personnalisation du jeu KO 0.5 (nadji)
+- personnalisation du jeu KO 0.5 (thomas)
     - activer ou non les bonus dans les settings
     - gérer les bonus dans les modes distants
 
-- IA KO 1 (nicolas)
-    - implementer le modèle de ml au containeur existant
+
+NICOLAS
+
+- add TLS (nicolas)
+
+- vérifier que l'utilisateur est bien connecté avant d'utiliser toutes les API (if request.user.is_authenticated) (nicolas)
+
+- joueurs a distance KO (nicolas) 1
+    - gérer déconection de manière simple (nicolas)
+    - pause/play (regarder si necessaire)
+    - supprimer room a la fin d'une partie (nicolas)
+    - finir détails tournoi (nicolas)
+
+FINI
+
+                    - IA OK 1 (nicolas) (marche environ, améliorer si le temps le permet)
 
                     - tableau de bord utilisateurs + stats (nicolas) OK 0.5
+
+                    - microservices en back 1 OK
+
+                    - support plusieurs navigateurs 0.5 OK
+
+                    - framework en back OK 1
+
+                    - framework en front OK 0.5
+
+                    - base de donnée en back OK 0.5
+
 
 LAST CHECKLIST
 
