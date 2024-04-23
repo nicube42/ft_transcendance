@@ -16,9 +16,14 @@ const websocket = {
     requestAIAction: function() {
         if (this.aiSocket.readyState === WebSocket.OPEN) {
             const message = JSON.stringify({
-                ball_y: game.ballPosY,
+                ball_pos_x: game.ballPosX,
+                ball_pos_y: game.ballPosY,
+                ball_speed_x: game.ballSpeedX,
+                ball_speed_y: game.ballSpeedY,
                 paddle_y: game.rightPaddleY,
-                paddle_height: game.paddleHeight
+                paddle_height: game.paddleHeight,
+                canvas_width: game.canvas.width,
+                canvas_height: game.canvas.height,
             });
             this.aiSocket.send(message);
         }

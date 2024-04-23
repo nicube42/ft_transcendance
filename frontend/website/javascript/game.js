@@ -529,49 +529,92 @@ const game = {
         this.ballSpeedX = -this.ballSpeedX;  // Invert ball's horizontal direction.
         this.ballSpeedY = this.ballSpeedY;   // Maintain ball's vertical speed.
     },
+
+    // controlRightPaddleWithAI: function(predictedPosY) {
+    //     const direction = this.rightPaddleY + this.paddleHeight / 2 < predictedPosY ? 'DOWN' : 'UP';
+    
+    //     // Calculate the desired end position for the paddle
+    //     const framesPerSecond = 60;
+    //     const intervalTime = 1000 / framesPerSecond;
+    //     let hasReachedDestination = false;
+    
+    //     if (this.aiPaddleMovementInterval) {
+    //         clearInterval(this.aiPaddleMovementInterval);
+    //     }
+    
+    //     this.aiPaddleMovementInterval = setInterval(() => {
+    //         if (direction === 'UP' && this.rightPaddleY > 0) {
+    //             this.rightPaddleY -= this.paddleSpeed;
+    //             if (this.rightPaddleY + this.paddleHeight / 2 <= predictedPosY) {
+    //                 hasReachedDestination = true;
+    //             }
+    //         } else if (direction === 'DOWN' && this.rightPaddleY < this.canvas.height - this.paddleHeight) {
+    //             this.rightPaddleY += this.paddleSpeed;
+    //             if (this.rightPaddleY + this.paddleHeight / 2 >= predictedPosY) {
+    //                 hasReachedDestination = true;
+    //             }
+    //         }
+    
+    //         if (hasReachedDestination) {
+    //             clearInterval(this.aiPaddleMovementInterval);
+    //             this.aiPaddleMovementInterval = null;
+    //             console.log('Paddle reached the predicted position:', predictedPosY);
+    //         }
+    //     }, intervalTime);
+    // },    
     
 
     controlRightPaddleWithAI: function() {
         const movePaddle = (aiAction) => {
             // Calculate the end position early, considering the direction for continuous movement for 1 second.
             const endPosition = aiAction === 'UP' ? this.rightPaddleY - this.paddleSpeed * 60 : this.rightPaddleY + this.paddleSpeed * 60;
-    
+        
             if (this.aiPaddleMovementInterval) {
                 clearInterval(this.aiPaddleMovementInterval);
             }
-
+        
             // Use setInterval to move the paddle every frame (assuming 60fps) towards the end position for 1 second.
             this.aiPaddleMovementInterval = setInterval(() => {
                 if (aiAction === 'UP')
                     this.rightPaddleY -= this.paddleSpeed;
                 if (aiAction === 'DOWN')
                     this.rightPaddleY += this.paddleSpeed;
-    
+        
                 // Clamp the paddle position within the canvas bounds.
                 this.rightPaddleY = Math.max(Math.min(this.rightPaddleY, this.canvas.height - this.paddleHeight), 0);
-    
+        
                 // Check if the paddle has moved for about 1 second or reached the end position, then clear the interval.
                 if ((aiAction === 'UP' && this.rightPaddleY <= endPosition) || (aiAction === 'DOWN' && this.rightPaddleY >= endPosition)) {
                     clearInterval(this.aiPaddleMovementInterval);
                 }
             }, 1000 / 60); // 60fps
         };
-    
+        
         const requestAIActionContinuously = () => {
             if (this.processAIActions && websocket.aiSocket.readyState === WebSocket.OPEN && this.gameMode === 'singlePlayer') {
                 websocket.requestAIAction();
-                websocket.onAIAction = (aiAction) => {
-                    if (this.processAIActions) { // Check if AI actions should be processed
+                websocket.onAIAction = (response) => {
+                    const data = JSON.parse(response);
+                    const aiAction = data.action;
+                    const predictedPos = data.predicted_pos_y;
+                    const paddleCenter = this.rightPaddleY + this.paddleHeight / 2;
+        
+                    if (Math.abs(predictedPos - paddleCenter) < 5) { // Assuming a threshold for when to stop moving
+                        clearInterval(this.aiPaddleMovementInterval); // Stop moving if close enough
+                        console.log('Paddle is aligned with the ball.');
+                    } else if (this.processAIActions) { // Check if AI actions should be processed
                         movePaddle(aiAction);
                     }
+        
                     // Continue to request AI actions based on a flag
                     if (this.processAIActions) {
+                        console.log('Requesting AI action again');
                         setTimeout(requestAIActionContinuously, 1000); // Adjust timing as needed
                     }
                 };
             }
-        }
-    
+        };
+        
         requestAIActionContinuously(); // Start the process initially
     },    
 
