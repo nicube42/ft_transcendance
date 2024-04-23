@@ -209,6 +209,7 @@ var gameSocket = {
 
     deleteRoom: function(roomName) {
         this.sendMessage({'action': 'delete_room', 'room_name': roomName});
+        ui.showOnlyOneSection('multiplayer');
     },
 
     listRooms: function() {
@@ -239,6 +240,7 @@ var gameSocket = {
             roomName.style.color = 'white';
             roomElement.appendChild(roomName);
     
+
             if (room.is_admin) {
                 const deleteButton = document.createElement('button');
                 deleteButton.type = 'button';
