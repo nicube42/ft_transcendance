@@ -45,35 +45,24 @@ var gameSocket = {
                 this.stopPeriodicUpdates();
                 game.setGameMode('distant');
                 ui.showOnlyOneSection('play');
-            } else if (data.action === 'update_paddle_pos') {
-                console.log("\n\n\n\n da fuck\n\n\n\n");
-                if (data.role === 'left') {
-                    auth.retrieveInfos().then(userInfo => {
-                        if (userInfo && userInfo.username){
-                            if (data.username !== userInfo.username){
-                                game.leftPaddleY = data.paddleY;
-                            }
-                        }
-                    })
-                } else {
-                    auth.retrieveInfos().then(userInfo => {
-                        if (userInfo && userInfo.username){
-                            if (data.username !== userInfo.username){
-                                game.rightPaddleY = data.paddleY;
-                            }
-                        }
-                    })
-                }
             } else if(data.action === 'paddle_move') {
                 let paddleAdjustment = data.direction === 'up' ? -game.paddleSpeed : game.paddleSpeed;
                 if(data.role === game.playerRole) {
                 } else {
                     if (game.playerRole === 'left') {
-                        game.rightPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
-                        game.rightPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
+                        if (data.direction == 'up'){
+                            game.rightPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
+                        }
+                        else {
+                            game.rightPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
+                        }
                     } else if (game.playerRole === 'right') {
-                        game.leftPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
-                        game.leftPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
+                        if (data.direction == 'up') {
+                            game.leftPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
+                        }
+                        else {
+                            game.leftPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
+                        }
                     }
                 }
             } else if (data.action === 'assign_role') {
@@ -98,9 +87,6 @@ var gameSocket = {
         });
     },
 
-    updatePaddleRemote: function (role, paddleY, username, roomName) {
-        this.sendMessage({'action': 'update_paddle_pos', 'role': role, 'paddleY': paddleY, 'username': username, 'room_name': roomName});
-    },
 
     showInvitePopup: function(roomName, fromUser) {
         const popupDiv = document.createElement('div');

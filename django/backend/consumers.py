@@ -101,8 +101,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.game_start()
         elif action == 'update_ball_state':
             await self.update_ball_state(text_data_json)
-        elif action == 'update_paddle_pos':
-            await self.update_paddle_pos(text_data_json)
         elif action == 'delete_room':
             await self.delete_room(text_data_json)
         elif action == 'send_invite':
@@ -470,39 +468,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'ball_state': event['ball_state'],
             }))
 
-    async def update_paddle_pos(self, data):
-        room_name = data['room_name']
-
-        paddleY = data.get('paddleY')
-        role = data.get('role')
-        room_name = data.get('room_name')
-        username = data.get('username')
-
-        if paddleY is None or role is None or room_name is None or username is None:
-            logging.error("Missing one or more required keys in the data for paddle position update.")
-            return
-        
-        await self.channel_layer.group_send(
-            room_name,
-            {
-                'type': 'broadcast_paddle_pos',
-                'paddleY': paddleY,
-                'role': role,
-                'room_name': room_name,
-                'username': username,
-            }
-        )
-
-    async def broadcast_paddle_pos(self, event):
-        if event.get('sender_channel_name') != self.channel_name:
-            await self.send_message_safe(json.dumps({
-                'action': 'update_paddle_pos',
-                'paddleY': event['paddleY'],
-                'role': event['role'],
-                'room_name': event['room_name'],
-                'username': event['username'],
-            }))
-
+    
     async def start_game(self, data):
         room_name = data['room_name']
         await self.channel_layer.group_send(

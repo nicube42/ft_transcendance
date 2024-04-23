@@ -132,43 +132,29 @@ const game = {
             switch(e.key) {
                 case 'w':
                     direction = 'up';
-                    if (game.playerRole === 'left') {
+                    if (game.playerRole === 'left' && !this.leftPaddleMovingDown) {
                         this.leftPaddleMovingUp = true;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        // this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
 
-                        // gameSocket.sendPaddleMovement(direction);
                     }
-                    else {
+                    else if (game.playerRole === 'right' && !this.rightPaddleMovingDown){
                         this.rightPaddleMovingUp = true;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
-
-                        // gameSocket.sendPaddleMovement(direction);
                     }
                     break;
                 case 's':
                     direction = 'down';
-                    if (game.playerRole === 'left'){
+                    if (game.playerRole === 'left' && !this.leftPaddleMovingUp){
                         this.leftPaddleMovingDown = true;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        // this.sendPaddlePosition(this.playerRole, this.leftPaddleY); 
-
-                        // gameSocket.sendPaddleMovement(direction);
                     }
-                    else {
+                    else if (game.playerRole === 'right' && !this.rightPaddleMovingUp) {
                         this.rightPaddleMovingDown = true;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
-
-                        // gameSocket.sendPaddleMovement(direction);
                     }
                     break;
             }
     
-            // if (direction) {
-            //     gameSocket.sendPaddleMovement(direction, keyEvent);
-            // }
         }
         else {
             switch (e.key) {
@@ -201,12 +187,10 @@ const game = {
                     if (game.playerRole === 'left'){
                         this.leftPaddleMovingUp = false;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        // this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
                     }
                     else {
                         this.rightPaddleMovingUp = false;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
                     }
 
                     break;
@@ -215,20 +199,15 @@ const game = {
                     if (game.playerRole === 'left') {
                         this.leftPaddleMovingDown = false;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        // this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
                     }
                     else {
                         this.rightPaddleMovingDown = false;
                         gameSocket.sendPaddleMovement(direction, keyEvent);
-                        // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
                     }
 
                     break;
             }
 
-            // if (direction) {
-            //     gameSocket.sendPaddleMovement(direction, keyEvent);
-            // }
         }
         if (this.gameMode !== 'distant'){
             switch (e.key) {
@@ -248,37 +227,22 @@ const game = {
         }
     },
 
-    sendPaddlePosition: function (role, paddleY) {
 
-        if (this.gameMode === "distant"){
-                
-            auth.retrieveInfos().then(userInfo => {
-                if (userInfo && userInfo.username){
-                    console.log("call api", gameSocket.currentRoom);
-                    gameSocket.updatePaddleRemote(role, paddleY, userInfo.username, gameSocket.currentRoom);
-                }
-            })
-
-        }
-    },
-
-    movePaddles: function () {
+    movePaddles: async function () {
+        console.log('\n\n', 'left down', this.leftPaddleMovingDown, 'left up', this.leftPaddleMovingUp, 'right down', this.rightPaddleMovingDown, 'right up', this.rightPaddleMovingUp, '\n\n');
         if (this.leftPaddleMovingUp) {
             this.leftPaddleY = Math.max(this.leftPaddleY - this.paddleSpeed, 0);
-            // this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
         }
-        else if (this.leftPaddleMovingDown) {
+        if (this.leftPaddleMovingDown) {
             this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
-            // this.sendPaddlePosition(this.playerRole, this.leftPaddleY);
         }
         if (this.rightPaddleMovingUp) {
             this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
-            // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
         }
-        else if (this.rightPaddleMovingDown) {
+        if (this.rightPaddleMovingDown) {
             this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
-            // this.sendPaddlePosition(this.playerRole, this.rightPaddleY);
         }
+        
     },
 
     pause: function() {
@@ -364,9 +328,9 @@ const game = {
             let currentAngle = Math.atan2(this.ballSpeedY, this.ballSpeedX);
             let refraction_coefficient = Math.abs((this.ballPosY - paddleCenter) / (this.paddleHeight / 2));
             console.log(refraction_coefficient);
-            let newAngle = currentAngle + refraction_coefficient; // Modify this line to control how much the angle changes
-            this.ballSpeedX = -originalSpeed * Math.cos(newAngle);
-            this.ballSpeedY = originalSpeed * Math.sin(newAngle);
+            let newAngle = currentAngle + refraction_coefficient / 2; // change le coef pr que l'angle soit + +
+            this.ballSpeedX = -originalSpeed * Math.cos(newAngle) * 1.2;
+            this.ballSpeedY = originalSpeed * Math.sin(newAngle) * 1.2;
         }
         else {
             tmpX = this.ballPosX + this.ballSpeedX * delta;
@@ -409,10 +373,17 @@ const game = {
             this.ballPosX = nextFrameBallX;
             this.ballPosY = nextFrameBallY;
         }
+		if (!this.bonusTouched) {
+			this.ball_color = 'white';
+		}
     },
 
     drawPong: function() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		// Réinitialise la couleur de la balle si aucun bonus n'est touché
+		if (!this.bonusTouched) {
+			this.ball_color = 'white';
+		}
         if (this.messageDisplayCounter === 0)
         {
             this.frame++;
@@ -446,6 +417,19 @@ const game = {
             this.messageDisplayCounter--;
 
         this.drawBall();
+		// Score update logic
+	if (this.ballPosX <= 0 || this.ballPosX >= this.canvas.width) {
+ 	   if (this.ballPosX <= 0) {
+ 	       this.player2Score++;
+ 	       this.scoreMessage = this.player2_name + ' Scored!';
+ 	   } else {
+  	      this.player1Score++;
+   	     this.scoreMessage = this.player1_name + ' Scored!';
+  	  }
+  	  this.resetBall();  // Appelle resetBall pour réinitialiser la position, la vitesse, et la couleur de la balle
+  	  this.messageDisplayCounter = 180;  // Reset du compteur pour l'affichage du message
+	}
+
 
         // bonus logic
 
@@ -505,12 +489,24 @@ const game = {
         this.ctx.fill();
     },
 
-    resetBall: function() {
-        this.ballPosX = this.canvas.width / 2;
-        this.ballPosY = this.canvas.height / 2;
-        this.ballSpeedX = -this.ballSpeedX;
-        this.ballSpeedY = this.ballSpeedY;
-    },
+	resetBall: function() {
+		// Réinitialise la position de la balle au centre du canvas
+		this.ballPosX = this.canvas.width / 2;
+		this.ballPosY = this.canvas.height / 2;
+	
+		// Réinitialise la vitesse de la balle à la valeur initiale de configuration
+		this.ballSpeedX = this.settings.ballSpeed / 2;
+		this.ballSpeedY = Math.random() > 0.5 ? this.settings.ballSpeed / 2 : -this.settings.ballSpeed / 2;  // Ajoute une variation aléatoire pour la direction verticale
+	
+		// Réinitialise la couleur de la balle
+		this.ball_color = 'white';
+	
+		// Optionnel : Alterner la direction initiale de la balle horizontalement à chaque point marqué
+		if (Math.random() > 0.5) {
+			this.ballSpeedX = -this.ballSpeedX;
+		}
+	},
+	
 
     controlRightPaddleWithAI: function() {
         const movePaddle = (aiAction) => {
@@ -580,42 +576,38 @@ const game = {
         this.ctx.fill();
     },
     
-    checkBonusCollision: function() {
-        var that = this; // Capture the correct context of 'this' to use inside setTimeout
-    
-        if (Math.abs(this.ballPosX - this.bonusGreen.x) < this.bonusGreen.radius && Math.abs(this.ballPosY - this.bonusGreen.y) < this.bonusGreen.radius && this.bonusGreen.active) {
-            this.ballSpeedX *= 1.5;
-            this.ballSpeedY *= 1.5;
-            this.bonusGreen.active = false;
-            this.bonusTouched = true;
-            setTimeout(function() {
-                that.ballSpeedX /= 1.5;
-                that.ballSpeedY /= 1.5;
-                that.bonusTouched = false; // Use 'that' instead of 'this'
-                that.attemptBonusGeneration(); // Try generating a new bonus
-            }, 10000); // 10 seconds
-        }
-    
-        if (Math.abs(this.ballPosX - this.bonusRed.x) < this.bonusRed.radius && Math.abs(this.ballPosY - this.bonusRed.y) < this.bonusRed.radius && this.bonusRed.active) {
-            this.ballSpeedX /= 1.5;
-            this.ballSpeedY /= 1.5;
-            this.bonusRed.active = false;
-            this.bonusTouched = true;
-            setTimeout(function() {
-                that.ballSpeedX *= 1.5;
-                that.ballSpeedY *= 1.5;
-                that.bonusTouched = false; // Use 'that' instead of 'this'
-                that.attemptBonusGeneration(); // Try generating a new bonus
-            }, 10000); // 10 seconds
-        }
-    
-        // Ball color logic remains the same
-        if (Math.abs(this.ballSpeedX) == this.settings.ballSpeed / 2)
-            this.ball_color = 'white';
-        else if (Math.abs(this.ballSpeedX) > this.settings.ballSpeed / 2)
-            this.ball_color = 'green';
-        else if (Math.abs(this.ballSpeedX) < this.settings.ballSpeed / 2)
-            this.ball_color = 'red';
-    },
+	checkBonusCollision: function() {
+		var that = this; // Capture the correct context of 'this' to use inside setTimeout
+	
+		if (Math.abs(this.ballPosX - this.bonusGreen.x) < this.bonusGreen.radius && Math.abs(this.ballPosY - this.bonusGreen.y) < this.bonusGreen.radius && this.bonusGreen.active) {
+			this.ballSpeedX *= 1.5;
+			this.ballSpeedY *= 1.5;
+			this.ball_color = 'green'; // Change the ball color to green when green bonus is touched
+			this.bonusGreen.active = false;
+			this.bonusTouched = true;
+			setTimeout(function() {
+				that.ballSpeedX /= 1.5;
+				that.ballSpeedY /= 1.5;
+				that.ball_color = 'white'; // Reset the ball color to white after bonus effect ends
+				that.bonusTouched = false;
+				that.attemptBonusGeneration(); // Try generating a new bonus
+			}, 10000); // 10 seconds
+		}
+	
+		if (Math.abs(this.ballPosX - this.bonusRed.x) < this.bonusRed.radius && Math.abs(this.ballPosY - this.bonusRed.y) < this.bonusRed.radius && this.bonusRed.active) {
+			this.ballSpeedX /= 1.5;
+			this.ballSpeedY /= 1.5;
+			this.ball_color = 'red'; // Change the ball color to red when red bonus is touched
+			this.bonusRed.active = false;
+			this.bonusTouched = true;
+			setTimeout(function() {
+				that.ballSpeedX *= 1.5;
+				that.ballSpeedY *= 1.5;
+				that.ball_color = 'white'; // Reset the ball color to white after bonus effect ends
+				that.bonusTouched = false;
+				that.attemptBonusGeneration(); // Try generating a new bonus
+			}, 10000); // 10 seconds
+		}
+	},	
 
 };
