@@ -8,10 +8,12 @@ const ui = {
     },
 
     showOnlyOneSection: function(sectionId, isPopState = false, queryParams = {}) {
-        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage', 'playerStats', 'friends', 'profilePageNoChange'];
+        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'login42Container', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage', 'playerStats', 'friends', 'profilePageNoChange', 'callback'];
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
+        console.log('test8');
+        console.log('sectionId:', sectionId);
         gameSocket.init();
     
         if (!isPopState) {
@@ -32,6 +34,7 @@ const ui = {
 
     attachEventListeners: function() {
         document.body.addEventListener('click', (e) => {
+             console.log('test3');
             let target = e.target;
     
             if (target.matches('.btn-close[data-room-name]')) {
@@ -44,6 +47,7 @@ const ui = {
             while (target !== document.body && !target.id) {
                 target = target.parentNode;
             }
+             console.log('test2');
             if (this.actionHandlers[target.id]) {
                 e.preventDefault();
                 this.actionHandlers[target.id].call(this, e).catch(console.error);
@@ -64,7 +68,7 @@ const ui = {
                 this.showOnlyOneSection('homepage');
             }
             else
-                this.showOnlyOneSection('firstPage');
+                this.showOnlyOneSection('callback');
         },
         async 'PLAY'() {
             game.setGameMode('multiplayer');
@@ -118,6 +122,10 @@ const ui = {
         },
         async 'navLogin'() {
             this.showOnlyOneSection('loginContainer');
+        },
+        async 'navLogin42'() {
+            window.location.href = 'https://localhost:4242/api/authorize/';
+            console.log('test1');
         },
         async 'navRegister'() {
             this.showOnlyOneSection('register');
@@ -197,20 +205,93 @@ const ui = {
         }
     },
 
+    callback: function() {
+        const url = new URL(window.location.href);
+        console.log('url:', url.href);
+
+        this.showOnlyOneSection('callback');
+        console.log('callback exception2 called');
+
+        const code = url.searchParams.get("code");
+        if (code === null) {
+            console.error("No code in URL");
+            return;
+        }
+        fetch(
+            `https://localhost:4242/api/callback/?code=${code}`, {
+                method: "GET",
+                headers: {
+                    "accept": "application/json",
+                },
+                credentials: 'include'
+            }
+        ).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response for login intra 42 was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Login success:', data);
+            sessionStorage.setItem('isLoggedIn', 'true');
+            auth.waitForAuthToBeRecognized(() => {
+                auth.retrieveInfos()
+                    .then(data => {
+                        console.log('User info retrieved successfully:', data);
+                        userInfoDisplayer.updateUI(data);
+                        settings.saveSettings();
+                        settings.populateSettings();
+                        ui.showOnlyOneSection('homepage');
+                        navbarManager.updateNavbar({ isAuthenticated: true });
+                    })
+                    .catch(error => {
+                        console.error('Failed to fetch/display user info:', error);
+                    });
+            }, (error) => {
+                console.error('Auth recognition error:', error);
+            });
+        })
+        console.log('callback exception3 called');
+    },
+
     init: function() {
+        console.log('test6');
+        console.log('window.location.url:', window.location.href);
         this.attachEventListeners();
+        if (window.location.pathname === '/callback/') {
+            this.callback();
+            console.log('callback exception1 called');
+            return;
+        }
         this.checkAuthenticationAndInitializePage();
+
+        console.log('test7');
+        console.log('window.location.pathname:', window.location.pathname);
+        // if path is /callback, call the callback function
+
         window.addEventListener('popstate', function(event) {
+            console.log('popstate called1');
             if (event.state && event.state.section) {
+
+                console.log('popstate called', event.state.section, event.state);
+
                 ui.showOnlyOneSection(event.state.section, true);
+                if (event.state.section === 'callback') {
+                    ui.actionHandlers['callback']();
+                    console.log('callback exception called');
+                }
             } else {
                 ui.showOnlyOneSection('firstPage', true);
             }
         });
-        this.loadTournamentData();
+        console.log('after the popstate', window.location.pathname);
+
+        if (window.location.pathname !== '/callback/') //todo maybe remove this
+            this.loadTournamentData();
     },
 
     loadTournamentData: function() {
+        console.log('loading tournament data');
         const tournamentId = localStorage.getItem('tournamentId');
         const maxPlayers = localStorage.getItem('maxPlayers');
         const currentParticipants = localStorage.getItem('currentParticipants');
@@ -227,6 +308,7 @@ const ui = {
     },
 
     checkAuthenticationAndInitializePage: function() {
+        console.log('checkAuthenticationAndInitializePage called');
         auth.checkAuthentication().then((authStatus) => {
             if (authStatus.isAuthenticated) {
                 this.connected = true;

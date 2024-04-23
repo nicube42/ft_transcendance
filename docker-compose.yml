@@ -4,9 +4,10 @@ services:
   db:
     image: postgres
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -21,8 +22,16 @@ services:
     depends_on:
       - db
     environment:
-      - "DJANGO_SETTINGS_MODULE=backend.settings"
-      - "PYTHONUNBUFFERED=1"
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_PORT: ${DATABASE_PORT}
+      AUTH_CLIENT_ID: ${AUTH_CLIENT_ID}
+      AUTH_CLIENT_SECRET: ${AUTH_CLIENT_SECRET}
+      REDIRECT_AUTH_URL: ${REDIRECT_AUTH_URL}
+      DJANGO_SETTINGS_MODULE : backend.settings
+      PYTHONUNBUFFERED : 1
     ports:
       - "8000:8000"  # Exposing Django on port 8000
 

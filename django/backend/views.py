@@ -114,6 +114,103 @@ def register(request):
             return JsonResponse({'error': str(e)}, status=500)
 
 
+import os
+from django.http import HttpResponseRedirect
+
+def intraAuthorize(request):
+    if request.method == 'GET':
+
+        print("intraAuthorize")
+        client_id = os.getenv('AUTH_CLIENT_ID')
+        redirect_uri = os.getenv('REDIRECT_AUTH_URL') # todo remove https://localhost:4242/callback/
+        response_type = 'code'
+
+        authorization_url = f"https://api.intra.42.fr/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type={response_type}"
+
+        return HttpResponseRedirect(authorization_url)
+
+
+import requests
+
+def intraCallback(request):
+    if request.method == 'GET': #todo change all this code
+        code = request.GET.get('code')
+        if not code:
+            return JsonResponse({"error": "Authorization code not provided"}, status=400)
+
+        # Get token from intra
+        data_code = {
+            'grant_type': 'authorization_code',
+            'client_id': os.getenv('AUTH_CLIENT_ID'),
+            'client_secret': os.getenv('AUTH_CLIENT_SECRET'),
+            'code': code,
+            'redirect_uri': os.getenv('REDIRECT_AUTH_URL')
+        }
+        response = requests.post('https://api.intra.42.fr/oauth/token', data=data_code)
+        print("RESPONSE oauth/token")
+        print(response.status_code)
+        print(response.json())
+        try:
+            auth_token = response.json()['access_token']
+        except KeyError:
+            print("Error: intra 42 'access_token' not found in the response.")
+            auth_token = None
+        #End of getting token from intra
+
+        if not auth_token:
+            return JsonResponse({"error": "Could not get token from intra"}, status=400)
+
+        #Get user data from intra
+
+        headers = {
+            'Authorization': f'Bearer {auth_token}'
+        }
+        response = requests.get('https://api.intra.42.fr/v2/me', headers=headers)
+        user_data = response.json()
+        #End user data from intra
+
+        print('user_data')
+        print("MDR")
+
+        try:
+            print("MDR2")
+
+            username = user_data.get('login')
+            # password = make_password('password')
+            fullname = user_data.get('usual_full_name')
+
+            user, is_created = CustomUser.objects.get_or_create(
+                username=username,
+                fullname=fullname,
+            )
+
+            # user = authenticate(request, username=username, password=password)
+
+            print("MDR3")
+
+            print("save user")
+            # Login the created user
+            print(request), print(user)
+            print("---")
+            login(request, user)
+
+            print("MDR4")
+
+            csrf_token = get_token(request)
+            print("MDR5")
+
+            response = JsonResponse({'message': 'Login successful'})
+            response.set_cookie('csrftoken', csrf_token, httponly=False)
+            print("end login 42")
+            print("MDR6")
+            return response
+        except ValidationError as e:
+            return JsonResponse({'error': e.message_dict}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+
+
 from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 import json

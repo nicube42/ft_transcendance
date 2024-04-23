@@ -10,6 +10,10 @@ from .views import game_record
 urlpatterns = [
     path('api/settings', views.save_settings, name='save_settings'),
     path('api/settings/retrieve', views.retrieve_settings, name='retrieve_settings'),
+
+    path('api/authorize/',  views.intraAuthorize, name='intra_authorize'),
+    path('api/callback/',  views.intraCallback, name='intra_callback'),
+
     path('api/register/', views.register, name='api-register'),
     path('api/login/', views.api_login, name='api-login'),
     path('api/logout/', views.api_logout, name='logout'),

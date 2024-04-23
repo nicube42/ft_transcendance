@@ -50,7 +50,8 @@ const auth = {
     waitForAuthToBeRecognized : function(successCallback, errorCallback) {
         const maxAttempts = 5;
         let attempts = 0;
-        
+        console.log('waiting for auth to be recognized');
+
         const checkAuth = () => {
             fetch('/api/check_auth_status/', {
                 method: 'GET',
@@ -81,6 +82,7 @@ const auth = {
     },
     
     logout: function() {
+        console.log('Logging out...');
         const csrfToken = getCookie('csrftoken');
         fetch('/api/logout/', {
             method: 'POST',
@@ -102,10 +104,12 @@ const auth = {
             ui.showOnlyOneSection('loginContainer');
             navbarManager.updateNavbar({ isAuthenticated: false });
             ui.connected = false;
+           // location.reload()
         })
         .catch(error => console.error('Logout error:', error));
     },
     register: function() {
+        console.log('Registering...');
         const csrfToken = getCookie('csrftoken');
         const formData = {
             username: document.getElementById('username').value,
@@ -139,7 +143,45 @@ const auth = {
             registrationErrorModal.show();
         });
     },
+
+    intraCallback: function() {
+        console.log('Intra callback...');
+        const csrfToken = getCookie('csrftoken');
+        const formData = {
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+            fullname: document.getElementById('fullname').value,
+            date_of_birth: document.getElementById('birth').value,
+            bio: document.getElementById('bio').value
+        };
+        fetch('/api/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            credentials: 'include',
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Registration success:', data);
+            ui.showOnlyOneSection('loginContainer');
+        })
+        .catch(error => {
+            console.error('Registration error:', error)
+            var registrationErrorModal = new bootstrap.Modal(document.getElementById('registerErrorModal'));
+            registrationErrorModal.show();
+        });
+    },
+
     retrieveInfos: function() {
+        console.log('Retrieving user info...');
         return fetch('/api/user-info/', {
             method: 'GET',
             credentials: 'include'
@@ -168,6 +210,7 @@ const auth = {
         this.checkAuthentication();
     },
     checkAuthentication: function() {
+        console.log('Checking authentication...');
         return fetch('/api/check_auth_status/', {
             method: 'GET',
             credentials: 'include'
@@ -194,6 +237,7 @@ const auth = {
         });
     },
     checkIfUserLoggedIn: async function(username) {
+        console.log('Checking if user is logged in:', username);
         try {
             const response = await fetch(`/api/is-user-logged-in/?username=${encodeURIComponent(username)}`, {
                 method: 'GET',
