@@ -6,6 +6,8 @@ To do updated
 - game name dans les settings (thomas)
 
 - vérifier injections sql (marco ?) check avec HAJAR SQL injections/XSS.
+- add TLS
+
 
 - form validation (date pas dans le futur, username, add max length, not empty ect
 
@@ -16,6 +18,8 @@ To do updated
                     - framework en front OK 0.5
 
                     - base de donnée en back OK 0.5
+
+
 
 - gestion d'utilisateur KO 1
 - avatar (marco)$
@@ -50,4 +54,6 @@ LAST CHECKLIST
 - remove "todo" comments
 - remove commented code
 - clean comments
+- clean imports (remove unused) and put them on top
+- remove logging in settings.py
 
