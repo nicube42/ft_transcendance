@@ -413,12 +413,11 @@ const game = {
         if (this.messageDisplayCounter === 0)
         {
             this.frame++;
-            
             this.checkColisions();
-            if (this.gameMode === 'distant' && this.ballDirectionChanged)
+            if (this.gameMode === 'distant' && this.ballPosX < this.canvas.width - 10 && this.ballPosX > 10)
             {
-                console.log("bong");
                 gameSocket.sendBallState();
+                console.log("bong");
             }
 
 
