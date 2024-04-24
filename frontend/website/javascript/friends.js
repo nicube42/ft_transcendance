@@ -164,7 +164,21 @@ var friendsPage = {
 
     searchFriends: function() {
         var searchQuery = document.getElementById('searchFriendsInput').value;
-        this.addFriend(searchQuery);
+        if (searchQuery === '') {
+            alert('Please enter a username to search for');
+            return;
+        }
+        auth.retrieveInfos().then(userInfo => {
+            const username = userInfo.username;
+            if (searchQuery === username) {
+                alert('You cannot add yourself as a friend');
+                return;
+            }
+            else
+            {
+                this.addFriend(searchQuery);
+            }
+        });
     },
 
     getCSRFToken: function() {

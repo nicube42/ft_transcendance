@@ -2,17 +2,11 @@ To do updated
 
 - game name dans les settings (thomas)
 
-
-- form validation (date pas dans le futur, username, add max length, not empty ect
-
-
 - gestion d'utilisateur KO 1
     - avatar (marco)$
                     - status en ligne OK
                     - ajouter amis OK
                     - afficher stats et historique des joueurs sur le profil OK
-
-
 
 - personnalisation du jeu KO 0.5 (thomas)
     - activer ou non les bonus dans les settings
@@ -20,6 +14,8 @@ To do updated
 
 
 FINI
+
+                    - form validation (date pas dans le futur, username, add max length, not empty ect
 
                     - joueurs a distance KO (nicolas) 1
                         - gérer déconection de manière simple (nicolas)

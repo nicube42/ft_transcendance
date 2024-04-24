@@ -181,8 +181,11 @@ const ui = {
         },
         async 'createRoomBtn' () {
             const roomName = document.querySelector('#roomNameInput').value;
-            gameSocket.createRoom(roomName);
-            gameSocket.listRooms();
+            if (roomName !== '')
+            {
+                gameSocket.createRoom(roomName);
+                gameSocket.listRooms();
+            }
         },
         async 'joinRoomBtn' () {
             const roomName = document.querySelector('#roomNameInput').value;

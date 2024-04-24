@@ -114,6 +114,14 @@ const auth = {
             date_of_birth: document.getElementById('birth').value,
             bio: document.getElementById('bio').value
         };
+        if (formData.username.length < 4 || formData.username.length > 20) {
+            alert('Username must be between 4 and 20 characters.');
+            return;
+        }
+        if (formData.password.length < 4 || formData.password.length > 20) {
+            alert('Password must be between 4 and 20 characters.');
+            return;
+        }
         fetch('/api/register/', {
             method: 'POST',
             headers: { 
@@ -320,10 +328,20 @@ document.getElementById('inviteRoomBtn').addEventListener('click', function() {
     const username = document.getElementById('usernameInput').value.trim();
     if (username) {
         const roomName = gameSocket.currentRoom;
-        user = auth.checkIfUserLoggedIn(username);
-        if (user != null) {
-            gameSocket.sendInvite(username, roomName);
-        }
+        auth.retrieveInfos().then(userInfo => {
+            const user = userInfo.username;
+            if (user === username) {
+                alert('You cannot add yourself to the room');
+                return;
+            }
+            else
+            {
+                const userName = auth.checkIfUserLoggedIn(username);
+                if (userName != null) {
+                    gameSocket.sendInvite(username, roomName);
+                }
+            }
+        });
     } else {
         alert('Please enter a username.');
     }

@@ -485,11 +485,20 @@ var gameSocket = {
             alert('Please enter a username to invite.');
             return;
         }
-    c
-        gameSocket.sendMessage({
-            action: 'invite_to_tournament',
-            tournamentId: this.tournamentId,
-            username: username
+        auth.retrieveInfos().then(userInfo => {
+            const user = userInfo.username;
+            if (username === user) {
+                alert('You cannot add yourself to the tournament.');
+                return;
+            }
+            else
+            {
+                gameSocket.sendMessage({
+                    action: 'invite_to_tournament',
+                    tournamentId: this.tournamentId,
+                    username: username
+                });
+            }
         });
     },
     
