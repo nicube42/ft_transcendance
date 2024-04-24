@@ -6,6 +6,7 @@ var langDict = {
         'account': 'Account',
         'logout': 'Logout',
         'register': 'Register',
+        'friends': 'Friends',
     
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Login',
@@ -62,6 +63,12 @@ var langDict = {
         'match tree': 'Match Tree',
         'tournament_matches_display': 'Tournament matches will be displayed here once setup is complete.',
         'enter username to': 'Enter Username to',
+
+        'navTournament': 'Tournament',
+        'profile': 'Profile',
+        'set': 'Settings',
+        'navstatistics': 'Statistics',
+        'titlefirstpage': 'Welcome to Pong',
     },
     
     'fr': {
@@ -71,6 +78,7 @@ var langDict = {
         'account': 'Compte',
         'logout': 'Déconnexion',
         'register': 'Inscription', //a double virer si conflit
+        'friends': 'Amis',
 
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Connexion',
@@ -132,7 +140,11 @@ var langDict = {
         'match tree': 'Prochains matchs',
         'tournament_matches_display': 'Les matchs du tournoi seront affichés ici une fois la configuration terminée.',
         'enter username to' : 'Entrez le nom utilisateur a',
-
+        'navTournament': 'Tournoi',
+        'profile': 'Profil',
+        'set': 'parametres',
+        'navstatistics': 'Statistiques',
+        'titlefirstpage': 'Bienvenue sur Pong',
 
     },
     
@@ -143,6 +155,7 @@ var langDict = {
         'account': 'Cuenta',
         'logout': 'Cerrar sesión',
         'register': 'Registrarse',
+        'friends': 'Amigos',
     
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Iniciar sesión',
@@ -199,6 +212,11 @@ var langDict = {
         'match tree': 'Árbol de partidos',
         'tournament_matches_display': 'Los partidos del torneo se mostrarán aquí una vez completada la configuración.',
         'enter username to': 'Ingresar nombre de usuario para',
+        'navTournament': 'Torneo',
+        'profile': 'Perfil',
+        'set': 'Configuraciones',
+        'navstatistics': 'Estadísticas',
+        'titlefirstpage': 'Bienvenido a Pong',
     }
     
 };
