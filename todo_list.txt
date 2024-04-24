@@ -11,6 +11,8 @@ To do updated
 
 - form validation (date pas dans le futur, username, add max length, not empty ect
 
+adapt error messages depending on the error
+
 - vérifier que l'utilisateur est bien connecté avant d'utiliser toutes les API (if request.user.is_authenticated)
 
                     - framework en back OK 1

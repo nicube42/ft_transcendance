@@ -11,7 +11,6 @@ const userInfoDisplayer = {
         this.updateProfilePicUI(data.profile_pic_url); // Assuming 'profile_pic_url' is the key in the response JSON
         this.updateUsernameProfile(data);
         this.updateFullNameProfile(data);
-        this.updateBirthProfile(data);
     },
 
     fetchAndUpdateUserProfile: function() {
@@ -80,17 +79,6 @@ const userInfoDisplayer = {
                 fullNameDiv.innerHTML = `<p>Full name: ${data.fullname}</p>`;
             } else {
                 console.error('Error: fullNameProfile element not found');
-            }
-        }
-    },
-
-    updateBirthProfile: function(data) {
-        if (data.date_of_birth) {
-            const dobDiv = document.getElementById('birthProfile');
-            if (dobDiv) {
-                dobDiv.innerHTML = `<p>Date of birth: ${data.date_of_birth}</p>`;
-            } else {
-                console.error('Error: dobProfile element not found');
             }
         }
     },

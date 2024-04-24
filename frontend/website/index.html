@@ -202,8 +202,8 @@
                 </form>
             </div>
         </div>
-        
-        <div id="register" class="d-none">
+
+        <form method="post" id="register" enctype="multipart/form-data" class="d-none">
             <h1 class="display-1">Register</h1>
             <form id="registerForm">
                 <div class="form-group">
@@ -219,13 +219,13 @@
                     <input type="text" class="form-control" id="fullname" name="fullname" required>
                 </div>
                 <div class="form-group">
-                    <label for="birth">Birth Date:</label>
-                    <input type="date" class="form-control" id="birth" name="birth" required>
+                    <label for="profile_pic">Profile Picture</label>
+                    <input type="file" class="form-control" id="picture" name="picture">
                 </div>
                 <button type="submit" class="btn btn-outline-success fs-2">Register</button>
                 <button id="cancelRegister" type="button" class="btn btn-outline-success fs-2">Cancel</button>        
             </form>
-        </div>
+        </form>
 
         <div id="profilePage" class="d-none container mt-5">
             <div class="card bg-success">
@@ -245,7 +245,6 @@
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item"><span id="usernameProfile"></span></li>
                         <li class="list-group-item"><span id="fullnameProfile"></span></li>
-                        <li class="list-group-item"><span id="birthProfile"></span></li>
                     </ul>
                 </div>
             </div>
@@ -261,7 +260,6 @@
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item"><span id="usernameProfileNoChange"></span></li>
                         <li class="list-group-item"><span id="fullnameProfileNoChange"></span></li>
-                        <li class="list-group-item"><span id="birthProfileNoChange"></span></li>
                     </ul>
                 </div>
             </div>

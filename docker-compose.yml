@@ -18,7 +18,7 @@ services:
     command: ./entrypoint.sh
     volumes:
       - ./django:/code
-      - ./django/media_data:/code/media
+      - ./django/media:/code/media
     depends_on:
       - db
     environment:
@@ -49,7 +49,7 @@ services:
       - "4242:443"
     volumes:
       - ./website:/usr/share/nginx/html/website
-      - media_data:/usr/share/nginx/media
+      - media:/usr/share/nginx/media
     depends_on:
       - django
 
@@ -68,4 +68,4 @@ services:
 
 volumes:
   postgres_data:
-  media_data:
+  media:

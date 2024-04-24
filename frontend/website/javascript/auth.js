@@ -107,23 +107,26 @@ const auth = {
         })
         .catch(error => console.error('Logout error:', error));
     },
+
+    @require_POST
     register: function() {
         console.log('Registering...');
         const csrfToken = getCookie('csrftoken');
-        const formData = {
-            username: document.getElementById('username').value,
-            password: document.getElementById('password').value,
-            fullname: document.getElementById('fullname').value,
-            date_of_birth: document.getElementById('birth').value,
-        };
+
+        const formData = new FormData();
+        formData.append('username', document.getElementById('username').value);
+        formData.append('password', document.getElementById('password').value);
+        formData.append('fullname', document.getElementById('fullname').value);
+        formData.append('picture', document.getElementById('picture').files[0]);
+
         fetch('/api/register/', {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
+            headers: {
                 'X-CSRFToken': csrfToken
             },
             credentials: 'include',
-            body: JSON.stringify(formData)
+            body: formData,
+
         })
         .then(response => {
             if (!response.ok) {
@@ -149,7 +152,6 @@ const auth = {
             username: document.getElementById('username').value,
             password: document.getElementById('password').value,
             fullname: document.getElementById('fullname').value,
-            date_of_birth: document.getElementById('birth').value,
         };
         fetch('/api/register/', {
             method: 'POST',

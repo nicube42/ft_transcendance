@@ -87,10 +87,18 @@ def register(request):
         try:
             data = json.loads(request.body)
             username = data.get('username')
+            print(username)
             password = data.get('password')
+            print(password)
+
             fullname = data.get('fullname')
-            date_of_birth = data.get('date_of_birth')
-            
+            picture = request.FILES.get('picture')
+
+
+            if not username or not password or not fullname:
+                return JsonResponse({"error": "signup information not provided"}, status=400)
+            print("LOL4")
+
             if CustomUser.objects.filter(username=username).exists():
                 return JsonResponse({'error': 'Username already exists'}, status=400)
             
@@ -98,12 +106,19 @@ def register(request):
                 username=username,
                 password=make_password(password),
                 fullname=fullname,
-                date_of_birth=date_of_birth,
             )
-            
+            print("LOL6")
+
+            if picture:
+                print("LOL7")
+                user.picture = picture
+                user.save()
+
+            print("LOL8")
             user.full_clean()
+            print("LOL9")
             user.save()
-            
+            print("LOL_final")
             return JsonResponse({'message': 'User created successfully'}, status=201)
         except ValidationError as e:
             return JsonResponse({'error': e.message_dict}, status=400)
@@ -248,7 +263,6 @@ def user_info(request):
                 'id': request.user.id,
                 'username': request.user.username,
                 'fullname': request.user.fullname,
-                'date_of_birth': request.user.date_of_birth,
             }
             return JsonResponse(user_data)
         else:
@@ -491,7 +505,6 @@ def get_user_profile(request, username):
         user_data = {
             'username': user.username,
             'fullname': user.fullname,
-            'date_of_birth': user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else 'Not provided',
             'profile_pic': user.profile_pic.url if user.profile_pic else '/static/default_profile_pic.jpg'
         }
         return JsonResponse(user_data)
