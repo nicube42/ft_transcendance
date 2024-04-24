@@ -432,10 +432,10 @@ const game = {
                 gameSocket.sendPaddlePos(this.playerRole, this.leftPaddleY, this.rightPaddleY);
             }
             this.checkColisions();
-            if (this.gameMode === 'distant' && this.ballDirectionChanged)
+            if (this.gameMode === 'distant' && this.ballPosX < this.canvas.width - 10 && this.ballPosX > 10)
             {
-                console.log("bong");
                 gameSocket.sendBallState();
+                console.log("bong");
             }
 
 
