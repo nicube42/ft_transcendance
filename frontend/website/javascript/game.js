@@ -458,25 +458,6 @@ const game = {
 
         this.drawBall();
 
-
-
-
-
-
-
-
-                this.drawPredictedPosition(this.ctx, this.predictedPos);
-
-
-
-
-
-
-
-
-
-
-
         // bonus logic
         if (this.withBonus) {
             this.attemptBonusGeneration();
@@ -651,14 +632,6 @@ const game = {
         
         requestAIActionContinuously(); // Start the process initially
     },
-
-    drawPredictedPosition: function(ctx, predictedY) {
-        ctx.fillStyle = 'red'; // Use red color to mark the predicted position
-        ctx.beginPath();
-        ctx.arc(this.canvas.width - 10, predictedY, 5, 0, 2 * Math.PI); // Draw a small circle at the right paddle's X and predicted Y
-        ctx.fill();
-    },
-    
 
     stopControlAndDisconnect: function() {
         if (this.processAIActions === false && this.aiPaddleMovementInterval) {

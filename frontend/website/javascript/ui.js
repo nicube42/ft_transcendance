@@ -191,11 +191,6 @@ const ui = {
                 gameSocket.listRooms();
             }
         },
-        async 'joinRoomBtn' () {
-            const roomName = document.querySelector('#roomNameInput').value;
-            gameSocket.joinRoom(roomName);
-            gameSocket.listRooms();
-        },
         async 'quitRoomBtn'() {
             if (gameSocket.currentRoom) {
                 console.log(`Leaving room: ${gameSocket.currentRoom}`);
