@@ -108,7 +108,6 @@ const auth = {
         .catch(error => console.error('Logout error:', error));
     },
 
-    @require_POST
     register: function() {
         console.log('Registering...');
         const csrfToken = getCookie('csrftoken');
