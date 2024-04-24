@@ -116,10 +116,10 @@ def register(request):
                 print("picture exists")
                 print(picture)
                 user.picture = picture
-                user.save()
 
             print("LOL8")
-            user.full_clean()
+            # user.full_clean()
+            print(user.picture)
             print("LOL9")
             user.save()
             print("LOL_final")
