@@ -12,6 +12,7 @@ const game = {
     },
 
     predictedPos: null,
+    update_ai: true,
 
     canvas: null,
     playerRole: null,
@@ -139,6 +140,7 @@ const game = {
         this.rightPaddleMovingUp = false;
         this.rightPaddleMovingDown = false;
         this.paddleMoving = false;
+        this.restart_ai = true;
         // stats.endTime = null;
 
     },
@@ -625,6 +627,7 @@ const game = {
         const requestAIActionContinuously = () => {
             if (this.processAIActions && websocket.aiSocket.readyState === WebSocket.OPEN && this.gameMode === 'singlePlayer') {
                 websocket.requestAIAction();
+                this.update_ai = false;
                 websocket.onAIAction = (response) => {
                     const data = JSON.parse(response);
                     const aiAction = data.action;
@@ -632,12 +635,14 @@ const game = {
                     this.predictedPos = predictedPos;
                     const paddleCenter = this.rightPaddleY + this.paddleHeight / 2;
         
-                    if (this.processAIActions) { // Check if AI actions should be processed
+                    if (this.processAIActions && predictedPos != -1) { // Check if AI actions should be processed
                         movePaddle(aiAction);
                     }
         
                     // Continue to request AI actions based on a flag
                     if (this.processAIActions) {
+                        console.log('Requesting AI action again');
+                        this.update_ai = true;
                         setTimeout(requestAIActionContinuously, 1000);
                     }
                 };

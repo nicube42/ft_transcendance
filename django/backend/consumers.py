@@ -133,6 +133,12 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.check_if_user_in_game(username)
         elif action == 'delete_participant_from_tournament':
             await self.delete_participant_from_tournament(text_data_json)
+        elif action == 'stop_game':
+            await self.stop_game(text_data_json)
+        elif action == 'surrender':
+            await self.surrendered(text_data_json)
+        elif action == 'broadcast_surrender':
+            await self.broadcast_surrender(text_data_json)
         # elif action == 'start_tournament_matches':
         #     await self.start_tournament_matches(text_data_json)
 
@@ -845,3 +851,39 @@ class GameConsumer(AsyncWebsocketConsumer):
             return False, "Tournament not found."
         except get_user_model().DoesNotExist:
             return False, "User not found."
+
+    async def stop_game(self, data):
+        room_name = data['room_name']
+        await self.channel_layer.group_send(
+            room_name,
+            {
+                'type': 'game_stop',
+                'message': 'stop_game',
+            }
+        )
+
+    async def game_stop(self, event):
+        message = event['message']
+        await self.send(text_data=json.dumps({
+            'action': message
+        }))
+
+    async def surrendered(self, data):
+        username = self.scope['user'].username if self.scope['user'].is_authenticated else 'Unknown Player'
+        room_name = data['room_name']
+
+        await self.channel_layer.group_send(
+            room_name,
+            {
+                'type': 'broadcast_surrender',
+                'message': f'Player has surrendered',
+                'player': username
+            }
+        )
+
+    async def broadcast_surrender(self, event):
+        await self.send(text_data=json.dumps({
+            'action': 'surrendered',
+            'message': event['message'],
+            'player': event['player']
+        }))

@@ -6,6 +6,7 @@ var gameSocket = {
     ballSpeedX_tmp: null,
     ballSpeedY_tmp: null,
     currentRoom: null,
+    in_game: false,
 
     init: function() {
         const wsScheme = window.location.protocol === "https:" ? "wss://" : "ws://";
@@ -45,7 +46,17 @@ var gameSocket = {
                 this.stopPeriodicUpdates();
                 game.setGameMode('distant');
                 ui.showOnlyOneSection('play');
-            } else if(data.action === 'paddle_move') {
+            } else if (data.action === 'stop_game') {
+                console.log("Game is stopping!");
+                if (gameSocket.currentRoom) {
+                    console.log("Leaving room:", gameSocket.currentRoom);
+                    gameSocket.leaveRoom(gameSocket.currentRoom);
+                    gameSocket.deleteRoom(gameSocket.currentRoom);
+                    gameSocket.currentRoom = null;
+                }
+                ui.showOnlyOneSection('homepage');
+                alert('Game cancelled');
+            } else if (data.action === 'paddle_move') {
                 let paddleAdjustment = data.direction === 'up' ? -game.paddleSpeed : game.paddleSpeed;
                 if(data.role === game.playerRole) {
                 } else {
@@ -106,11 +117,29 @@ var gameSocket = {
             } else if (data.action === 'user_in_game_status') {
                 if (data.in_game == false)
                     return ;
+                this.in_game = data.in_game;
                 const statusIndicator = document.getElementById(`status-${data.username}`);
                 console.log(`Updating status for ${data.username} to ${data.in_game}`);
                 if (statusIndicator) {
                     statusIndicator.style.color = 'orange';
                 }
+            } else if (data.action === 'surrendered') {
+                auth.retrieveInfos().then(userInfo => {
+                    if (data.player === userInfo.username)
+                    {
+                        if (game.playerRole === 'left')
+                            stats.displayEndGameStatsSurrender(0, 1);
+                        else
+                            stats.displayEndGameStatsSurrender(1, 0);
+                    }
+                    else
+                    {
+                        if (game.playerRole === 'left')
+                            stats.displayEndGameStatsSurrender(1, 0);
+                        else
+                            stats.displayEndGameStatsSurrender(0, 1);
+                    }
+                });
             }
         });
     
@@ -211,11 +240,45 @@ var gameSocket = {
     },
 
     joinRoom: function(roomName) {
-        this.sendMessage({'action': 'join_room', 'room_name': roomName});
-        this.currentRoom = roomName;
-        this.startPeriodicUpdates();
-        ui.showOnlyOneSection('rooms')
-    },
+        fetch('/api/check-if-user-in-any-room/')
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => { throw new Error(text || 'Problem checking room status'); });
+                }
+            })
+            .then(data => {
+                if (data.status === 'User is in a room' && data.rooms.includes(roomName)) {
+                    // Already in the specified room
+                    this.currentRoom = roomName;
+                    ui.showOnlyOneSection('rooms');
+                } else if (data.status === 'User is in a room') {
+                    // In a different room, cannot join another
+                    alert(`You are already in a room: ${data.rooms.join(', ')}. Please leave the current room before joining another.`);
+                } else {
+                    // Not in any room, check if the specified room has less than 2 users
+                    return fetch(`/api/room/${roomName}/user-count/`)
+                        .then(response => response.json())
+                        .then(countData => {
+                            if (countData.user_count < 2) {
+                                // Less than two users, can join
+                                this.sendMessage({'action': 'join_room', 'room_name': roomName});
+                                this.currentRoom = roomName;
+                                this.startPeriodicUpdates();
+                                ui.showOnlyOneSection('rooms');
+                            } else {
+                                // Two or more users already in the room
+                                alert(`The room '${roomName}' is already full.`);
+                            }
+                        });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('There was an error checking your room status. Please try again.');
+            });
+    },       
 
     checkAndLeaveRoom: function() {
         if (!ui.isSectionVisible('rooms')) {
@@ -381,6 +444,13 @@ var gameSocket = {
             room_name: roomName,
         });
     },
+
+    sendGameStop: function(roomName) {
+        this.sendMessage({
+            action: 'stop_game',
+            room_name: roomName,
+        });
+    },
     
     sendMessage: function(message) {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
@@ -448,11 +518,20 @@ var gameSocket = {
             alert('Please enter a username to invite.');
             return;
         }
-    c
-        gameSocket.sendMessage({
-            action: 'invite_to_tournament',
-            tournamentId: this.tournamentId,
-            username: username
+        auth.retrieveInfos().then(userInfo => {
+            const user = userInfo.username;
+            if (username === user) {
+                alert('You cannot add yourself to the tournament.');
+                return;
+            }
+            else
+            {
+                gameSocket.sendMessage({
+                    action: 'invite_to_tournament',
+                    tournamentId: this.tournamentId,
+                    username: username
+                });
+            }
         });
     },
     
@@ -499,6 +578,15 @@ var gameSocket = {
         };
 
         this.sendMessage(message);
+    },
+
+    surrenderGame: function(roomName) {
+        const surrenderData = {
+            action: 'surrender',
+            room_name: roomName,
+        };
+        this.sendMessage(surrenderData);
+        console.log('Surrender message sent for room:', roomName);
     }
 };
 

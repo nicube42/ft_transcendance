@@ -65,22 +65,31 @@ const tournament = {
             alert('Please enter a username to invite.');
             return;
         }
-
-        gameSocket.sendMessage({
-            action: 'invite_to_tournament',
-            username: usernameInput,
-            tournamentId: this.tournamentId
-        });
-    
-        gameSocket.socket.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
+        auth.retrieveInfos().then(userInfo => {
+            const username = userInfo.username;
+            if (usernameInput === username) {
+                alert('You cannot add yourself to the tournament');
+                return;
+            }
+            else
+            {
+                gameSocket.sendMessage({
+                    action: 'invite_to_tournament',
+                    username: usernameInput,
+                    tournamentId: this.tournamentId
+                });
             
-            if (data.action === 'tournament_invite_response') {
-                if (data.status === 'success') {
-                    alert(`Invitation sent to ${usernameInput}`);
-                } else if (data.status === 'error') {
-                    alert(`Error sending invitation: ${data.message}`);
-                }
+                gameSocket.socket.addEventListener('message', (event) => {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.action === 'tournament_invite_response') {
+                        if (data.status === 'success') {
+                            alert(`Invitation sent to ${usernameInput}`);
+                        } else if (data.status === 'error') {
+                            alert(`Error sending invitation: ${data.message}`);
+                        }
+                    }
+                });
             }
         });
     },
