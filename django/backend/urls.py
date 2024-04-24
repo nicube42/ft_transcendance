@@ -33,4 +33,5 @@ urlpatterns = [
     path('api/check_user_in_tournament/', views.check_user_in_tournament, name='check_user_in_tournament'),
     path('api/check-if-user-in-any-room/', views.check_if_user_in_any_room, name='check-if-user-in-any-room'),
     path('api/room/<str:room_name>/user-count/', views.check_number_users_in_room, name='check_number_users_in_room'),
+    path('api/rename-user/', views.renameUser, name='renameUser'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

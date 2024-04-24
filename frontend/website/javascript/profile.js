@@ -106,4 +106,34 @@ const userInfoDisplayer = {
             }
         }
     },
+    renameUser: function(username) {
+
+        fetch('/api/rename-user/', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'X-CSRFToken': auth.getCSRFToken('csrftoken'),
+            },
+            body: JSON.stringify({username: username}),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Assuming the response includes the updated profile picture URL
+            try {
+                const data = auth.retrieveInfos();
+                userInfoDisplayer.updateUI(data);
+                ui.showOnlyOneSection('profilePage');
+            } catch (error) {
+                console.error('Failed to fetch or display user info:', error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
 };

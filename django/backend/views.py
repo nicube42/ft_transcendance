@@ -592,3 +592,23 @@ def check_number_users_in_room(request, room_name):
 
     # Return the count of users in the room
     return JsonResponse({'room': room_name, 'user_count': user_count}, status=200)
+
+@login_required
+def renameUser(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            new_name = data.get('username')
+            if new_name and new_name != request.user.username:
+                if CustomUser.objects.filter(username=new_name).exists():
+                    return JsonResponse({'error': 'This username is already taken.'}, status=400)
+                
+                request.user.username = new_name
+                request.user.save()
+                return JsonResponse({'message': 'Username updated successfully'}, status=200)
+            else:
+                return JsonResponse({'error': 'Invalid or unchanged username.'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': 'Error updating username', 'details': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
