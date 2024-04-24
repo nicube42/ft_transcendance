@@ -1,41 +1,51 @@
-var currentLang = 'en';  // Langue par défaut
-
+var currentLang = 'en';
 function changeLanguage(lang) {
     currentLang = lang;
-    updateTexts();  // Met à jour l'interface avec la nouvelle langue
+    updateTexts();
 }
-// Dans main.js ou languageManager.js
-document.addEventListener('DOMContentLoaded', function() {
-    changeLanguage('en'); // Ou récupérez la langue stockée localement
-});
-
-// update avec le dico chaque mot, exemple qui marchait de base
 
 function updateTexts() {
-    document.getElementById('navHome').textContent = langDict[currentLang]['home'];
-    document.getElementById('navSet').textContent = langDict[currentLang]['settings'];
-    document.getElementById('navLogin').textContent = langDict[currentLang]['login'];
-    document.getElementById('navRegister').textContent = langDict[currentLang]['register'];
-    document.getElementById('navProfile').textContent = langDict[currentLang]['profile'];
-    document.getElementById('navLogout').textContent = langDict[currentLang]['logout'];
-    document.getElementById('navTournament').textContent = langDict[currentLang]['tournament'];
-    document.getElementById('navStatistics').textContent = langDict[currentLang]['statistics'];
-    document.getElementById('navFriends').textContent = langDict[currentLang]['friends'];
+    const elementIds = [
+        'navHome', 'navSet', 'navLogin', 'navRegister', 'navProfile', 'navLogout',
+        'navTournament', 'navStatistics', 'navFriends', 'titleFirstpage', 'titleHomepage',
+        'titleTournament', 'titleSettings', 'titleProfile', 'titleStatistics',
+        'login_initial', 'register_initial', 'saveSettings', 'cancelLogin', 'cancelRegister'
+    ];
 
-    document.getElementById('titleFirstpage').textContent = langDict[currentLang]['welcome'];
-    document.getElementById('titleHomepage').textContent = langDict[currentLang]['welcome'];
-    document.getElementById('titleTournament').textContent = langDict[currentLang]['tournament'];
-    document.getElementById('titleSettings').textContent = langDict[currentLang]['settings'];
-    document.getElementById('titleProfile').textContent = langDict[currentLang]['profile'];
-    document.getElementById('titleStatistics').textContent = langDict[currentLang]['statistics'];
-    document.getElementById('login_initial').textContent = langDict[currentLang]['login'];
-    document.getElementById('register_initial').textContent = langDict[currentLang]['register'];
-    document.getElementById('saveSettings').textContent = langDict[currentLang]['save'];
-    document.getElementById('cancelLogin').textContent = langDict[currentLang]['cancel'];
-    document.getElementById('cancelRegister').textContent = langDict[currentLang]['cancel'];
+    elementIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            const textKey = id.replace(/^nav/, '').toLowerCase();
+            const dictionaryValue = langDict[currentLang][textKey];
+            if (dictionaryValue) {
+                element.textContent = dictionaryValue;
+            } else {
+                console.error("Dictionary key missing for:", textKey);
+            }
+        } else {
+            console.error("Element not found for ID:", id);
+        }
+    });    
 
-    // Vérifiez l'existence de chaque élément avant d'essayer de mettre à jour pour éviter des erreurs
-    if (document.getElementById('someOtherElement')) {
-        document.getElementById('someOtherElement').textContent = langDict[currentLang]['someTranslationKey'];
-    }
+    updateSpecificPageElements();
+}
+
+function updateSpecificPageElements() {
+    const additionalElements = {
+        'SINGLEPLAYER': langDict[currentLang]['single player'],
+        'PLAY': langDict[currentLang]['local multiplayer'],
+        'MULTIPLAYER': langDict[currentLang]['distant multiplayer'],
+        'TOURNAMENT': langDict[currentLang]['tournament'],
+        'STATISTICS': langDict[currentLang]['statistics'],
+        'SETTINGS': langDict[currentLang]['settings']
+    };
+
+    Object.keys(additionalElements).forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = additionalElements[id];
+        } else {
+            console.error("Element not found for ID:", id);
+        }
+    });
 }

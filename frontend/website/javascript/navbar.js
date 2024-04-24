@@ -2,8 +2,9 @@ const navbarManager = {
     updateNavbar: function(authentication) {
         console.log("updateNavbar called with authentication:", authentication);
         const isAuthenticated = authentication;
+        localStorage.setItem('isAuthenticated', isAuthenticated);
 
-        const dropdownMenu = document.querySelector('.navbar .dropdown-menu');
+        const dropdownMenu = document.querySelector('.navbar .account-dropdown .dropdown-menu');
         const loginLink = dropdownMenu.querySelector('#navLogin');
         const logoutLink = dropdownMenu.querySelector('#navLogout');
         const registerLink = dropdownMenu.querySelector('#navRegister');

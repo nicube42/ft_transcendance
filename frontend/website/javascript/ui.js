@@ -13,7 +13,6 @@ const ui = {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
         gameSocket.init();
-    
         if (!isPopState) {
             let url = '/' + sectionId;
             const queryStrings = Object.keys(queryParams).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(queryParams[key])}`).join('&');
@@ -195,7 +194,16 @@ const ui = {
         async 'STATISTICS'() {
             this.showOnlyOneSection('playerStats');
             GameStats.init();
-        }
+        },
+        async 'lang_en'() {
+            this.handleLanguageChange('en');
+        },
+        async 'lang_fr'() {
+            this.handleLanguageChange('fr');
+        },
+        async 'lang_es'() {
+            this.handleLanguageChange('es');
+        },
     },
 
     init: function() {
@@ -209,6 +217,11 @@ const ui = {
             }
         });
         this.loadTournamentData();
+    },
+
+    handleLanguageChange: async function(newLang) {
+        console.log(`Changing language to: ${newLang}`);
+        changeLanguage(newLang);
     },
 
     loadTournamentData: function() {
@@ -229,7 +242,7 @@ const ui = {
 
     checkAuthenticationAndInitializePage: function() {
         auth.checkAuthentication().then((authStatus) => {
-            if (authStatus.isAuthenticated) {
+            if (authStatus.isAuthenticated === 'true') {
                 this.connected = true;
                 navbarManager.updateNavbar(this.connected);
                 const path = window.location.pathname.substring(1) || 'homepage';

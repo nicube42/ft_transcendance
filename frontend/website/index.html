@@ -26,13 +26,13 @@
                             Language
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownLanguage">
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">English</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('fr')">Français</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('es')">Español</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="en" id="lang_en">English</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="fr" id="lang_fr">Français</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="es" id="lang_es">Español</a></li>
                         </ul>
                     </div>
 
-                    <div class="nav-item dropdown">
+                    <div class="nav-item dropdown account-dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #000000;">
                             Account
                         </a>
@@ -397,11 +397,6 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        changeLanguage('en'); // Initialisation avec l'anglais
-    });
-    </script>
     </body>
     </html>
 

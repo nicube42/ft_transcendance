@@ -1,4 +1,3 @@
-// langDict.js
 var langDict = {
     'en': {
         //navbar
