@@ -7,6 +7,10 @@ var langDict = {
         'logout': 'Logout',
         'register': 'Register',
         'friends': 'Friends',
+        'navTournament': 'Tournament',
+        'navStatistics': 'Statistics',
+        'login_initial': 'Login',
+        'register_initial': 'Registrer',
     
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Login',
@@ -79,6 +83,12 @@ var langDict = {
         'logout': 'Déconnexion',
         'register': 'Inscription', //a double virer si conflit
         'friends': 'Amis',
+        'navTournament': 'Tournois',
+        'navStatistics': 'Statistique',
+        'login_initial': 'Connexion',
+        'register_initial': 'Enrgistrer',
+
+
 
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Connexion',
@@ -153,9 +163,14 @@ var langDict = {
         'home': 'Inicio',
         'language': 'Idioma',
         'account': 'Cuenta',
-        'logout': 'Cerrar sesión',
+        'logout': 'Cerrar sesion',
         'register': 'Registrarse',
         'friends': 'Amigos',
+        'navTournament': 'Torneo',
+        'navStatistics': 'Estadísticas',
+
+        'login_initial': 'Iniciar sesión',
+        'register_initial': 'Registrarse',
     
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Iniciar sesión',
