@@ -32,6 +32,7 @@ const auth = {
                         settings.populateSettings();
                         ui.showOnlyOneSection('homepage');
                         navbarManager.updateNavbar({ isAuthenticated: true });
+                        location.reload();
                     })
                     .catch(error => {
                         console.error('Failed to fetch/display user info:', error);
