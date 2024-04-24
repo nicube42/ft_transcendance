@@ -156,7 +156,6 @@ const auth = {
         fetch('/api/register/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'X-CSRFToken': csrfToken
             },
             credentials: 'include',

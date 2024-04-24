@@ -90,10 +90,8 @@ def register(request):
             print(username)
             password = data.get('password')
             print(password)
-
             fullname = data.get('fullname')
             picture = request.FILES.get('picture')
-
 
             if not username or not password or not fullname:
                 return JsonResponse({"error": "signup information not provided"}, status=400)
