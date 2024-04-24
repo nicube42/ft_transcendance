@@ -65,7 +65,11 @@ var gameSocket = {
                         }
                     }
                 }
-            } else if (data.action === 'update_bonus') {
+            } else if (data.action === 'update_paddle_pos'){
+                if (game.playerRole !== data.role){
+                    data.role === 'left'? game.leftPaddleY = data.leftPaddle : game.rightPaddleY = data.rightPaddle;
+                }
+            }else if (data.action === 'update_bonus') {
                 console.log('game bonuses from right', game.bonusGreen, game.bonusRed);
                 console.log(data);
                 if (game.playerRole === 'right') {
@@ -339,7 +343,16 @@ var gameSocket = {
             console.log("WebSocket is not open. Waiting before retrying...");
             setTimeout(() => this.sendBallState(), 1000);
         }
-    },    
+    },   
+    sendPaddlePos: function(role, leftPaddleY, rightPaddleY) {
+        this.sendMessage({
+            'action': 'update_paddle_pos',
+            'role': role,
+            'leftPaddle': leftPaddleY,
+            'rightPaddle': rightPaddleY,
+            'room': this.currentRoom,
+        });
+    },
     
     sendPaddleMovement: function(direction, keyEvent) {
         if (this.socket.readyState === WebSocket.OPEN) {

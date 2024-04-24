@@ -50,6 +50,7 @@ class GameSettings(models.Model):
     ball_speed = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
     paddle_speed = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
     winning_score = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
+    bonus = models.BooleanField(default=True, editable=True)
 
 
 class Room(models.Model):

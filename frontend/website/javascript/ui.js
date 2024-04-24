@@ -100,8 +100,9 @@ const ui = {
             this.showOnlyOneSection('settings');
         },
         async 'saveSettings'() {
+            console.log('FETCH save settings ');
             await settings.saveSettings();
-            await settings.populateSettings();
+            //await settings.populateSettings();
             this.showOnlyOneSection('homepage');
         },
         async 'previousSettings'() {

@@ -46,6 +46,7 @@ const game = {
     leftPaddleMovingDown: false,
     rightPaddleMovingUp: false,
     rightPaddleMovingDown: false,
+    paddleMoving: false,
 
     bonusGreen: {
         x: 100,
@@ -86,6 +87,7 @@ const game = {
         if (this.canvas.getContext) {
             this.ctx = this.canvas.getContext('2d');
             this.resetVars();
+            //this.updateGameSettings();
             this.drawPong();
             window.removeEventListener('keydown', this.handleKeyDown.bind(this));
             window.removeEventListener('keyup', this.handleKeyUp.bind(this));
@@ -111,6 +113,8 @@ const game = {
         this.winningScore = settings.winningScore;
         this.player1_name = settings.player1Name;
         this.player2_name = settings.player2Name;
+        this.withBonus = settings.bonus;
+        console.log('withBonus', this.withBonus);
     },
 
     resetVars: function() {
@@ -134,6 +138,7 @@ const game = {
         this.leftPaddleMovingDown = false;
         this.rightPaddleMovingUp = false;
         this.rightPaddleMovingDown = false;
+        this.paddleMoving = false;
         // stats.endTime = null;
 
     },
@@ -145,30 +150,32 @@ const game = {
 
 
         if (game.gameMode === 'distant') {
+            this.paddleMoving = true;
             switch(e.key) {
                 case 'w':
                     direction = 'up';
                     if (game.playerRole === 'left' && !this.leftPaddleMovingDown) {
                         this.leftPaddleMovingUp = true;
-                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        //gameSocket.sendPaddleMovement(direction, keyEvent);
 
                     }
                     else if (game.playerRole === 'right' && !this.rightPaddleMovingDown){
                         this.rightPaddleMovingUp = true;
-                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        //gameSocket.sendPaddleMovement(direction, keyEvent);
                     }
                     break;
                 case 's':
                     direction = 'down';
                     if (game.playerRole === 'left' && !this.leftPaddleMovingUp){
                         this.leftPaddleMovingDown = true;
-                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        //gameSocket.sendPaddleMovement(direction, keyEvent);
                     }
                     else if (game.playerRole === 'right' && !this.rightPaddleMovingUp) {
                         this.rightPaddleMovingDown = true;
-                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        //gameSocket.sendPaddleMovement(direction, keyEvent);
                     }
                     break;
+                
             }
     
         }
@@ -196,16 +203,18 @@ const game = {
 
 
         if (game.gameMode === 'distant') {
+            this.paddleMoving = false;
+            gameSocket.sendPaddlePos(this.playerRole, this.leftPaddleY, this.rightPaddleY);
             switch(e.key) {
                 case 'w':
                     direction = 'up';
                     if (game.playerRole === 'left'){
                         this.leftPaddleMovingUp = false;
-                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        //gameSocket.sendPaddleMovement(direction, keyEvent);
                     }
                     else {
                         this.rightPaddleMovingUp = false;
-                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        //gameSocket.sendPaddleMovement(direction, keyEvent);
                     }
 
                     break;
@@ -213,14 +222,15 @@ const game = {
                     direction = 'down';
                     if (game.playerRole === 'left') {
                         this.leftPaddleMovingDown = false;
-                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        //gameSocket.sendPaddleMovement(direction, keyEvent);
                     }
                     else {
                         this.rightPaddleMovingDown = false;
-                        gameSocket.sendPaddleMovement(direction, keyEvent);
+                        //gameSocket.sendPaddleMovement(direction, keyEvent);
                     }
 
                     break;
+                
             }
 
         }
@@ -349,8 +359,9 @@ const game = {
             let currentAngle = Math.atan2(this.ballSpeedY, this.ballSpeedX);
             let refraction_coefficient = Math.abs((this.ballPosY - paddleCenter) / (this.paddleHeight / 2));
             let newAngle = currentAngle + refraction_coefficient / 2; // change le coef pr que l'angle soit + +
-            this.ballSpeedX = -originalSpeed * Math.cos(newAngle) * 1.2;
-            this.ballSpeedY = originalSpeed * Math.sin(newAngle) * 1.2;
+            this.ballSpeedX = -originalSpeed * Math.cos(newAngle);
+            this.ballSpeedY = originalSpeed * Math.sin(newAngle);
+            console.log(Math.sqrt(this.ballSpeedX * this.ballPosX + this.ballSpeedY * this.ballPosY));
         }
         else {
             tmpX = this.ballPosX + this.ballSpeedX * delta;
@@ -399,6 +410,8 @@ const game = {
     },
 
     drawPong: function() {
+        console.log('BONUS IS', this.withBonus);
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		// Réinitialise la couleur de la balle si aucun bonus n'est touché
 		if (!this.bonusTouched) {
@@ -413,7 +426,9 @@ const game = {
         if (this.messageDisplayCounter === 0)
         {
             this.frame++;
-            
+            if (this.gameMode === 'distant' && this.paddleMoving){
+                gameSocket.sendPaddlePos(this.playerRole, this.leftPaddleY, this.rightPaddleY);
+            }
             this.checkColisions();
             if (this.gameMode === 'distant' && this.ballDirectionChanged)
             {
@@ -461,13 +476,14 @@ const game = {
 
 
         // bonus logic
-
-        this.attemptBonusGeneration();
-
-        if (this.bonusGreen.active) {
-            this.drawBonus(this.bonusGreen);
-        } else if (this.bonusRed.active) {
-            this.drawBonus(this.bonusRed);
+        if (this.withBonus) {
+            this.attemptBonusGeneration();
+    
+            if (this.bonusGreen.active) {
+                this.drawBonus(this.bonusGreen);
+            } else if (this.bonusRed.active) {
+                this.drawBonus(this.bonusRed);
+            }
         }
     
         this.checkBonusCollision();

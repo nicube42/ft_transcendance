@@ -12,12 +12,15 @@ def save_settings(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     
     try:
+        print('\n\nSAVE_SETTINGS\n\n')
         data = json.loads(request.body)
         player1_name = data.get('player1')
         player2_name = data.get('player2')
         ball_speed = int(data.get('ballSpeed', 5))
         paddle_speed = int(data.get('paddleSpeed', 5))
         winning_score = int(data.get('winningScore', 5))
+        bonus = data.get('bonus')
+        print(f"\n\n\game bonus: {bonus}n\n")
 
         if not player1_name or not player2_name:
             return JsonResponse({'error': 'Missing player names'}, status=400)
@@ -33,6 +36,7 @@ def save_settings(request):
                 'ball_speed': ball_speed,
                 'paddle_speed': paddle_speed,
                 'winning_score': winning_score,
+                'bonus': bonus,
             }
         )
 
@@ -57,7 +61,8 @@ def retrieve_settings(request):
         'player2': 'Two', 
         'ballSpeed': 5,
         'paddleSpeed': 5,
-        'winningScore': 5
+        'winningScore': 5,
+        'bonus': True,
     }
     
     try:
@@ -68,6 +73,7 @@ def retrieve_settings(request):
             'ballSpeed': settings.ball_speed,
             'paddleSpeed': settings.paddle_speed,
             'winningScore': settings.winning_score,
+            'bonus': settings.bonus,
         }
     except GameSettings.DoesNotExist:
         response_data = defaults
