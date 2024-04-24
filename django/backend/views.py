@@ -162,6 +162,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 @csrf_exempt
+@login_required
 def user_info(request):
     try:
         if request.user.is_authenticated:
@@ -184,6 +185,7 @@ def user_info(request):
 from django.contrib.auth import logout
 from django.http import JsonResponse
 
+@login_required
 def api_logout(request):
     logout(request)
     return JsonResponse({'message': 'Logout successful'})
@@ -363,6 +365,7 @@ from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 
 @require_POST
+@login_required
 def check_user(request):
     data = json.loads(request.body)
     username = data.get('username')
@@ -548,3 +551,38 @@ def check_user_in_tournament(request):
     return JsonResponse({
         'is_in_tournament': user.is_in_tournament
     })
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import Room
+
+@login_required
+def check_if_user_in_any_room(request):
+    # Ensure the user is authenticated
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User is not authenticated'}, status=401)
+
+    # Get all rooms the user is part of
+    user_rooms = Room.objects.filter(users__id=request.user.id)
+
+    # Check if the user is in any room
+    if user_rooms.exists():
+        room_names = user_rooms.values_list('name', flat=True)
+        return JsonResponse({'status': 'User is in a room', 'rooms': list(room_names)}, status=200)
+    else:
+        return JsonResponse({'status': 'User is not in any room'}, status=200)  # Changed to 200 OK
+
+@login_required
+def check_number_users_in_room(request, room_name):
+    # Ensure the user is authenticated (redundant due to @login_required)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User is not authenticated'}, status=401)
+
+    # Retrieve the room by name or return a 404 if not found
+    room = get_object_or_404(Room, name=room_name)
+
+    # Count the number of users in the room
+    user_count = room.users.count()
+
+    # Return the count of users in the room
+    return JsonResponse({'room': room_name, 'user_count': user_count}, status=200)

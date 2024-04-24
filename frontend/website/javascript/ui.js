@@ -1,3 +1,23 @@
+window.addEventListener('beforeunload', function(event) {
+    if (gameSocket.currentRoom && game.gameMode === 'distant') {
+        gameSocket.surrenderGame(gameSocket.currentRoom);
+        gameSocket.sendGameStop(gameSocket.currentRoom);
+        localStorage.setItem('navigateToHome', 'true');
+    }
+});
+
+window.addEventListener('load', function() {
+    if (localStorage.getItem('navigateToHome') === 'true') {
+        if (game.playerRole === 'left')
+            stats.displayEndGameStatsSurrender(1, 0);
+        else
+            stats.displayEndGameStatsSurrender(0, 1);
+        gameSocket.leaveRoom(gameSocket.currentRoom);
+        gameSocket.deleteRoom(gameSocket.currentRoom);
+        localStorage.removeItem('navigateToHome');
+    }
+});
+
 const ui = {
     connected: false,
     toggleSectionVisibility: function(sectionId, isVisible) {
@@ -224,6 +244,7 @@ const ui = {
             tournament.tournamentId = tournamentId;
             tournament.initialNumPlayers = parseInt(initialNumPlayers, 10);
             tournament.currentRound = parseInt(currentRound, 10);
+            tournament.participants = JSON.parse(participants);
         }
     },
 
