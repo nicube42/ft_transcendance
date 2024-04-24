@@ -28,21 +28,25 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.user = self.scope.get("user")
-        session_key = self.scope["cookies"].get("sessionid", None)
+        session_key = self.scope["cookies"].get("sessionid")
 
-        if self.user.is_anonymous and session_key:
-            self.user = await self.get_user_from_session(session_key)
-            if self.user:
-                logger.info(f"Authenticated user from session: {self.user.username}")
+        if self.user is None or self.user.is_anonymous:
+            if session_key:
+                self.user = await self.get_user_from_session(session_key)
+                if self.user:
+                    logger.info(f"Authenticated user from session: {self.user.username}")
+                else:
+                    logger.info("Failed to authenticate user from session.")
             else:
-                logger.info("Failed to authenticate user from session.")
+                logger.info("No session key found or user is anonymous.")
 
         if self.user and not self.user.is_anonymous:
             await self.track_user_channel(self.user.username, self.channel_name)
             logger.info(f"Tracking user {self.user.username} on channel {self.channel_name}")
+            await self.accept()
         else:
-            logger.info("User is anonymous, skipping tracking.")
-        await self.accept()
+            logger.info("User is anonymous or not found, connection rejected.")
+            await self.close()
 
     async def restore_user_state(self):
         user_rooms = await self.get_user_rooms_from_redis(self.user.username)
