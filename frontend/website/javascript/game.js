@@ -419,7 +419,7 @@ const game = {
 		if (!this.bonusTouched) {
 			this.ball_color = 'white';
 		}
-        if ((this.player1Score >= this.winningScore || this.player2Score >= this.winningScore) && !stats.endTime) {
+        if ((this.player1Score >= this.winningScore || this.player2Score >= this.winningScore)) {
             stats.recordEndTime();
             stats.displayEndGameStats();
             this.resetVars();

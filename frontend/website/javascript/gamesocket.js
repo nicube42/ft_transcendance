@@ -250,25 +250,19 @@ var gameSocket = {
             })
             .then(data => {
                 if (data.status === 'User is in a room' && data.rooms.includes(roomName)) {
-                    // Already in the specified room
                     this.currentRoom = roomName;
-                    ui.showOnlyOneSection('rooms');
+                    this.updateUI();
                 } else if (data.status === 'User is in a room') {
-                    // In a different room, cannot join another
                     alert(`You are already in a room: ${data.rooms.join(', ')}. Please leave the current room before joining another.`);
                 } else {
-                    // Not in any room, check if the specified room has less than 2 users
                     return fetch(`/api/room/${roomName}/user-count/`)
                         .then(response => response.json())
                         .then(countData => {
                             if (countData.user_count < 2) {
-                                // Less than two users, can join
                                 this.sendMessage({'action': 'join_room', 'room_name': roomName});
                                 this.currentRoom = roomName;
-                                this.startPeriodicUpdates();
-                                ui.showOnlyOneSection('rooms');
+                                this.updateUI();
                             } else {
-                                // Two or more users already in the room
                                 alert(`The room '${roomName}' is already full.`);
                             }
                         });
@@ -278,7 +272,16 @@ var gameSocket = {
                 console.error('Error:', error);
                 alert('There was an error checking your room status. Please try again.');
             });
-    },       
+    },
+    
+    updateUI: function() {
+        tournament.checkUserInTournament().then(isInTournament => {
+            if (!isInTournament) {
+                ui.showOnlyOneSection('rooms');
+                this.startPeriodicUpdates();
+            }
+        });
+    },
 
     checkAndLeaveRoom: function() {
         if (!ui.isSectionVisible('rooms')) {
@@ -293,7 +296,6 @@ var gameSocket = {
 
     deleteRoom: function(roomName) {
         this.sendMessage({'action': 'delete_room', 'room_name': roomName});
-        ui.showOnlyOneSection('multiplayer');
     },
 
     listRooms: function() {

@@ -14,6 +14,7 @@ const stats = {
     },
 
     recordEndTime: function() {
+        this.endTime = null;
         this.endTime = new Date();
     },
 
@@ -89,33 +90,39 @@ const stats = {
             console.log('Tournament status (inside then):', isInTournament);
     
             if (isInTournament) {
-                if (game.playerRole === 'right')
-                {
-                    if (player1Score > player2Score)
+                auth.retrieveInfos().then(userInfo => {
+                    if (game.playerRole === 'right')
                     {
-                        tournament.deleteUserFromTournament(username);
-                        auth.updateUserTournamentStatus('false');
-                        ui.showOnlyOneSection('homepage');
-                        return;
+                        if (player1Score > player2Score)
+                        {
+                            tournament.deleteUserFromTournament(userInfo.username);
+                            auth.updateUserTournamentStatus('false');
+                            ui.showOnlyOneSection('homepage');
+                            gameSocket.leaveRoom(gameSocket.currentRoom);
+                            gameSocket.deleteRoom(gameSocket.currentRoom);
+                            return;
+                        }
                     }
-                }
-                else
-                {
-                    if (player1Score < player2Score)
+                    else
                     {
-                        tournament.deleteUserFromTournament(username);
-                        auth.updateUserTournamentStatus('false');
-                        ui.showOnlyOneSection('homepage');
-                        return;
+                        if (player1Score < player2Score)
+                        {
+                            tournament.deleteUserFromTournament(userInfo.username);
+                            auth.updateUserTournamentStatus('false');
+                            ui.showOnlyOneSection('homepage');
+                            gameSocket.leaveRoom(gameSocket.currentRoom);
+                            gameSocket.deleteRoom(gameSocket.currentRoom);
+                            return;
+                        }
                     }
-                }
-                tournament.currentRound += 1;
-                localStorage.setItem('currentRound', this.currentRound);
-                console.log('Current round:', tournament.currentRound);
-                tournament.navigateToTournamentStage();
-                setTimeout(() => {
+                    gameSocket.leaveRoom(gameSocket.currentRoom);
+                    gameSocket.deleteRoom(gameSocket.currentRoom);
+                    tournament.currentRound += 1;
+                    localStorage.setItem('currentRound', this.currentRound);
+                    console.log('Current round:', tournament.currentRound);
+                    tournament.navigateToTournamentStage();
                     tournament.generateMatchTree();
-                },2000);
+                });
             } else {
                 playAgainButton.textContent = 'Play Again';
                 playAgainButton.onclick = this.playAgain;
@@ -124,26 +131,26 @@ const stats = {
                 returnHomeButton.onclick = this.returnToHome;
                 ui.showOnlyOneSection('endgameStats');
             }
-                if (game.gameMode === 'distant') {
-                    fetch('/api/check-if-user-in-any-room/')
-                        .then(response => {
-                            if (response.ok) {
-                                return response.json();
-                            } else {
-                                return response.text().then(text => { throw new Error(text || 'Problem checking room status'); });
-                            }
-                        })
-                        .then(data => {
-                            if (data.status === 'User is in a room') {
-                                console.log('User is in a room:', data.rooms[0]);
-                                gameSocket.deleteRoom(data.rooms[0]);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('There was an error checking your room status. Please try again.');
-                        });
-                }
+            if (game.gameMode === 'distant') {
+                fetch('/api/check-if-user-in-any-room/')
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            return response.text().then(text => { throw new Error(text || 'Problem checking room status'); });
+                        }
+                    })
+                    .then(data => {
+                        if (data.status === 'User is in a room') {
+                            console.log('User is in a room:', data.rooms[0]);
+                            gameSocket.deleteRoom(data.rooms[0]);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('There was an error checking your room status. Please try again.');
+                    });
+            }
         }).catch(error => {
             console.error('Error checking tournament status:', error);
         });

@@ -1,9 +1,19 @@
 window.addEventListener('beforeunload', function(event) {
-    if (gameSocket.currentRoom && game.gameMode === 'distant') {
-        gameSocket.surrenderGame(gameSocket.currentRoom);
-        gameSocket.sendGameStop(gameSocket.currentRoom);
-        localStorage.setItem('navigateToHome', 'true');
-    }
+    fetch('/api/check-if-user-in-any-room/')
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            return response.text().then(text => { throw new Error(text || 'Problem checking room status'); });
+        }
+    })
+    .then(data => {
+        if (gameSocket.currentRoom && game.gameMode === 'distant' && data.status === 'User is in a room') {
+            gameSocket.surrenderGame(gameSocket.currentRoom);
+            gameSocket.sendGameStop(gameSocket.currentRoom);
+            localStorage.setItem('navigateToHome', 'true');
+        }
+    });
 });
 
 window.addEventListener('load', function() {
@@ -33,6 +43,10 @@ const ui = {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
         gameSocket.init();
+
+        if (sectionId === 'homepage') {
+            auth.updateUserTournamentStatus('false');
+        }
     
         if (!isPopState) {
             let url = '/' + sectionId;
@@ -271,6 +285,7 @@ const ui = {
         const participants = localStorage.getItem('participants');
         const initialNumPlayers = localStorage.getItem('initialNumPlayers');
         const currentRound = localStorage.getItem('currentRound');
+        const last_round_participants = localStorage.getItem('last_round_participants');
     
         if (tournamentId && maxPlayers && currentParticipants) {
             tournament.updateParticipantCount(parseInt(currentParticipants, 10), parseInt(maxPlayers, 10));
@@ -278,6 +293,7 @@ const ui = {
             tournament.initialNumPlayers = parseInt(initialNumPlayers, 10);
             tournament.currentRound = parseInt(currentRound, 10);
             tournament.participants = JSON.parse(participants);
+            tournament.last_round_participants = JSON.parse(last_round_participants);
         }
     },
 
