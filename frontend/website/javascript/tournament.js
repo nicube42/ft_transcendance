@@ -38,7 +38,7 @@ const tournament = {
         this.checkIfEndOfTournament();
         console.log('initialNumPlayers:', this.initialNumPlayers);
         console.log('current round', this.currentRound);
-        if (this.currentParticipants === this.maxPlayers && this.currentRound === 1 && this.matchTreeGenerated === false) {
+        if (this.currentParticipants === this.maxPlayers && this.participants.length % 2 === 0 && this.currentRound === 1 && this.matchTreeGenerated === false) {
             this.matchTreeGenerated = true;
             this.generateMatchTree();
         }
@@ -178,11 +178,15 @@ const tournament = {
         };
     
         const checkParticipants = () => {
-            if (this.participants.length > this.last_round_participants / 2 && this.initialNumPlayers !== this.participants.length) {
+            console.log('Checking participants...' + this.participants.length + ' ' + this.last_round_participants / 2)
+            if (this.participants.length > this.last_round_participants / 2 && this.round > 1) {
                 console.log(`Participants count is ${this.participants.length}. Waiting to reduce to half of last round's count (${this.last_round_participants / 2}).`);
                 setTimeout(checkParticipants, 5000);
-            } else {
+            } else if (this.participants.length % 2 === 0){
                 proceedWithMatchGeneration();
+            } else {
+                console.log('Waiting for more participants to join...');
+                setTimeout(checkParticipants, 5000);
             }
         };
     

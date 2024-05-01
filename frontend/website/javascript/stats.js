@@ -121,7 +121,9 @@ const stats = {
                     localStorage.setItem('currentRound', this.currentRound);
                     console.log('Current round:', tournament.currentRound);
                     tournament.navigateToTournamentStage();
-                    tournament.generateMatchTree();
+                    setTimeout(() => {
+                        tournament.generateMatchTree();
+                    },2000);
                 });
             } else {
                 playAgainButton.textContent = 'Play Again';
