@@ -12,8 +12,6 @@ const ui = {
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
-        console.log('test8');
-        console.log('sectionId:', sectionId);
         gameSocket.init();
     
         if (!isPopState) {
@@ -34,7 +32,6 @@ const ui = {
 
     attachEventListeners: function() {
         document.body.addEventListener('click', (e) => {
-             console.log('test3');
             let target = e.target;
     
             if (target.matches('.btn-close[data-room-name]')) {
@@ -47,7 +44,6 @@ const ui = {
             while (target !== document.body && !target.id) {
                 target = target.parentNode;
             }
-             console.log('test2');
             if (this.actionHandlers[target.id]) {
                 e.preventDefault();
                 this.actionHandlers[target.id].call(this, e).catch(console.error);

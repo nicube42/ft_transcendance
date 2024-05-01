@@ -6,7 +6,6 @@ from .views import register
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import game_record
-from django.contrib import admin
 
 urlpatterns = [
     path('api/settings', views.save_settings, name='save_settings'),

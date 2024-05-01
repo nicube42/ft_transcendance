@@ -5,7 +5,6 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
-
 @csrf_exempt
 @login_required
 def save_settings(request):
@@ -42,10 +41,10 @@ def save_settings(request):
         return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
 
 
+
 from django.http import JsonResponse
 from .models import GameSettings
 from django.contrib.auth.decorators import login_required
-
 
 @csrf_exempt
 @login_required
@@ -76,12 +75,12 @@ def retrieve_settings(request):
     return JsonResponse(response_data)
 
 
+
 from django.http import JsonResponse
 import json
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from .models import CustomUser
-
 
 def register(request):
     if request.method == 'POST':
@@ -274,12 +273,6 @@ def api_login(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-from django.http import JsonResponse
-import logging
-
-logger = logging.getLogger(__name__)
-
-
 @csrf_exempt
 def user_info(request):
     try:
@@ -295,6 +288,7 @@ def user_info(request):
     except Exception as e:
         logging.exception("Unexpected error in user_info: %s", e)
         return JsonResponse({'error': 'Internal Server Error'}, status=500)
+
 
 
 from django.contrib.auth import logout
@@ -476,14 +470,12 @@ def win_rate_over_time(request):
         month=TruncMonth('created_at')
     ).values('month').annotate(
         total_games=Count('id'),
-        wins=Count('id', filter=Q(player1=current_user, player1_score__gt=F('player2_score')) | Q(
-            player2=current_user.username, player2_score__gt=F('player1_score')))
+        wins=Count('id', filter=Q(player1=current_user, player1_score__gt=F('player2_score')) | Q(player2=current_user.username, player2_score__gt=F('player1_score')))
     ).order_by('month')
 
     data = {
         'dates': [game['month'].strftime('%Y-%m') for game in games_by_month if game['month']],
-        'winRates': [(game['wins'] / game['total_games'] * 100) if game['total_games'] > 0 else 0 for game in
-                     games_by_month]
+        'winRates': [(game['wins'] / game['total_games'] * 100) if game['total_games'] > 0 else 0 for game in games_by_month]
     }
 
     return JsonResponse(data)
@@ -589,15 +581,12 @@ def win_rate_over_time_all(request, username):
         month=TruncMonth('start_time')
     ).values('month').annotate(
         total_games=Count('id'),
-        wins=Count('id', filter=Q(player1=user, player1_score__gt=F('player2_score')) | Q(player2=user.username,
-                                                                                          player2_score__gt=F(
-                                                                                              'player1_score')))
+        wins=Count('id', filter=Q(player1=user, player1_score__gt=F('player2_score')) | Q(player2=user.username, player2_score__gt=F('player1_score')))
     ).order_by('month')
 
     data = {
         'dates': [game['month'].strftime('%Y-%m') for game in games_by_month if game['month']],
-        'winRates': [(game['wins'] / game['total_games'] * 100) if game['total_games'] > 0 else 0 for game in
-                     games_by_month]
+        'winRates': [(game['wins'] / game['total_games'] * 100) if game['total_games'] > 0 else 0 for game in games_by_month]
     }
 
     return JsonResponse(data)
