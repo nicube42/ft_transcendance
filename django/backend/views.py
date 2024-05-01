@@ -88,6 +88,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from .models import CustomUser
 
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
         try:
@@ -125,12 +126,12 @@ def register(request):
 
             print("LOL8")
             # user.full_clean()
-            print(user.picture)
+            #print(user.picture)
             print("LOL9")
             user.save()
 
             print("LOL10")
-            print(user.picture)
+            # print(user.picture)
             print("LOL11")
             user_again = CustomUser.objects.get(username=username)
             print("LOL12")
@@ -156,7 +157,7 @@ def register(request):
 import os
 from django.http import HttpResponseRedirect
 
-
+@csrf_exempt
 def intraAuthorize(request):
     if request.method == 'GET':
         print("intraAuthorize")
@@ -170,7 +171,7 @@ def intraAuthorize(request):
 
 import requests
 
-
+@csrf_exempt
 def intraCallback(request):
     if request.method == 'GET':
         code = request.GET.get('code')
@@ -249,8 +250,7 @@ from django.middleware.csrf import get_token
 # from django.core.context_processors import csrf
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-
-@ensure_csrf_cookie
+@csrf_exempt
 def api_login(request):
     if request.method == 'POST':
         try:

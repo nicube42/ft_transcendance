@@ -269,59 +269,12 @@ const ui = {
         }
     },
 
-    callback: function() {
-        const url = new URL(window.location.href);
-        console.log('url:', url.href);
-        this.showOnlyOneSection('callback');
-        console.log('callback exception2 called');
-        const code = url.searchParams.get("code");
-        if (code === null) {
-            console.error("No code in URL");
-            return;
-        }
-        fetch(
-            `https://localhost:4242/api/callback/?code=${code}`, {
-                method: "GET",
-                headers: {
-                    "accept": "application/json",
-                },
-                credentials: 'include'
-            }
-        ).then(response => {
-            if (!response.ok) {
-                throw new Error('Network response for login intra 42 was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Login success:', data);
-            sessionStorage.setItem('isLoggedIn', 'true');
-            auth.waitForAuthToBeRecognized(() => {
-                auth.retrieveInfos()
-                    .then(data => {
-                        console.log('User info retrieved successfully:', data);
-                        userInfoDisplayer.updateUI(data);
-                        settings.saveSettings();
-                        settings.populateSettings();
-                        ui.showOnlyOneSection('homepage');
-                        navbarManager.updateNavbar(true);
-                    })
-                    .catch(error => {
-                        console.error('Failed to fetch/display user info:', error);
-                    });
-            }, (error) => {
-                console.error('Auth recognition error:', error);
-            });
-        })
-        console.log('callback exception3 called');
-    },
-
     init: function() {
         console.log('test6');
         console.log('window.location.url:', window.location.href);
         this.attachEventListeners();
         if (window.location.pathname === '/callback/') {
-            this.callback();
+            auth.callback();
             console.log('callback exception1 called');
             return;
         }

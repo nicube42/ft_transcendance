@@ -23,6 +23,7 @@ const auth = {
         .then(data => {
             console.log('Login success:', data);
             sessionStorage.setItem('isLoggedIn', 'true');
+            ui.connected = true;
             this.waitForAuthToBeRecognized(() => {
                 auth.retrieveInfos()
                     .then(data => {
@@ -118,14 +119,17 @@ const auth = {
         formData.append('fullname', document.getElementById('fullname').value);
         formData.append('picture', document.getElementById('picture').files[0]);
 
-        if (formData.username.length < 4 || formData.username.length > 20) {
+        let username = formData.get("username");
+        let password = formData.get("password");
+        if (username.length < 4 || username.length > 20) {
             alert('Username must be between 4 and 20 characters.');
             return;
         }
-        if (formData.password.length < 4 || formData.password.length > 20) {
+        if (password.length < 4 || password.length > 20) {
             alert('Password must be between 4 and 20 characters.');
             return;
         }
+
         fetch('/api/register/', {
             method: 'POST',
             headers: {
@@ -152,38 +156,54 @@ const auth = {
         });
     },
 
-    intraCallback: function() {
-        console.log('Intra callback...');
-        const csrfToken = getCookie('csrftoken');
-        const formData = {
-            username: document.getElementById('username').value,
-            password: document.getElementById('password').value,
-            fullname: document.getElementById('fullname').value,
-        };
-        fetch('/api/register/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken
-            },
-            credentials: 'include',
-            body: JSON.stringify(formData)
-        })
-        .then(response => {
+    callback: function() {
+        const url = new URL(window.location.href);
+        console.log('url:', url.href);
+        ui.showOnlyOneSection('callback');
+        console.log('callback exception2 called');
+        const code = url.searchParams.get("code");
+        if (code === null) {
+            console.error("No code in URL");
+            return;
+        }
+        fetch(
+            `https://localhost:4242/api/callback/?code=${code}`, {
+                method: "GET",
+                headers: {
+                    "accept": "application/json",
+                },
+                credentials: 'include'
+            }
+        ).then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error('Network response for login intra 42 was not ok');
             }
             return response.json();
         })
         .then(data => {
-            console.log('Registration success:', data);
-            ui.showOnlyOneSection('loginContainer');
+            console.log('Login success:', data);
+            sessionStorage.setItem('isLoggedIn', 'true');
+            ui.connected = true;
+            auth.waitForAuthToBeRecognized(() => {
+                auth.retrieveInfos()
+                    .then(data => {
+                        console.log('User info retrieved successfully:', data);
+                        userInfoDisplayer.updateUI(data);
+                        settings.saveSettings();
+                        settings.populateSettings();
+                        ui.showOnlyOneSection('homepage');
+                        navbarManager.updateNavbar(true);
+                    })
+                    .catch(error => {
+                        console.error('Failed to fetch/display user info:', error);
+                    });
+            }, (error) => {
+                console.error('Auth recognition error:', error);
+            });
         })
-        .catch(error => {
-            console.error('Registration error:', error)
-            var registrationErrorModal = new bootstrap.Modal(document.getElementById('registerErrorModal'));
-            registrationErrorModal.show();
-        });
+        console.log('callback exception3 called');
     },
+
     retrieveInfos: function() {
         console.log('Retrieving user info...');
         return fetch('/api/user-info/', {
