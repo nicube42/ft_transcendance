@@ -105,6 +105,7 @@ def register(request):
             if CustomUser.objects.filter(username=username).exists():
                 return JsonResponse({'error': 'Username already exists'}, status=400)
 
+            print("LOL5")
             user = CustomUser.objects.create(
                 username=username,
                 password=make_password(password),
@@ -122,6 +123,23 @@ def register(request):
             print(user.picture)
             print("LOL9")
             user.save()
+
+            print("LOL10")
+            print(user.picture)
+            print("LOL11")
+            user_again = CustomUser.objects.get(username=username)
+            print("LOL12")
+            print(user_again.username)
+            print("LOL13")
+            print(user_again.fullname)
+            print("LOL14")
+            print(user_again.password)
+            print("LOL15")
+            print(user_again)
+            print("LOL16")
+          #  print(user_again.picture)
+            print("LOL17")
+
             print("LOL_final")
             return JsonResponse({'message': 'User created successfully'}, status=201)
         except ValidationError as e:

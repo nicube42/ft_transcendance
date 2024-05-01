@@ -21,7 +21,7 @@ const userInfoDisplayer = {
         .then(response => response.json())
         .then(data => {
             // Assume 'data' contains user information and 'profile_pic_url' for the user's profile picture URL
-            this.updateProfilePicUI(data.profile_pic_url || 'http://localhost:8000/media/profile_pics/default.jpg');
+            this.updateProfilePicUI(data.profile_pic_url || 'http://localhost:8000/media/profile_pics/default.jpg'); //todo change this
             // Update other parts of the UI as necessary
         })
         .catch(error => console.error('Error:', error));
