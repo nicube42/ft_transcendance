@@ -31,7 +31,7 @@ const auth = {
                         settings.saveSettings();
                         settings.populateSettings();
                         ui.showOnlyOneSection('homepage');
-                        navbarManager.updateNavbar({ isAuthenticated: true });
+                        navbarManager.updateNavbar(true);
                         location.reload();
                     })
                     .catch(error => {
@@ -82,6 +82,7 @@ const auth = {
     },
     
     logout: function() {
+        console.log('Logging out...');
         const csrfToken = getCookie('csrftoken');
         fetch('/api/logout/', {
             method: 'POST',
@@ -101,20 +102,22 @@ const auth = {
             console.log('Logout success:', data);
             sessionStorage.removeItem('isLoggedIn');
             ui.showOnlyOneSection('loginContainer');
-            navbarManager.updateNavbar({ isAuthenticated: false });
+            navbarManager.updateNavbar(false);
             ui.connected = false;
         })
         .catch(error => console.error('Logout error:', error));
     },
+
     register: function() {
+        console.log('Registering...');
         const csrfToken = getCookie('csrftoken');
-        const formData = {
-            username: document.getElementById('username').value,
-            password: document.getElementById('password').value,
-            fullname: document.getElementById('fullname').value,
-            date_of_birth: document.getElementById('birth').value,
-            bio: document.getElementById('bio').value
-        };
+
+        const formData = new FormData();
+        formData.append('username', document.getElementById('username').value);
+        formData.append('password', document.getElementById('password').value);
+        formData.append('fullname', document.getElementById('fullname').value);
+        formData.append('picture', document.getElementById('picture').files[0]);
+
         if (formData.username.length < 4 || formData.username.length > 20) {
             alert('Username must be between 4 and 20 characters.');
             return;
@@ -125,8 +128,41 @@ const auth = {
         }
         fetch('/api/register/', {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            credentials: 'include',
+            body: formData,
+
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Registration success:', data);
+            ui.showOnlyOneSection('loginContainer');
+        })
+        .catch(error => {
+            console.error('Registration error:', error)
+            var registrationErrorModal = new bootstrap.Modal(document.getElementById('registerErrorModal'));
+            registrationErrorModal.show();
+        });
+    },
+
+    intraCallback: function() {
+        console.log('Intra callback...');
+        const csrfToken = getCookie('csrftoken');
+        const formData = {
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+            fullname: document.getElementById('fullname').value,
+        };
+        fetch('/api/register/', {
+            method: 'POST',
+            headers: {
                 'X-CSRFToken': csrfToken
             },
             credentials: 'include',
@@ -149,6 +185,7 @@ const auth = {
         });
     },
     retrieveInfos: function() {
+        console.log('Retrieving user info...');
         return fetch('/api/user-info/', {
             method: 'GET',
             credentials: 'include'
@@ -177,13 +214,14 @@ const auth = {
         this.checkAuthentication();
     },
     checkAuthentication: function() {
+        console.log('Checking authentication...');
         return fetch('/api/check_auth_status/', {
             method: 'GET',
             credentials: 'include'
         })
         .then(response => {
             if (response.status === 401 || response.status === 403) {
-                return { isAuthenticated: false };
+                return false;
             } else if (!response.ok) {
                 throw new Error('Server error or network issue.');
             }
@@ -192,17 +230,18 @@ const auth = {
         .then(data => {
             if (data.is_authenticated) {
                 console.log("User is authenticated.");
-                return { isAuthenticated: true };
+                return true;
             } else {
-                return { isAuthenticated: false };
+                return false;
             }
         })
         .catch(error => {
             console.error(error.message);
-            return { isAuthenticated: false };
+            return false;
         });
     },
     checkIfUserLoggedIn: async function(username) {
+        console.log('Checking if user is logged in:', username);
         try {
             const response = await fetch(`/api/is-user-logged-in/?username=${encodeURIComponent(username)}`, {
                 method: 'GET',

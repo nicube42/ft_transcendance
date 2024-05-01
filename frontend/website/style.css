@@ -64,6 +64,12 @@ button:hover {
     font-family: 'VeniteAdoremus', sans-serif;
 }
 
+#login42Container {
+    font-size: 25px;
+    color: #198754;
+    font-family: 'VeniteAdoremus', sans-serif;
+}
+
 #multiplayer {
     font-size: 25px;
     color: #198754;
@@ -101,6 +107,12 @@ button:hover {
 }
 
 #playerStats {
+    font-size: 15px;
+    color: #198754;
+    font-family: 'VeniteAdoremus', sans-serif;
+}
+
+#callback {
     font-size: 15px;
     color: #198754;
     font-family: 'VeniteAdoremus', sans-serif;
