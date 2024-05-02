@@ -45,8 +45,10 @@ class Game(models.Model):
 
 class GameSettings(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='game_settings', null=True)
-    player1 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player1_settings')
-    player2 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player2_settings')
+    # player1 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player1_settings')
+    # player2 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player2_settings')
+    player1 = models.CharField(default='p1', max_length=12)
+    player2 = models.CharField(default='p2', max_length=12)
     ball_speed = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
     paddle_speed = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
     winning_score = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])

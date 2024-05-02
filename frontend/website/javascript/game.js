@@ -112,8 +112,8 @@ const game = {
         this.ballSpeedY = settings.ballSpeed / 2;
         this.paddleSpeed = settings.paddleSpeed;
         this.winningScore = settings.winningScore;
-        this.player1_name = settings.player1Name;
-        this.player2_name = settings.player2Name;
+        this.player1_name = settings.player1;
+        this.player2_name = settings.player2;
         this.withBonus = settings.bonus;
         console.log('withBonus', this.withBonus);
     },
@@ -455,7 +455,6 @@ const game = {
         }
         else
             this.messageDisplayCounter--;
-
         this.drawBall();
 
         // bonus logic
@@ -499,8 +498,9 @@ const game = {
         }
     
         // Always update score display and request next frame
-        document.getElementById('player1_score').textContent = this.player1_name + `: ${this.player1Score}`;
-        document.getElementById('player2_score').textContent = this.player2_name + `: ${this.player2Score}`;
+        console.log("name",this.player1_name);
+        document.getElementById('player1_name').textContent = this.player1_name + `: ${this.player1Score}`;
+        document.getElementById('player2_name').textContent = this.player2_name + `: ${this.player2Score}`;
         document.getElementById('winning_score').textContent = "Winning score" + `: ${this.winningScore}`;
 
         this.frame++;

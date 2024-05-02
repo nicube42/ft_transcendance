@@ -14,6 +14,7 @@ def save_settings(request):
     try:
         print('\n\nSAVE_SETTINGS\n\n')
         data = json.loads(request.body)
+        print(data)
         player1_name = data.get('player1')
         player2_name = data.get('player2')
         ball_speed = int(data.get('ballSpeed', 5))
@@ -25,14 +26,14 @@ def save_settings(request):
         if not player1_name or not player2_name:
             return JsonResponse({'error': 'Missing player names'}, status=400)
         
-        player1, _ = Player.objects.get_or_create(name=player1_name)
-        player2, _ = Player.objects.get_or_create(name=player2_name)
+        # player1, _ = Player.objects.get_or_create(name=player1_name)
+        # player2, _ = Player.objects.get_or_create(name=player2_name)
 
         settings, created = GameSettings.objects.update_or_create(
             user=request.user,
             defaults={
-                'player1': player1,
-                'player2': player2,
+                'player1': player1_name,
+                'player2': player2_name,
                 'ball_speed': ball_speed,
                 'paddle_speed': paddle_speed,
                 'winning_score': winning_score,
@@ -68,8 +69,8 @@ def retrieve_settings(request):
     try:
         settings = GameSettings.objects.get(user=request.user)
         response_data = {
-            'player1': settings.player1.name,
-            'player2': settings.player2.name,
+            'player1': settings.player1,
+            'player2': settings.player2,
             'ballSpeed': settings.ball_speed,
             'paddleSpeed': settings.paddle_speed,
             'winningScore': settings.winning_score,
