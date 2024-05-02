@@ -85,6 +85,10 @@ const auth = {
     logout: function() {
         console.log('Logging out...');
         const csrfToken = getCookie('csrftoken');
+        sessionStorage.removeItem('isLoggedIn');
+        ui.showOnlyOneSection('loginContainer');
+        navbarManager.updateNavbar(false);
+        ui.connected = false;
         fetch('/api/logout/', {
             method: 'POST',
             headers: {
@@ -94,17 +98,12 @@ const auth = {
             credentials: 'include'
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
             return response.json();
         })
         .then(data => {
-            console.log('Logout success:', data);
-            sessionStorage.removeItem('isLoggedIn');
-            ui.showOnlyOneSection('loginContainer');
-            navbarManager.updateNavbar(false);
-            ui.connected = false;
+            if (data.error) {
+                console.error('Logout error:', data.error);
+            }
         })
         .catch(error => console.error('Logout error:', error));
     },

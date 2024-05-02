@@ -210,7 +210,7 @@ def intraCallback(request):
 
         try:
             print("MDR2")
-
+            print(user_data)
             username = user_data.get('login')
             fullname = user_data.get('usual_full_name')
 
@@ -304,8 +304,14 @@ from django.http import JsonResponse
 
 @login_required
 def api_logout(request):
-    logout(request)
-    return JsonResponse({'message': 'Logout successful'})
+    try:
+        if request.user.is_authenticated:
+            logout(request)
+            return JsonResponse({'message': 'Logout successful'}, status=200)
+        else:
+            return JsonResponse({'error': 'User is already logged out '}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': 'Error during logout', 'details': str(e)}, status=500)
 
 
 from django.contrib.auth.decorators import login_required
