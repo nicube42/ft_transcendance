@@ -44,6 +44,9 @@ const ui = {
         });
         gameSocket.init();
 
+        if (game.isPlaying && sectionId !== 'play'){
+            gameSocket.surrenderGame(gameSocket.currentRoom);
+        }
         if (sectionId === 'homepage') {
             auth.updateUserTournamentStatus('false');
         }

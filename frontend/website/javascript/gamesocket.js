@@ -127,14 +127,14 @@ var gameSocket = {
                 auth.retrieveInfos().then(userInfo => {
                     if (data.player === userInfo.username)
                     {
-                        if (game.playerRole === 'left')
+                        if (game.playerRole !== 'left')
                             stats.displayEndGameStatsSurrender(0, 1);
                         else
                             stats.displayEndGameStatsSurrender(1, 0);
                     }
                     else
                     {
-                        if (game.playerRole === 'left')
+                        if (game.playerRole !== 'left')
                             stats.displayEndGameStatsSurrender(1, 0);
                         else
                             stats.displayEndGameStatsSurrender(0, 1);
@@ -555,7 +555,9 @@ var gameSocket = {
         };
         this.sendMessage(surrenderData);
         console.log('Surrender message sent for room:', roomName);
-    }
+    },
+
+    // quitGame: function(roomName)
 };
 
 window.addEventListener('beforeunload', function() {

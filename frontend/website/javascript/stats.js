@@ -123,6 +123,9 @@ const stats = {
                     tournament.navigateToTournamentStage();
                     tournament.generateMatchTree();
                 });
+            }else if (game.gameMode === 'distant'){
+                playAgainButton.hidden = true;
+            
             } else {
                 playAgainButton.textContent = 'Play Again';
                 playAgainButton.onclick = this.playAgain;

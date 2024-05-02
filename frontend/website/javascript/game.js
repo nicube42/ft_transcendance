@@ -48,6 +48,7 @@ const game = {
     rightPaddleMovingUp: false,
     rightPaddleMovingDown: false,
     paddleMoving: false,
+    isPlaying: false,
 
     bonusGreen: {
         x: 100,
@@ -276,7 +277,8 @@ const game = {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
             console.log('Game paused');
-            auth.updateUserGameStatus('false');;
+            auth.updateUserGameStatus('false');
+            this.isPlaying = false;
             this.resetVars();
             this.stopControlAndDisconnect();
         }
@@ -286,6 +288,7 @@ const game = {
         if (!this.animationFrameId) {
             this.resetVars();
             this.drawPong();
+            this.isPlaying = true;
             auth.updateUserGameStatus('true');
             console.log('Game resumed');
             if (this.gameMode === 'singlePlayer')
