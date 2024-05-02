@@ -148,41 +148,6 @@ var gameSocket = {
         });
     },
 
-    // showInvitePopup: function(roomName, fromUser) {
-    //     const popupDiv = document.createElement('div');
-    //     popupDiv.id = 'invitePopup';
-    //     popupDiv.style.position = 'fixed';
-    //     popupDiv.style.left = '50%';
-    //     popupDiv.style.top = '50%';
-    //     popupDiv.style.transform = 'translate(-50%, -50%)';
-    //     popupDiv.style.backgroundColor = 'white';
-    //     popupDiv.style.padding = '20px';
-    //     popupDiv.style.zIndex = '1000';
-    //     popupDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-        
-    //     const message = document.createElement('p');
-    //     message.textContent = `You have been invited to join the room '${roomName}' by ${fromUser}. Do you accept?`;
-    //     popupDiv.appendChild(message);
-        
-    //     const acceptButton = document.createElement('button');
-    //     acceptButton.textContent = 'Accept';
-    //     acceptButton.onclick = () => {
-    //         this.joinRoom(roomName);
-    //         document.body.removeChild(popupDiv);
-    //     };
-    //     popupDiv.appendChild(acceptButton);
-    
-    //     const refuseButton = document.createElement('button');
-    //     refuseButton.textContent = 'Refuse';
-    //     refuseButton.style.marginLeft = '10px';
-    //     refuseButton.onclick = () => {
-    //         document.body.removeChild(popupDiv);
-    //     };
-    //     popupDiv.appendChild(refuseButton);
-        
-    //     document.body.appendChild(popupDiv);
-    // },
-
     showInvitePopup: function(inviteId, fromUser, inviteType) {
         const inviteModal = new bootstrap.Modal(document.getElementById('invitePopupModal'));
         const inviteMessage = document.getElementById('inviteMessage');
@@ -292,6 +257,7 @@ var gameSocket = {
     leaveRoom: function(roomName) {
         this.sendMessage({'action': 'leaveRoom', 'room_name': roomName});
         this.stopPeriodicUpdates();
+        ui.showOnlyOneSection('multiplayer');
     },
 
     deleteRoom: function(roomName) {

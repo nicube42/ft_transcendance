@@ -540,41 +540,6 @@ const game = {
             this.ballSpeedX = - Math.abs(this.ballSpeedX);
         }
 	},
-	
-
-    // controlRightPaddleWithAI: function(predictedPosY) {
-    //     const direction = this.rightPaddleY + this.paddleHeight / 2 < predictedPosY ? 'DOWN' : 'UP';
-    
-    //     // Calculate the desired end position for the paddle
-    //     const framesPerSecond = 60;
-    //     const intervalTime = 1000 / framesPerSecond;
-    //     let hasReachedDestination = false;
-    
-    //     if (this.aiPaddleMovementInterval) {
-    //         clearInterval(this.aiPaddleMovementInterval);
-    //     }
-    
-    //     this.aiPaddleMovementInterval = setInterval(() => {
-    //         if (direction === 'UP' && this.rightPaddleY > 0) {
-    //             this.rightPaddleY -= this.paddleSpeed;
-    //             if (this.rightPaddleY + this.paddleHeight / 2 <= predictedPosY) {
-    //                 hasReachedDestination = true;
-    //             }
-    //         } else if (direction === 'DOWN' && this.rightPaddleY < this.canvas.height - this.paddleHeight) {
-    //             this.rightPaddleY += this.paddleSpeed;
-    //             if (this.rightPaddleY + this.paddleHeight / 2 >= predictedPosY) {
-    //                 hasReachedDestination = true;
-    //             }
-    //         }
-    
-    //         if (hasReachedDestination) {
-    //             clearInterval(this.aiPaddleMovementInterval);
-    //             this.aiPaddleMovementInterval = null;
-    //             console.log('Paddle reached the predicted position:', predictedPosY);
-    //         }
-    //     }, intervalTime);
-    // },    
-    
 
     controlRightPaddleWithAI: function() {
         const movePaddle = (aiAction) => {
