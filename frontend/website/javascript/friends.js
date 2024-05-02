@@ -115,6 +115,27 @@ var friendsPage = {
         .catch(error => console.error('Error:', error));
     },
 
+    deleteFriend: function(username) {
+        fetch('/api/delete_friend/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': this.getCSRFToken()
+            },
+            body: JSON.stringify({ friend_username: username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                console.log(data.message);
+                this.listFriends();
+            } else if (data.error) {
+                console.error('Error deleting friend:', data.error);
+            }
+        })
+        .catch(error => console.error('Error processing delete:', error));
+    },
+
     performAddFriend: function(username) {
         const csrfToken = this.getCSRFToken();
         fetch('/api/add_friend/', {
@@ -147,8 +168,9 @@ var friendsPage = {
             data.friends.forEach(friend => {
                 const item = document.createElement('li');
                 item.innerHTML = `<span class="status-indicator" id="status-${friend.username}">●</span> ${friend.username} (${friend.fullname})
-                                    <button class="btn btn-outline-success" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.showUserProfile('${friend.username}')">View Profile</button>
-                                    <button class="btn btn-outline-success" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.goToStats('${friend.username}')">View Stats</button>`;
+                                  <button class="btn btn-outline-success" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.showUserProfile('${friend.username}')">View Profile</button>
+                                  <button class="btn btn-outline-success" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.goToStats('${friend.username}')">View Stats</button>
+                                  <button class="btn btn-outline-danger" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.deleteFriend('${friend.username}')">✖</button>`;
                 friendsList.appendChild(item);
     
                 setTimeout(() => {
@@ -158,7 +180,7 @@ var friendsPage = {
             });
         })
         .catch(error => console.error('Error listing friends:', error));
-    },    
+    },       
 
     searchFriends: function() {
         var searchQuery = document.getElementById('searchFriendsInput').value;

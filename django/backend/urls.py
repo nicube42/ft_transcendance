@@ -37,4 +37,5 @@ urlpatterns = [
     path('api/room/<str:room_name>/user-count/', views.check_number_users_in_room, name='check_number_users_in_room'),
     path('api/rename-user/', views.renameUser, name='renameUser'),
     path('api/change-profile-pic/', views.change_profile_pic, name='change_proifile_pic'),
+    path('api/delete_friend/', views.delete_friend, name='delete_friend'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

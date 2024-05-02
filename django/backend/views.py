@@ -584,6 +584,34 @@ def add_friend(request):
         return JsonResponse({'message': 'Friend added successfully'}, status=200)
     except Exception as e:
         return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
+    
+
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+import json
+
+@login_required
+@require_POST
+def delete_friend(request):
+    try:
+        data = json.loads(request.body)
+        friend_username = data.get('friend_username')
+        if not friend_username:
+            return JsonResponse({'error': 'Friend username is required'}, status=400)
+
+        friend = CustomUser.objects.filter(username=friend_username).first()
+        if not friend:
+            return JsonResponse({'error': 'User not found'}, status=404)
+
+        # Check if the user actually has this friend
+        if friend not in request.user.friends.all():
+            return JsonResponse({'error': 'This user is not your friend'}, status=400)
+
+        request.user.friends.remove(friend)
+        return JsonResponse({'message': 'Friend deleted successfully'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
 
 
 from django.contrib.auth.decorators import login_required
