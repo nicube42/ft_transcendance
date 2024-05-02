@@ -81,77 +81,98 @@ def retrieve_settings(request):
     return JsonResponse(response_data)
 
 
-
-from django.http import JsonResponse
-import json
+from django.forms import ModelForm, ValidationError
+from django.views.decorators.csrf import csrf_protect
+from .forms import CustomUserForm
 from django.contrib.auth.hashers import make_password
-from django.core.exceptions import ValidationError
-from .models import CustomUser
 
-@csrf_exempt
+@csrf_protect
 def register(request):
     if request.method == 'POST':
-        try:
-            data = {
-                "username": request.POST.get('username'),
-                "password": request.POST.get('password'),
-                "fullname": request.POST.get('fullname'),
-            }
-            username = data.get('username')
-            print(username)
-            password = data.get('password')
-            print(password)
-            fullname = data.get('fullname')
-            picture = request.FILES.get('picture')
-
-            if not username or not password or not fullname:
-                return JsonResponse({"error": "signup information not provided"}, status=400)
-            print("LOL4")
-
-            if CustomUser.objects.filter(username=username).exists():
-                return JsonResponse({'error': 'Username already exists'}, status=400)
-
-            print("LOL5")
-            user = CustomUser.objects.create(
-                username=username,
-                password=make_password(password),
-                fullname=fullname,
-            )
-            print("LOL6")
-
-            if picture:
-                print("picture exists")
-                print(picture)
-                user.picture = picture
-
-            print("LOL8")
-            # user.full_clean()
-            #print(user.picture)
-            print("LOL9")
+        form = CustomUserForm(request.POST, request.FILES)
+        if form.is_valid():
+            print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
+            print(request.FILES)
+            user = form.save(commit=False)
+            user.password = make_password(form.cleaned_data['password'])
             user.save()
-
-            print("LOL10")
-            # print(user.picture)
-            print("LOL11")
-            user_again = CustomUser.objects.get(username=username)
-            print("LOL12")
-            print(user_again.username)
-            print("LOL13")
-            print(user_again.fullname)
-            print("LOL14")
-            print(user_again.password)
-            print("LOL15")
-            print(user_again)
-            print("LOL16")
-          #  print(user_again.picture)
-            print("LOL17")
-
-            print("LOL_final")
             return JsonResponse({'message': 'User created successfully'}, status=201)
-        except ValidationError as e:
-            return JsonResponse({'error': e.message_dict}, status=400)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+        else:
+            return JsonResponse({'error': form.errors}, status=400)
+    return JsonResponse({"error": "Only POST method is allowed"}, status=405)
+
+
+
+# from django.http import JsonResponse
+# import json
+# from django.contrib.auth.hashers import make_password
+# from django.core.exceptions import ValidationError
+# from .models import CustomUser
+
+# @csrf_exempt
+# def register(request):
+#     if request.method == 'POST':
+#         try:
+#             data = {
+#                 "username": request.POST.get('username'),
+#                 "password": request.POST.get('password'),
+#                 "fullname": request.POST.get('fullname'),
+#             }
+#             username = data.get('username')
+#             print(username)
+#             password = data.get('password')
+#             print(password)
+#             fullname = data.get('fullname')
+#             picture = request.FILES.get('picture')
+
+#             if not username or not password or not fullname:
+#                 return JsonResponse({"error": "signup information not provided"}, status=400)
+#             print("LOL4")
+
+#             if CustomUser.objects.filter(username=username).exists():
+#                 return JsonResponse({'error': 'Username already exists'}, status=400)
+
+#             print("LOL5")
+#             user = CustomUser.objects.create(
+#                 username=username,
+#                 password=make_password(password),
+#                 fullname=fullname,
+#             )
+#             print("LOL6")
+
+#             if picture:
+#                 print("picture exists")
+#                 print(picture)
+#                 user.profile_pic = picture
+
+#             print("LOL8")
+#             # user.full_clean()
+#             #print(user.picture)
+#             print("LOL9")
+#             user.save()
+
+#             print("LOL10")
+#             # print(user.picture)
+#             print("LOL11")
+#             user_again = CustomUser.objects.get(username=username)
+#             print("LOL12")
+#             print(user_again.username)
+#             print("LOL13")
+#             print(user_again.fullname)
+#             print("LOL14")
+#             print(user_again.password)
+#             print("LOL15")
+#             print(user_again)
+#             print("LOL16")
+#           #  print(user_again.picture)
+#             print("LOL17")
+
+#             print("LOL_final")
+#             return JsonResponse({'message': 'User created successfully'}, status=201)
+#         except ValidationError as e:
+#             return JsonResponse({'error': e.message_dict}, status=400)
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)}, status=500)
 
 
 import os
@@ -279,6 +300,11 @@ def api_login(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+import logging
+
 @csrf_exempt
 @login_required
 def user_info(request):
@@ -288,6 +314,7 @@ def user_info(request):
                 'id': request.user.id,
                 'username': request.user.username,
                 'fullname': request.user.fullname,
+                'profile_pic': request.user.profile_pic.url if request.user.profile_pic else None,
             }
             return JsonResponse(user_data)
         else:
@@ -295,7 +322,6 @@ def user_info(request):
     except Exception as e:
         logging.exception("Unexpected error in user_info: %s", e)
         return JsonResponse({'error': 'Internal Server Error'}, status=500)
-
 
 
 from django.contrib.auth import logout
@@ -749,3 +775,19 @@ def renameUser(request):
             return JsonResponse({'error': 'Error updating username', 'details': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+    
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from .forms import ProfilePicUpdateForm
+
+@login_required
+@require_POST
+@csrf_exempt
+def change_profile_pic(request):
+    form = ProfilePicUpdateForm(request.POST, request.FILES, instance=request.user)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'message': 'Profile picture updated successfully'}, status=200)
+    else:
+        return JsonResponse({'error': form.errors}, status=400)

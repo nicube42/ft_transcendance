@@ -241,22 +241,24 @@
                     <form id="profilePicForm" action="/update-profile-pic/" method="POST" enctype="multipart/form-data" class="text-center">
                         <input type="hidden" name="csrfmiddlewaretoken" value="" id="csrfTokenProfilePic">
                         <div class="mb-3">
-                            <label for="profile_pic" class="form-label">Update Profile Picture</label>
+                            <label for="profile_pic" class="form-label">Update Profile</label>
                             <input type="file" class="form-control" id="profile_pic" name="profile_pic">
                         </div>
-                        <button type="submit"  class="btn btn-success fs-2">Update Picture</button>
+                            <ul class="list-group list-group-flush">
+                                <div class="mb-2">
+                                    <li class="list-group-item"><span id="usernameProfile"></span></li>
+                                    <input type="text" class="form-control" id="input-username" name="username" placeholder="Enter new username">
+                                </div>
+                                <div class="mb-2">
+                                    <li class="list-group-item"><span id="fullnameProfile"></span></li>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success fs-2">Update</button>
+                            </ul>
                     </form>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><span id="usernameProfile"></span></li>
-                        <input type="text" class="form-control" id="input-username" name="username" placeholder="Enter new username">
-
-                        <button type="submit" id="updateUsername" class="btn btn-success fs-2">Update Username</button>
-
-                        <li class="list-group-item"><span id="fullnameProfile"></span></li>
-                    </ul>
                 </div>
             </div>
-        </div>        
+        </div>
 
         <div id="profilePageNoChange" class="d-none container mt-5">
             <div class="card bg-success">

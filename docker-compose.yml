@@ -17,7 +17,10 @@ services:
       dockerfile: ./django/dockerfile
     command: ./entrypoint.sh
     volumes:
-      - ./django:/code
+      - ./django:/code 
+      - media_data:/code/media 
+      - static_volume:/code/staticfiles 
+      - ./local_static:/code/static 
     depends_on:
       - db
     environment:
@@ -49,6 +52,7 @@ services:
     volumes:
       - ./website:/usr/share/nginx/html/website
       - media_data:/usr/share/nginx/media
+      - static_volume:/usr/share/nginx/html/static
     depends_on:
       - django
 
@@ -68,3 +72,4 @@ services:
 volumes:
   postgres_data:
   media_data:
+  static_volume:
