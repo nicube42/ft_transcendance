@@ -120,7 +120,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Collected static files
 STATICFILES_DIRS = [] 
 
 MEDIA_ROOT = '/code/media'
-MEDIA_URL = '/media/'
+MEDIA_URL = 'https://localhost:4242/media/'
 # CSRF_COOKIE_NAME = 'csrftoken'
 
 # CSRF_COOKIE_SECURE = True

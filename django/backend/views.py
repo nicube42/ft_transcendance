@@ -81,25 +81,46 @@ def retrieve_settings(request):
     return JsonResponse(response_data)
 
 
-from django.forms import ModelForm, ValidationError
-from django.views.decorators.csrf import csrf_protect
-from .forms import CustomUserForm
+import unicodedata
+from django.utils.text import get_valid_filename
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
+from django.conf import settings
+from .forms import CustomUserForm
+from django.views.decorators.csrf import csrf_protect
+
+def strip_accents(s):
+    """Remove accentuated characters from a string and return a clean string."""
+    return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
 @csrf_protect
 def register(request):
     if request.method == 'POST':
         form = CustomUserForm(request.POST, request.FILES)
         if form.is_valid():
-            print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
-            print(request.FILES)
             user = form.save(commit=False)
             user.password = make_password(form.cleaned_data['password'])
-            user.save()
+
+            # Check if a profile picture was uploaded
+            if 'profile_pic' in request.FILES:
+                file = request.FILES['profile_pic']
+                # Normalize and strip accents from the filename
+                normalized_filename = strip_accents(file.name)
+                # Get a valid filename for the file system
+                safe_filename = get_valid_filename(normalized_filename)
+                # Save the file
+                file_name = default_storage.save(safe_filename, ContentFile(file.read()))
+                # Create the URL
+                user.profile_pic_url = request.build_absolute_uri("https://localhost:4242/media/pictures/" + file_name)
+
+            user.save()  # Save the user and the file path
             return JsonResponse({'message': 'User created successfully'}, status=201)
         else:
             return JsonResponse({'error': form.errors}, status=400)
     return JsonResponse({"error": "Only POST method is allowed"}, status=405)
+
 
 
 
@@ -191,6 +212,7 @@ def intraAuthorize(request):
 
 
 import requests
+import json
 
 @csrf_exempt
 def intraCallback(request):
@@ -234,10 +256,17 @@ def intraCallback(request):
 
             username = user_data.get('login')
             fullname = user_data.get('usual_full_name')
+            print(user_data)
+            profile_pic = user_data.get('image')
+            print (profile_pic)
+            ppUrl = profile_pic['link']
+            print("MDR3")
+            print(f"profile_pic: {ppUrl}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 
             user, is_created = CustomUser.objects.get_or_create(
                 username=username,
                 fullname=fullname,
+                profile_pic_url=ppUrl,
             )
 
             # Login the created user
@@ -315,6 +344,7 @@ def user_info(request):
                 'username': request.user.username,
                 'fullname': request.user.fullname,
                 'profile_pic': request.user.profile_pic.url if request.user.profile_pic else None,
+                'profile_pic_url': request.user.profile_pic_url,
             }
             return JsonResponse(user_data)
         else:
@@ -579,7 +609,8 @@ def get_user_profile(request, username):
         user_data = {
             'username': user.username,
             'fullname': user.fullname,
-            'profile_pic': user.profile_pic.url if user.profile_pic else '/static/default_profile_pic.jpg'
+            'profile_pic': user.profile_pic.url if user.profile_pic else '/static/default_profile_pic.jpg',
+            'profile_pic_url': user.profile_pic_url,
         }
         return JsonResponse(user_data)
     except CustomUser.DoesNotExist:
@@ -787,7 +818,15 @@ from .forms import ProfilePicUpdateForm
 def change_profile_pic(request):
     form = ProfilePicUpdateForm(request.POST, request.FILES, instance=request.user)
     if form.is_valid():
-        form.save()
+        user = form.save(commit=False)
+        if 'profile_pic' in request.FILES:
+            file = request.FILES['profile_pic']
+            normalized_filename = strip_accents(file.name)
+            safe_filename = get_valid_filename(normalized_filename)
+            file_name = default_storage.save('pictures/' + safe_filename, ContentFile(file.read()))
+            user.profile_pic_url = request.build_absolute_uri(settings.MEDIA_URL + file_name)
+            print(f"Profile picture URL: {user.profile_pic_url}")
+        user.save()
         return JsonResponse({'message': 'Profile picture updated successfully'}, status=200)
     else:
         return JsonResponse({'error': form.errors}, status=400)
