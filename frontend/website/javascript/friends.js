@@ -22,9 +22,7 @@ var friendsPage = {
                 document.getElementById('profilePageNoChange').classList.remove('d-none');
                 document.getElementById('usernameProfileNoChange').textContent = `Username: ${data.username}`;
                 document.getElementById('fullnameProfileNoChange').textContent = `Full Name: ${data.fullname}`;
-                document.getElementById('birthProfileNoChange').textContent = `Date of Birth: ${data.date_of_birth}`;
-                document.getElementById('bioProfileNoChange').textContent = `Bio: ${data.bio}`;
-                document.getElementById('profilePicNoChange').src = data.profile_pic;
+                document.getElementById('profilePicNoChange').src = data.profile_pic_url;
                 document.getElementById('csrfTokenProfilePic').value = this.getCSRFToken();
             }
         })
@@ -164,7 +162,21 @@ var friendsPage = {
 
     searchFriends: function() {
         var searchQuery = document.getElementById('searchFriendsInput').value;
-        this.addFriend(searchQuery);
+        if (searchQuery === '') {
+            alert('Please enter a username to search for');
+            return;
+        }
+        auth.retrieveInfos().then(userInfo => {
+            const username = userInfo.username;
+            if (searchQuery === username) {
+                alert('You cannot add yourself as a friend');
+                return;
+            }
+            else
+            {
+                this.addFriend(searchQuery);
+            }
+        });
     },
 
     getCSRFToken: function() {

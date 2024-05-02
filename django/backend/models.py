@@ -5,10 +5,9 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 
 class CustomUser(AbstractUser):
-    bio = models.TextField(null=True, blank=True)
     fullname = models.CharField(max_length=255, null=True, blank=True)
-    date_of_birth = models.DateField(null=True, blank=True)
-    profile_pic = models.ImageField(upload_to='profile_pics/', default='profile_pics/default.jpg')
+    profile_pic = models.ImageField(null=True, blank=True, upload_to='pictures/', default='pictures/default.jpg')
+    profile_pic_url = models.URLField(null=True, blank=True)
     friends = models.ManyToManyField('self', related_name='my_friends', blank=True)
     is_in_game = models.BooleanField(default=False)
     is_in_tournament = models.BooleanField(default=False)
@@ -50,6 +49,7 @@ class GameSettings(models.Model):
     ball_speed = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
     paddle_speed = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
     winning_score = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(10)])
+    bonus = models.BooleanField(default=True, editable=True)
 
 
 class Room(models.Model):

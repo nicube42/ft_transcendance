@@ -1,5 +1,7 @@
 from django.core.management.utils import get_random_secret_key
+from dotenv import load_dotenv
 import os
+load_dotenv()
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -7,11 +9,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'db',
-        'PORT': '5432',
+        'NAME': os.getenv('DATABASE_NAME'),
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'HOST': os.getenv('DATABASE_HOST'),
+        'PORT': os.getenv('DATABASE_PORT'),
     }
 }
 
@@ -26,6 +28,8 @@ INSTALLED_APPS = [
     'channels_redis',
     'uvicorn',
     'aioredis',
+    'django.contrib.admin',
+    'django.contrib.messages'
 ]
 
 MIDDLEWARE = [
@@ -33,6 +37,24 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+]
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -89,16 +111,16 @@ LOGGING = {
     },
 }
 
-MEDIA_ROOT = '/code/media'
-MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_URL = '/media/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Collected static files
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'backend', 'static'),
-]
+STATICFILES_DIRS = [] 
 
+MEDIA_ROOT = '/code/media'
+MEDIA_URL = 'https://localhost:4242/media/'
 # CSRF_COOKIE_NAME = 'csrftoken'
 
 # CSRF_COOKIE_SECURE = True

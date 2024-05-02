@@ -2,6 +2,7 @@ const tournament = {
     tournamentId: null,
     initialNumPlayers: 0,
     participants: [],
+    last_round_participants: [],
     matches: [],
     maxPlayers: 0,
     currentParticipants: 0,
@@ -37,7 +38,7 @@ const tournament = {
         this.checkIfEndOfTournament();
         console.log('initialNumPlayers:', this.initialNumPlayers);
         console.log('current round', this.currentRound);
-        if (this.currentParticipants === this.maxPlayers && this.currentRound === 1 && this.matchTreeGenerated === false) {
+        if (this.currentParticipants === this.maxPlayers && this.participants.length % 2 === 0 && this.currentRound === 1 && this.matchTreeGenerated === false) {
             this.matchTreeGenerated = true;
             this.generateMatchTree();
         }
@@ -65,22 +66,31 @@ const tournament = {
             alert('Please enter a username to invite.');
             return;
         }
-
-        gameSocket.sendMessage({
-            action: 'invite_to_tournament',
-            username: usernameInput,
-            tournamentId: this.tournamentId
-        });
-    
-        gameSocket.socket.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
+        auth.retrieveInfos().then(userInfo => {
+            const username = userInfo.username;
+            if (usernameInput === username) {
+                alert('You cannot add yourself to the tournament');
+                return;
+            }
+            else
+            {
+                gameSocket.sendMessage({
+                    action: 'invite_to_tournament',
+                    username: usernameInput,
+                    tournamentId: this.tournamentId
+                });
             
-            if (data.action === 'tournament_invite_response') {
-                if (data.status === 'success') {
-                    alert(`Invitation sent to ${usernameInput}`);
-                } else if (data.status === 'error') {
-                    alert(`Error sending invitation: ${data.message}`);
-                }
+                gameSocket.socket.addEventListener('message', (event) => {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.action === 'tournament_invite_response') {
+                        if (data.status === 'success') {
+                            alert(`Invitation sent to ${usernameInput}`);
+                        } else if (data.status === 'error') {
+                            alert(`Error sending invitation: ${data.message}`);
+                        }
+                    }
+                });
             }
         });
     },
@@ -122,8 +132,6 @@ const tournament = {
         localStorage.setItem('maxPlayers', this.maxPlayers);
         localStorage.setItem('participants', JSON.stringify(this.participants));
         localStorage.setItem('currentParticipants', this.currentParticipants);
-        this.initialNumPlayers = this.maxPlayers;
-        localStorage.setItem('initialNumPlayers', this.initialNumPlayers);
         this.currentRound = 1;
         localStorage.setItem('currentRound', this.currentRound);
         auth.updateUserTournamentStatus('true');
@@ -136,7 +144,7 @@ const tournament = {
     generateMatchTree: function() {
         console.log('Preparing matches for round:', this.currentRound);
     
-        // setTimeout(() => {
+        const proceedWithMatchGeneration = () => {
             let round = this.currentRound;
             let matchId = this.matches.reduce((maxId, match) => Math.max(maxId, match.id), 0) + 1;
             let playersInThisRound = [...this.participants];
@@ -167,8 +175,23 @@ const tournament = {
             this.matches.push(...roundMatches);
             this.displayMatchTree();
             console.log('Matches for round', this.currentRound, 'generated and displayed.');
-        // }, 10000);
-    },    
+        };
+    
+        const checkParticipants = () => {
+            console.log('Checking participants...' + this.participants.length + ' ' + this.last_round_participants / 2)
+            if (this.participants.length > this.last_round_participants / 2 && this.round > 1) {
+                console.log(`Participants count is ${this.participants.length}. Waiting to reduce to half of last round's count (${this.last_round_participants / 2}).`);
+                setTimeout(checkParticipants, 5000);
+            } else if (this.participants.length % 2 === 0){
+                proceedWithMatchGeneration();
+            } else {
+                console.log('Waiting for more participants to join...');
+                setTimeout(checkParticipants, 5000);
+            }
+        };
+    
+        checkParticipants();
+    },
 
     displayMatchTree: function() {
         const tournamentTreeDiv = document.getElementById('tournamentTree');
@@ -196,7 +219,9 @@ const tournament = {
 
             gameSocket.sendInvite(match.player1, roomName);
             gameSocket.sendInvite(match.player2, roomName);
-
+            
+            this.last_round_participants = this.participants;
+            localStorage.setItem('last_round_participants', JSON.stringify(this.last_round_participants));
             setTimeout(() => {
                 gameSocket.sendGameStart2(roomName);
             }, 10000);
@@ -224,7 +249,7 @@ const tournament = {
     
             const roomName = `Tournament_${this.tournamentId}_Match_${match.id}`;
             gameSocket.createRoom(roomName);
-    
+
             gameSocket.sendInvite(match.player1, roomName);
             if (match.player2) {
                 gameSocket.sendInvite(match.player2, roomName);
@@ -325,6 +350,9 @@ const tournament = {
     },
 
     deleteUserFromTournament: function(username) {
+        console.log(this.participants);
+        console.log(username);
+        ui.loadTournamentData();
         const index = this.participants.indexOf(username);
         if (index === -1) {
             console.error('User not found in the tournament');
