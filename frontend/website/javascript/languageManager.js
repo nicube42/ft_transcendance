@@ -9,7 +9,9 @@ function updateTexts() {
         'navHome', 'navSet', 'navLogin', 'navRegister', 'navProfile', 'navLogout',
         'navTournament', 'navStatistics', 'navFriends', 'titleFirstpage', 'titleHomepage',
         'titleTournament', 'titleSettings', 'titleProfile', 'titleStatistics',
-        'login_initial', 'register_initial', 'saveSettings', 'cancelLogin', 'cancelRegister'
+        'login_initial', 'register_initial', 'saveSettings', 'cancelLogin', 'cancelRegister', 
+        'usernameLabel', 'registerHeader','passwordLabel','loginButton', 'cancelLoginButton', 
+        'loginHeader', 'tournamentHeader',
     ];
 
     elementIds.forEach(id => {

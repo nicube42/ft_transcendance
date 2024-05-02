@@ -78,17 +78,17 @@
                 <canvas id="pong" class="border" width="800" height="400"></canvas>
             </div>
             <div id="score" class="text-center">
-                <h4>Score</h4>
-                <p id="winning_score">Winning Score: 5</p>
-                <p id="player1_score">Player 1: 0</p>
-                <p id="player2_score">Player 2: 0</p>
+                <h4 id="scoreLabel">Score</h4>
+                <p id="winning_scoreLabel">Winning Score: 5</p>
+                <p id="player1_scoreLabel">Player 1: 0</p>
+                <p id="player2_scoreLabel">Player 2: 0</p>
             </div>
         </div>
-
+        
         <div id="tournament" class="d-none">
-            <h1 class="text-center">Tournament</h1>
+            <h1 id="tournamentHeader" class="text-center">Tournament</h1>
             <div class="form-group">
-                <label for="numplayers">Number of players</label>
+                <label for="numplayers" id="numPlayersLabel">Number of players</label>
                 <input type="text" class="form-control" id="numplayers" name="numPlayers" value="4">
             </div>
             <div class="text-center">
@@ -96,13 +96,13 @@
                 <button class="btn btn-outline-success fs-2" id="nextStageBtn">Next</button>
             </div>
         </div>
-
+        
         <div id="tournamentStage" class="container mt-5 d-none">
-            <h2 class="text-center mb-4">Tournament Setup</h2>
-            <p id="participantCount" class="text-center">Participants: 0/0</p>
+            <h2 id="tournamentSetupHeader" class="text-center mb-4">Tournament Setup</h2>
+            <p id="participantCountLabel" class="text-center">Participants: 0/0</p>
             <div class="row">
                 <div class="col-md-6">
-                    <h3>Invite Players</h3>
+                    <h3 id="invitePlayersHeader">Invite Players</h3>
                     <div id="invitePlayersForm" class="input-group mb-3">
                         <input type="text" class="form-control" placeholder="Enter username to invite" id="inviteUsername">
                         <button class="btn btn-outline-success btn-sm" type="button" id="invitePlayerTournamentBtn">Invite</button>
@@ -112,11 +112,9 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <h3>Match Tree</h3>
+                    <h3 id="matchTreeHeader">Match Tree</h3>
                     <div id="tournamentTree" class="tournament-tree">
-                        <!-- Dynamically generated tournament tree will be displayed here -->
-                        <!-- Placeholder for the tournament tree -->
-                        <p class="text-center">Tournament matches will be displayed here once setup is complete.</p>
+                        <p id="tournamentTreePlaceholder" class="text-center">Tournament matches will be displayed here once setup is complete.</p>
                     </div>
                 </div>
             </div>
@@ -126,63 +124,63 @@
         </div>
         
         <div id="playerStats" class="container mt-5 d-none">
-            <h2 class="text-center mb-4">Player Statistics</h2>
+            <h2 id="playerStatisticsHeader" class="text-center mb-4">Player Statistics</h2>
             <div class="row">
                 <div class="col-md-6">
-                    <h3>Last Games Results</h3>
+                    <h3 id="lastGamesResultsHeader">Last Games Results</h3>
                     <ul id="gamesList" class="list-group">
                         <!-- Last games results will be listed here -->
                     </ul>
                 </div>
                 <div class="col-md-6">
-                    <h3>Player Details</h3>
+                    <h3 id="playerDetailsHeader">Player Details</h3>
                     <div id="playerDetails" class="list-group">
-                        <p class="list-group-item">Games Played: <span id="gamesPlayed"></span></p>
-                        <p class="list-group-item">Total Wins: <span id="totalWins"></span></p>
-                        <p class="list-group-item">Total Losses: <span id="totalLosses"></span></p>
-                        <p class="list-group-item">Total Score: <span id="totalScore"></span></p>
+                        <p class="list-group-item" id="gamesPlayedLabel">Games Played: <span id="gamesPlayed"></span></p>
+                        <p class="list-group-item" id="totalWinsLabel">Total Wins: <span id="totalWins"></span></p>
+                        <p class="list-group-item" id="totalLossesLabel">Total Losses: <span id="totalLosses"></span></p>
+                        <p class="list-group-item" id="totalScoreLabel">Total Score: <span id="totalScore"></span></p>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <h3>Chart of winrate over time</h3>
+                    <h3 id="winRateChartHeader">Chart of winrate over time</h3>
                     <canvas id="winRateChart" class="list-group" width="600" height="400"></canvas>
-                        <!-- Chart will be rendered here -->
-                </div>                
+                </div>
             </div>
         </div>
 
+
         <div id="settings" class="d-none">
-            <h1>Settings</h1>
+            <h1 id="settingsHeader">Settings</h1>
             <form>
                 <div class="form-group">
-                    <label for="player1">Player 1</label>
+                    <label for="player1" id="player1Label">Player 1</label>
                     <input type="text" class="form-control" id="player1" name="player1" value="one">
                 </div>
                 <div class="form-group">
-                    <label for="player2">Player 2</label>
+                    <label for="player2" id="player2Label">Player 2</label>
                     <input type="text" class="form-control" id="player2" name="player2" value="two">
                 </div>
                 <div class="form-group">
-                    <label for="ballSpeed">Ball Speed</label>
+                    <label for="ballSpeed" id="ballSpeedLabel">Ball Speed</label>
                     <input type="range" class="form-range" id="ballSpeed" name="ballSpeed" min="1" max="10" value="5">
                 </div>
                 <div class="form-group">
-                    <label for="paddleSpeed">Paddle Speed</label>
+                    <label for="paddleSpeed" id="paddleSpeedLabel">Paddle Speed</label>
                     <input type="range" class="form-range" id="paddleSpeed" name="paddleSpeed" min="1" max="10" value="5">
                 </div>
                 <div class="form-group">
-                    <label for="winningScore">Winning Score</label>
+                    <label for="winningScore" id="winningScoreLabel">Winning Score</label>
                     <input type="range" class="form-range" id="winningScore" name="winningScore" min="1" max="10" value="5">
                 </div>
                 <div class="text-center">
-                    <button class="btn btn-outline-success fs-2" id="previousSettings">Previous</button>
-                    <button class="btn btn-outline-success fs-2" id="saveSettings">Save</button>
+                    <button class="btn btn-outline-success fs-2" id="previousSettingsBtn">Previous</button>
+                    <button class="btn btn-outline-success fs-2" id="saveSettingsBtn">Save</button>
                 </div>
             </form>
         </div>
-
+        
         <div id="friends" class="container mt-5 d-none">
-            <h1 class="text-center">Friends</h1>
+            <h1 id="friendsHeader" class="text-center">Friends</h1>
             <div class="input-group mb-3">
                 <input type="text" class="form-control" placeholder="Search for new friends" id="searchFriendsInput">
                 <button class="btn btn-outline-success" type="button" id="searchFriendsBtn">Add</button>
@@ -190,54 +188,54 @@
             <div id="friendsList" class="list-group">
                 <!-- Dynamically populated list of friends will go here -->
             </div>
-        </div>        
-
+        </div>
+        
         <div id="loginContainer" class="d-none">
             <div class="login-container">
-                <h2 class="display-1">Login</h2>
+                <h2 id="loginHeader" class="display-1">Login</h2>
                 <form method="post" id="loginForm">
                     <input type="hidden" name="csrfmiddlewaretoken" value="" id="csrfTokenInput">
                     <div class="form-group">
-                        <label for="id_username">Username</label>
+                        <label for="id_username" id="usernameLabel">Username</label>
                         <input type="text" class="form-control" name="username" id="id_username" required>
                     </div>
                     <div class="form-group">
-                        <label for="id_password">Password</label>
-                        <input type="password" class="form-control" name="password" id="id_password" required>
+                        <label for="id_password" id="passwordLabel">Password</label>
+                        <input type="password" class="form-control" name="password" id="id_password" required>                        
                     </div>
-                    <button type="submit" class="btn btn-outline-success fs-2">Login</button>
-                    <button id="cancelLogin" type="button" class="btn btn-outline-success fs-2">Cancel</button>
+                    <button type="submit" class="btn btn-outline-success fs-2" id="loginButton">Login</button>
+                    <button type="button" class="btn btn-outline-success fs-2" id="cancelLoginButton">Cancel</button>
                 </form>
             </div>
         </div>
         
         <div id="register" class="d-none">
-            <h1 class="display-1">Register</h1>
+            <h1 id="registerHeader" class="display-1">Register</h1>
             <form id="registerForm">
                 <div class="form-group">
-                    <label for="username">Username:</label>
+                    <label for="username" id="registerUsernameLabel">Username:</label>
                     <input type="text" class="form-control" id="username" name="username" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Password:</label>
+                    <label for="password" id="registerPasswordLabel">Password:</label>
                     <input type="password" class="form-control" id="password" name="password" required>
                 </div>
                 <div class="form-group">
-                    <label for="fullname">Full Name:</label>
+                    <label for="fullname" id="fullnameLabel">Full Name:</label>
                     <input type="text" class="form-control" id="fullname" name="fullname" required>
                 </div>
                 <div class="form-group">
-                    <label for="birth">Birth Date:</label>
+                    <label for="birth" id="birthLabel">Birth Date:</label>
                     <input type="date" class="form-control" id="birth" name="birth" required>
                 </div>
                 <div class="form-group">
-                    <label for="bio">Bio:</label>
+                    <label for="bio" id="bioLabel">Bio:</label>
                     <textarea class="form-control" id="bio" name="bio" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-outline-success fs-2">Register</button>
-                <button id="cancelRegister" type="button" class="btn btn-outline-success fs-2">Cancel</button>        
+                <button type="submit" class="btn btn-outline-success fs-2" id="registerSubmitButton">Register</button>
+                <button type="button" class="btn btn-outline-success fs-2" id="cancelRegisterButton">Cancel</button>
             </form>
-        </div>
+        </div>        
 
         <div id="profilePage" class="d-none container mt-5">
             <div class="card bg-success">
@@ -286,25 +284,25 @@
                 <div class="col-md-12">
                     <div class="card text-white bg-dark mb-3">
                         <div class="card-header bg-success text-center">
-                            <h2 class="card-title">Game Over</h2>
+                            <h2 id="gameOverTitle" class="card-title">Game Over</h2>
                         </div>
                         <div class="card-body text-center">
-                            <h3 class="card-text">Final Scores</h3>
-                            <p class="h4">Player 1: <span id="player1_endgame">0</span></p>
-                            <p class="h4">Player 2: <span id="player2_endgame">0</span></p>
-                            <p class="h4">Winner: <span id="winner_endgame"></span></p>
-                            <p id="gameDuration">Duration: </p>
-                            <p id="totalBalls">Total balls served: </p>
+                            <h3 id="finalScoresTitle" class="card-text">Final Scores</h3>
+                            <p class="h4" id="player1FinalScore">Player 1: <span id="player1_endgame">0</span></p>
+                            <p class="h4" id="player2FinalScore">Player 2: <span id="player2_endgame">0</span></p>
+                            <p class="h4" id="winnerTitle">Winner: <span id="winner_endgame"></span></p>
+                            <p id="gameDurationLabel">Duration: </p>
+                            <p id="totalBallsLabel">Total balls served: </p>
                         </div>
                         <div class="card-footer text-muted text-center">
-                            <button id="playAgain" type="button" class="btn btn-outline-success fs-2 btn-sm btn-play-again">Play Again</button>
-                            <button id="returnHome" type="button" class="btn btn-outline-success fs-2 btn-sm">Return to Home</button>
+                            <button id="playAgainBtn" type="button" class="btn btn-outline-success fs-2 btn-sm btn-play-again">Play Again</button>
+                            <button id="returnHomeBtn" type="button" class="btn btn-outline-success fs-2 btn-sm">Return to Home</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>        
-
+        
         <div id="multiplayer" class="d-none text-center">
             <div class="form-group">
                 <input type="text" id="roomNameInput" class="form-control" placeholder="Room name">
@@ -312,17 +310,17 @@
                 <button id="joinRoomBtn" class="btn btn-outline-success fs-2 btn-sm">Join Room</button>
             </div>
             <br>
-            <h2>Rooms</h2>
+            <h2 id="roomsHeader">Rooms</h2>
             <br>
             <div id="roomList" class="mt-3">
                 <!-- Dynamically populated list of rooms will go here -->
             </div>
         </div>
-
+        
         <div id="rooms" class="d-none container mt-5">
             <div class="row">
                 <div class="col-md-12">
-                    <h2 id="roomNameHeading" class="text-center mb-4">Users Connected to the Room</h2>
+                    <h2 id="usersConnectedTitle" class="text-center mb-4">Users Connected to the Room</h2>
                     <div id="roomUsersList" class="list-group">
                         <!-- The user list will be dynamically populated here by the JavaScript function -->
                     </div>
@@ -331,7 +329,7 @@
                         <button id="quitRoomBtn" class="btn btn-outline-success fs-2 btn-sm">Quit room</button>
                         <form id="invitePlayerForm" class="d-flex justify-content-center align-items-center">
                             <div class="mb-3">
-                                <label for="usernameInput" class="form-label">Username</label>
+                                <label for="usernameInput" id="inviteLabel" class="form-label">Username</label>
                                 <input type="text" class="form-control" id="usernameInput" name="username" placeholder="Enter username">
                             </div>
                             <button type="button" id="inviteRoomBtn" class="btn btn-outline-success fs-2 btn-sm">Invite a player</button>
@@ -341,61 +339,59 @@
             </div>
         </div>
         
-    </div>
-</div>
-
-<!-- Login Error Modal -->
-<div class="modal fade" id="loginErrorModal" tabindex="-1" aria-labelledby="loginErrorModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="loginErrorModalLabel">Login Error</h5>
-        </div>
-        <div class="modal-body">
-          Incorrect username or password. Please try again.
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-success fs-2" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Register Error Modal -->
-<div class="modal fade" id="registerErrorModal" tabindex="-1" aria-labelledby="loginErrorModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="registerErrorModalLabel">Register Error</h5>
-        </div>
-        <div class="modal-body">
-          Username already in use. Please try again.
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-success fs-2" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-<!-- Invite Popup Modal -->
-<div class="modal fade" id="invitePopupModal" tabindex="-1" aria-labelledby="invitePopupModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="invitePopupModalLabel">Invitation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p id="inviteMessage"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="acceptInvite">Accept</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="refuseInvite">Refuse</button>
+        <!-- Login Error Modal -->
+        <div class="modal fade" id="loginErrorModal" tabindex="-1" aria-labelledby="loginErrorModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 id="loginErrorTitle" class="modal-title">Login Error</h5>
+                </div>
+                <div class="modal-body" id="loginErrorMessage">
+                  Incorrect username or password. Please try again.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-success fs-2" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
             </div>
         </div>
-    </div>
-</div>
+        
+        <!-- Register Error Modal -->
+        <div class="modal fade" id="registerErrorModal" tabindex="-1" aria-labelledby="registerErrorModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 id="registerErrorTitle" class="modal-title">Register Error</h5>
+                </div>
+                <div class="modal-body" id="registerErrorMessage">
+                  Username already in use. Please try again.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-success fs-2" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+        </div>
+        
+        <!-- Invite Popup Modal -->
+        <div class="modal fade" id="invitePopupModal" tabindex="-1" aria-labelledby="invitePopupModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 id="invitePopupTitle" class="modal-title">Invitation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="inviteMessage">
+                        <p></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" id="acceptInviteBtn">Accept</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="refuseInviteBtn">Refuse</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
     </body>
     </html>

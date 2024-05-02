@@ -10,13 +10,30 @@ var langDict = {
         'navTournament': 'Tournament',
         'navStatistics': 'Statistics',
         'login_initial': 'Login',
-        'register_initial': 'Registrer',
-    
+        'titleProfile': 'Enrgistement',   
+        
+        //teste login container
+        'joinRoomBtn': 'Join room',
+        'homepacreateRoomBtnge': 'Create room',
+        'register_initial': 'Register',
+        'roomsHeader': 'Rooms',
+        'roomList': 'Rooms list',
+        'cancelRegister': 'test6',
+        
+        'titlehomepage': 'Pong',
+        'player1_scoreLabel': 'Player 1',
+        'player2_scoreLabel': 'Player 2',
+        'usernameLabel': 'Username',
+        'cancelregister': 'test10',
+        
+        //tournois
+        'nextStageBtn': 'Next',
+        
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Login',
         'register': 'Register',
         'password': 'Password',
-    
+        
         // https://localhost:4242/register
         'username': 'Username',
         'password': 'Password',
@@ -45,7 +62,7 @@ var langDict = {
         'total losses': 'Total Losses',
         'total score': 'Total Score',
         'chart of winrate over time': 'Chart of Winrate Over Time',
-    
+        
         // https://localhost:4242/settings
         'player 1': 'Player 1',
         'player 2': 'Player 2',
@@ -54,25 +71,35 @@ var langDict = {
         'winning score': 'Winning Score',
         'save': 'Save',
         'cancel': 'Cancel',
-    
+        
         //https://localhost:4242/multiplayer
         'users connected to the room': 'Users Connected to the Room',
         'room name': 'Room Name',
         'invite a player': 'Invite a Player',
         'enter username': 'Enter Username',
         'rooms': 'Rooms',
-    
+        
         //https://localhost:4242/tournament
-        'tournament setup': 'Tournament Setup',
+        'tournamentheader': 'Tournament Setup',
         'match tree': 'Match Tree',
         'tournament_matches_display': 'Tournament matches will be displayed here once setup is complete.',
         'enter username to': 'Enter Username to',
-
+        
         'navTournament': 'Tournament',
         'profile': 'Profile',
         'set': 'Settings',
         'navstatistics': 'Statistics',
         'titlefirstpage': 'Welcome to Pong',
+        'usernamelabel': 'Username',
+        'registerheader': 'Register',
+        'passwordlabel': 'passeword',
+
+        'registerheader': 'login',
+        'passwordlabel': 'passeword',
+        'cancelloginbutton': 'Cancel',
+        'loginheader': 'Login',
+
+
     },
     
     'fr': {
@@ -86,17 +113,28 @@ var langDict = {
         'navTournament': 'Tournois',
         'navStatistics': 'Statistique',
         'login_initial': 'Connexion',
-        'register_initial': 'Enrgistrer',
 
+        //teste login container
+        'joinRoomBtn': 'Rejoindre la room',
+        'homepacreateRoomBtnge': 'cree la room',
+        'register_initial': 'S\'enregistrer',
+        'roomsHeader': 'Salles',
+        'roomList': 'Listes des salles',
+        'cancelRegister': 'test6',
 
-
+        'titlehomepage': 'Pong',
+        'player1_scoreLabel': 'Joueur 1',
+        'player2_scoreLabel': 'Joueur 2',
+        'cancelregister': 'test10',
+        'winning_scoreLabel': 'test101',
+        
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Connexion',
         'register': 'Inscription',
         'password': 'Mot de passe', //a double virer si conflit
-
-
-
+        
+        
+        
         // https://localhost:4242/register
         'register': 'Inscription', //a double virer si conflit
         'username': 'Nom d’utilisateur',
@@ -104,7 +142,7 @@ var langDict = {
         'full name': 'Nom complet',
         'birth date': 'Date de naissance',
         'bio': 'Biographie',
-    
+        
         // https://localhost:4242/homepage
         'single player': 'Joueur seul',
         'local multiplayer': 'Multijoueur local',
@@ -112,7 +150,7 @@ var langDict = {
         'tournament': 'Tournoi',
         'statistics': 'Statistiques',
         'settings': 'Paramètres',
-    
+        
         // https://localhost:4242/playerStats
         'player statistics': 'Statistiques du joueur',
         'last games results': 'Résultats des derniers jeux',
@@ -126,8 +164,8 @@ var langDict = {
         'total losses': 'Total des défaites',
         'total score': 'Score total',
         'chart of winrate over time': 'Graphique des taux de victoire dans le temps',
-
-
+        
+        
         // https://localhost:4242/settings
         'player 1': 'Joueur 1',
         'player 2': 'Joueur 2',
@@ -136,7 +174,7 @@ var langDict = {
         'winning score': 'Score gagnant',
         'save': 'Sauvegarder',
         'cancel': 'Annuler',
-
+        
         //https://localhost:4242/multiplayer
         
         'users connected to the room': 'Utilisateurs connectés',
@@ -144,9 +182,9 @@ var langDict = {
         'invite a player': 'inviter un joueur',
         'enter username': 'Entrer utilisateur',
         'rooms': 'Salles',
-
+        
         //https://localhost:4242/tournament
-        'tournament setup': 'Configuration du Tournoi',
+        'tournamentheader': 'Configuration du Tournoi',
         'match tree': 'Prochains matchs',
         'tournament_matches_display': 'Les matchs du tournoi seront affichés ici une fois la configuration terminée.',
         'enter username to' : 'Entrez le nom utilisateur a',
@@ -155,6 +193,17 @@ var langDict = {
         'set': 'parametres',
         'navstatistics': 'Statistiques',
         'titlefirstpage': 'Bienvenue sur Pong',
+        'nextStageBtn': 'Suivant',
+        'usernamelabel': 'Nom dutilisateur',
+
+        
+        //https://localhost:4242/loginContainer top
+        'loginbutton':'S\'enregistre',
+        'canceloginbutton': 'Sortir',
+        'registerheader': 'S\'enregistrer',
+        'passwordlabel': 'Mot de passe',
+        'cancelloginbutton': 'Annuler',
+        'loginheader': 'Identification',
 
     },
     
@@ -168,12 +217,29 @@ var langDict = {
         'friends': 'Amigos',
         'navTournament': 'Torneo',
         'navStatistics': 'Estadísticas',
+        'titleProfile': 'Loginos',
 
-        'login_initial': 'Iniciar sesión',
+        //teste login container
+        'joinRoomBtn': 'rejoinos partias',
+        'homepacreateRoomBtnge': 'iniziasos partias',
+        'register_initial': 'Registrarse',
+        'roomsHeader': 'Sallas',
+        'roomList': 'Sallas listas',
+        'cancelRegister': 'test6',
+
+        'titlehomepage': 'Pong',
+        'player1_scoreLabel': 'Playcito 1',
+        'player2_scoreLabel': 'Playcito 2',
+        'usernameLabel': 'Utilisado',
+        'cancelregister': 'test10',
+        'winning_scoreLabel': 'test101',
+
+
+        'login_initial': 'Iniciar sesio35n',
         'register_initial': 'Registrarse',
     
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
-        'login': 'Iniciar sesión',
+        'login': 'Iniciar sesion',
         'register': 'Registrarse',
         'password': 'Contraseña',
     
@@ -194,22 +260,22 @@ var langDict = {
         
         // https://localhost:4242/playerStats
         'player statistics': 'Estadísticas del jugador',
-        'last games results': 'Resultados de los últimos juegos',
+        'last games results': 'Resultados de los ultimos juegos',
         'player vs player': 'Jugador contra Jugador',
-        'score': 'Puntuación',
-        'duration': 'Duración',
+        'score': 'Puntuacion',
+        'duration': 'Duracion',
         'created': 'Creado',
         'player details': 'Detalles del jugador',
         'games played': 'Juegos jugados',
         'total wins': 'Total de victorias',
         'total losses': 'Total de derrotas',
-        'total score': 'Puntuación total',
+        'total score': 'Puntuacion total',
         'chart of winrate over time': 'Gráfico de tasa de victorias a lo largo del tiempo',
     
         // https://localhost:4242/settings
         'player 1': 'Jugador 1',
         'player 2': 'Jugador 2',
-        'ball speed': 'Velocidad del balón',
+        'ball speed': 'Velocidad del balon',
         'paddle speed': 'Velocidad de la paleta',
         'winning score': 'Puntuación para ganar',
         'save': 'Guardar',
@@ -223,7 +289,7 @@ var langDict = {
         'rooms': 'Salas',
     
         //https://localhost:4242/tournament
-        'tournament setup': 'Configuración del torneo',
+        'tournamentheader': 'Configuración del torneo',
         'match tree': 'Árbol de partidos',
         'tournament_matches_display': 'Los partidos del torneo se mostrarán aquí una vez completada la configuración.',
         'enter username to': 'Ingresar nombre de usuario para',
@@ -232,6 +298,15 @@ var langDict = {
         'set': 'Configuraciones',
         'navstatistics': 'Estadísticas',
         'titlefirstpage': 'Bienvenido a Pong',
+        'nextStageBtn': 'Nesdos',
+
+        'usernamelabel': 'Utilisados',
+        'registerheader': 'Enregistrada',
+        'passwordlabel': 'Passewordado',
+
+        'loginbutton':'Loginada',
+        'cancelloginbutton': 'Annulada',
+        'loginheader': 'Loginada',
     }
     
 };
