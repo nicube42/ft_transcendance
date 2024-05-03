@@ -262,13 +262,15 @@ const game = {
         if (this.leftPaddleMovingDown) {
             this.leftPaddleY = Math.min(this.leftPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
         }
-        if (this.rightPaddleMovingUp) {
-            this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
+        if (this.gameMode !== 'singlePlayer')
+        {
+            if (this.rightPaddleMovingUp) {
+                this.rightPaddleY = Math.max(this.rightPaddleY - this.paddleSpeed, 0);
+            }
+            if (this.rightPaddleMovingDown) {
+                this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
+            }
         }
-        if (this.rightPaddleMovingDown) {
-            this.rightPaddleY = Math.min(this.rightPaddleY + this.paddleSpeed, this.canvas.height - this.paddleHeight);
-        }
-        
     },
 
     pause: function() {
@@ -609,7 +611,9 @@ const game = {
             if (this.processAIActions && websocket.aiSocket.readyState === WebSocket.OPEN && this.gameMode === 'singlePlayer') {
                 websocket.requestAIAction();
                 this.update_ai = false;
+                console.log('test');
                 websocket.onAIAction = (response) => {
+                    console.log('Received AI action:', response);
                     const data = JSON.parse(response);
                     const aiAction = data.action;
                     const predictedPos = data.predicted_pos_y;
