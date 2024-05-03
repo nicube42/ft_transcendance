@@ -28,6 +28,12 @@ window.addEventListener('load', function() {
     }
 });
 
+window.addEventListener('DOMContentLoaded', function() {
+    if (window.location.href === 'https://localhost:4242/profilePageNoChange') {
+        userInfoDisplayer.betterUI();
+    }
+});
+
 const ui = {
     connected: false,
     toggleSectionVisibility: function(sectionId, isVisible) {
@@ -168,14 +174,10 @@ const ui = {
             this.showOnlyOneSection('register');
         },
         async 'navProfile'() {
-            this.showOnlyOneSection('profilePage');
-            try {
-                const data = await auth.retrieveInfos();
-                userInfoDisplayer.updateUI(data);
-            } catch (error) {
-                console.error('Failed to fetch or display user info:', error);
-            }
+            userInfoDisplayer.betterUI();
+            this.showOnlyOneSection('profilePageNoChange');
         },
+        
         async 'navLogout'() {
             await auth.logout();
         },
@@ -238,38 +240,59 @@ const ui = {
         async 'STATISTICS'() {
             this.showOnlyOneSection('playerStats');
             GameStats.init();
+            location.reload();
         },
-        async 'updateUsername'() {
-            const username = document.querySelector('#input-username').value;
-            fetch('/api/check_user/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': auth.getCSRFToken('csrftoken'),
-                },
-                body: JSON.stringify({ username: username })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.exists) {
-                    alert("User exists");
-                    return;
-                }
-                else
-                {
-                    if (username !== '') {
-                        console.log("username updated", username);
-                        userInfoDisplayer.renameUser(username);
-                    }
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
+        async 'lang_en'() {
+            this.handleLanguageChange('en');
+        },
+        async 'lang_fr'() {
+            this.handleLanguageChange('fr');
+        },
+        async 'lang_es'() {
+            this.handleLanguageChange('es');
+        },
+        // async 'updateUsername'() {
+        //     const username = document.querySelector('#input-username').value;
+        //     fetch('/api/check_user/', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'X-CSRFToken': auth.getCSRFToken('csrftoken'),
+        //         },
+        //         body: JSON.stringify({ username: username })
+        //     })
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error('Network response was not ok');
+        //         }
+        //         return response.json();
+        //     })
+        //     .then(data => {
+        //         if (data.exists) {
+        //             alert("User exists");
+        //             return;
+        //         }
+        //         else
+        //         {
+        //             if (username !== '') {
+        //                 console.log("username updated", username);
+        //                 userInfoDisplayer.renameUser(username);
+        //             }
+        //         }
+        //     })
+        //     .catch(error => console.error('Error:', error));
+        //     // fetch('api/change_profile_pic/', {
+        //     // method: 'POST',
+        //     //     headers: {
+        //     //         'Content-Type': 'application/json',
+        //     //         'X-CSRFToken': auth.getCSRFToken('csrftoken'),
+        //     //     },
+        //     //     body: JSON.stringify({ username: username })
+        //     // })
+        //     // .then(response => {
+
+        //     // })
+        // }
     },
 
     init: function() {
@@ -305,6 +328,11 @@ const ui = {
         console.log('after the popstate', window.location.pathname);
 
         this.loadTournamentData();
+    },
+
+    handleLanguageChange: async function(newLang) {
+        console.log(`Changing language to: ${newLang}`);
+        changeLanguage(newLang);
     },
 
     loadTournamentData: function() {

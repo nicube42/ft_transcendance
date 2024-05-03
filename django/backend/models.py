@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 class CustomUser(AbstractUser):
     fullname = models.CharField(max_length=255, null=True, blank=True)
     profile_pic = models.ImageField(null=True, blank=True, upload_to='pictures/', default='pictures/default.jpg')
+    profile_pic_url = models.URLField(null=True, blank=True)
     friends = models.ManyToManyField('self', related_name='my_friends', blank=True)
     is_in_game = models.BooleanField(default=False)
     is_in_tournament = models.BooleanField(default=False)

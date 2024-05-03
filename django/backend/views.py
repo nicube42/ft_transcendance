@@ -82,77 +82,119 @@ def retrieve_settings(request):
     return JsonResponse(response_data)
 
 
-
+import unicodedata
+from django.utils.text import get_valid_filename
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.http import JsonResponse
-import json
 from django.contrib.auth.hashers import make_password
-from django.core.exceptions import ValidationError
-from .models import CustomUser
+from django.conf import settings
+from .forms import CustomUserForm
+from django.views.decorators.csrf import csrf_protect
 
-@csrf_exempt
+def strip_accents(s):
+    """Remove accentuated characters from a string and return a clean string."""
+    return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+
+@csrf_protect
 def register(request):
     if request.method == 'POST':
-        try:
-            data = {
-                "username": request.POST.get('username'),
-                "password": request.POST.get('password'),
-                "fullname": request.POST.get('fullname'),
-            }
-            username = data.get('username')
-            print(username)
-            password = data.get('password')
-            print(password)
-            fullname = data.get('fullname')
-            picture = request.FILES.get('picture')
+        form = CustomUserForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.password = make_password(form.cleaned_data['password'])
 
-            if not username or not password or not fullname:
-                return JsonResponse({"error": "signup information not provided"}, status=400)
-            print("LOL4")
+            # Check if a profile picture was uploaded
+            if 'profile_pic' in request.FILES:
+                file = request.FILES['profile_pic']
+                # Normalize and strip accents from the filename
+                normalized_filename = strip_accents(file.name)
+                # Get a valid filename for the file system
+                safe_filename = get_valid_filename(normalized_filename)
+                # Save the file
+                file_name = default_storage.save(safe_filename, ContentFile(file.read()))
+                # Create the URL
+                user.profile_pic_url = request.build_absolute_uri("https://localhost:4242/media/pictures/" + file_name)
 
-            if CustomUser.objects.filter(username=username).exists():
-                return JsonResponse({'error': 'Username already exists'}, status=400)
-
-            print("LOL5")
-            user = CustomUser.objects.create(
-                username=username,
-                password=make_password(password),
-                fullname=fullname,
-            )
-            print("LOL6")
-
-            if picture:
-                print("picture exists")
-                print(picture)
-                user.picture = picture
-
-            print("LOL8")
-            # user.full_clean()
-            #print(user.picture)
-            print("LOL9")
-            user.save()
-
-            print("LOL10")
-            # print(user.picture)
-            print("LOL11")
-            user_again = CustomUser.objects.get(username=username)
-            print("LOL12")
-            print(user_again.username)
-            print("LOL13")
-            print(user_again.fullname)
-            print("LOL14")
-            print(user_again.password)
-            print("LOL15")
-            print(user_again)
-            print("LOL16")
-          #  print(user_again.picture)
-            print("LOL17")
-
-            print("LOL_final")
+            user.save()  # Save the user and the file path
             return JsonResponse({'message': 'User created successfully'}, status=201)
-        except ValidationError as e:
-            return JsonResponse({'error': e.message_dict}, status=400)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+        else:
+            return JsonResponse({'error': form.errors}, status=400)
+    return JsonResponse({"error": "Only POST method is allowed"}, status=405)
+
+
+
+
+# from django.http import JsonResponse
+# import json
+# from django.contrib.auth.hashers import make_password
+# from django.core.exceptions import ValidationError
+# from .models import CustomUser
+
+# @csrf_exempt
+# def register(request):
+#     if request.method == 'POST':
+#         try:
+#             data = {
+#                 "username": request.POST.get('username'),
+#                 "password": request.POST.get('password'),
+#                 "fullname": request.POST.get('fullname'),
+#             }
+#             username = data.get('username')
+#             print(username)
+#             password = data.get('password')
+#             print(password)
+#             fullname = data.get('fullname')
+#             picture = request.FILES.get('picture')
+
+#             if not username or not password or not fullname:
+#                 return JsonResponse({"error": "signup information not provided"}, status=400)
+#             print("LOL4")
+
+#             if CustomUser.objects.filter(username=username).exists():
+#                 return JsonResponse({'error': 'Username already exists'}, status=400)
+
+#             print("LOL5")
+#             user = CustomUser.objects.create(
+#                 username=username,
+#                 password=make_password(password),
+#                 fullname=fullname,
+#             )
+#             print("LOL6")
+
+#             if picture:
+#                 print("picture exists")
+#                 print(picture)
+#                 user.profile_pic = picture
+
+#             print("LOL8")
+#             # user.full_clean()
+#             #print(user.picture)
+#             print("LOL9")
+#             user.save()
+
+#             print("LOL10")
+#             # print(user.picture)
+#             print("LOL11")
+#             user_again = CustomUser.objects.get(username=username)
+#             print("LOL12")
+#             print(user_again.username)
+#             print("LOL13")
+#             print(user_again.fullname)
+#             print("LOL14")
+#             print(user_again.password)
+#             print("LOL15")
+#             print(user_again)
+#             print("LOL16")
+#           #  print(user_again.picture)
+#             print("LOL17")
+
+#             print("LOL_final")
+#             return JsonResponse({'message': 'User created successfully'}, status=201)
+#         except ValidationError as e:
+#             return JsonResponse({'error': e.message_dict}, status=400)
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)}, status=500)
 
 
 import os
@@ -171,6 +213,7 @@ def intraAuthorize(request):
 
 
 import requests
+import json
 
 @csrf_exempt
 def intraCallback(request):
@@ -214,10 +257,17 @@ def intraCallback(request):
 
             username = user_data.get('login')
             fullname = user_data.get('usual_full_name')
+            print(user_data)
+            profile_pic = user_data.get('image')
+            print (profile_pic)
+            ppUrl = profile_pic['link']
+            print("MDR3")
+            print(f"profile_pic: {ppUrl}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 
             user, is_created = CustomUser.objects.get_or_create(
                 username=username,
                 fullname=fullname,
+                profile_pic_url=ppUrl,
             )
 
             # Login the created user
@@ -280,6 +330,11 @@ def api_login(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+import logging
+
 @csrf_exempt
 @login_required
 def user_info(request):
@@ -289,6 +344,8 @@ def user_info(request):
                 'id': request.user.id,
                 'username': request.user.username,
                 'fullname': request.user.fullname,
+                'profile_pic': request.user.profile_pic.url if request.user.profile_pic else None,
+                'profile_pic_url': request.user.profile_pic_url,
             }
             return JsonResponse(user_data)
         else:
@@ -296,7 +353,6 @@ def user_info(request):
     except Exception as e:
         logging.exception("Unexpected error in user_info: %s", e)
         return JsonResponse({'error': 'Internal Server Error'}, status=500)
-
 
 
 from django.contrib.auth import logout
@@ -529,6 +585,34 @@ def add_friend(request):
         return JsonResponse({'message': 'Friend added successfully'}, status=200)
     except Exception as e:
         return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
+    
+
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+import json
+
+@login_required
+@require_POST
+def delete_friend(request):
+    try:
+        data = json.loads(request.body)
+        friend_username = data.get('friend_username')
+        if not friend_username:
+            return JsonResponse({'error': 'Friend username is required'}, status=400)
+
+        friend = CustomUser.objects.filter(username=friend_username).first()
+        if not friend:
+            return JsonResponse({'error': 'User not found'}, status=404)
+
+        # Check if the user actually has this friend
+        if friend not in request.user.friends.all():
+            return JsonResponse({'error': 'This user is not your friend'}, status=400)
+
+        request.user.friends.remove(friend)
+        return JsonResponse({'message': 'Friend deleted successfully'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
 
 
 from django.contrib.auth.decorators import login_required
@@ -554,7 +638,8 @@ def get_user_profile(request, username):
         user_data = {
             'username': user.username,
             'fullname': user.fullname,
-            'profile_pic': user.profile_pic.url if user.profile_pic else '/static/default_profile_pic.jpg'
+            'profile_pic': user.profile_pic.url if user.profile_pic else '/static/default_profile_pic.jpg',
+            'profile_pic_url': user.profile_pic_url,
         }
         return JsonResponse(user_data)
     except CustomUser.DoesNotExist:
@@ -750,3 +835,27 @@ def renameUser(request):
             return JsonResponse({'error': 'Error updating username', 'details': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+    
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from .forms import ProfilePicUpdateForm
+
+@login_required
+@require_POST
+@csrf_exempt
+def change_profile_pic(request):
+    form = ProfilePicUpdateForm(request.POST, request.FILES, instance=request.user)
+    if form.is_valid():
+        user = form.save(commit=False)
+        if 'profile_pic' in request.FILES:
+            file = request.FILES['profile_pic']
+            normalized_filename = strip_accents(file.name)
+            safe_filename = get_valid_filename(normalized_filename)
+            file_name = default_storage.save('pictures/' + safe_filename, ContentFile(file.read()))
+            user.profile_pic_url = request.build_absolute_uri(settings.MEDIA_URL + file_name)
+            print(f"Profile picture URL: {user.profile_pic_url}")
+        user.save()
+        return JsonResponse({'message': 'Profile picture updated successfully'}, status=200)
+    else:
+        return JsonResponse({'error': form.errors}, status=400)

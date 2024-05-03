@@ -19,9 +19,22 @@
                 <div class="navbar-nav">
                     <a class="nav-item nav-link" href="#" id="navHome" style="color: #000000;">Home</a>
                     <a class="nav-item nav-link d-none" href="#" id="navSet" style="color: #000000;">Settings</a>
+                    
+                    <!-- Langue Dropdown -->
                     <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #000000;">
-                            Account
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownLanguage" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #000000;">
+                            Language
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownLanguage">
+                            <li><a class="dropdown-item" href="#" data-lang="en" id="lang_en">English</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="fr" id="lang_fr">Français</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="es" id="lang_es">Español</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-item dropdown account-dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img id="profilePicNav" src="" alt="Profile Nav" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;"/>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="#" id="navRegister" style="color: #000000;">Register</a></li>
@@ -92,8 +105,8 @@
                 <div class="col-md-6">
                     <h3>Invite Players</h3>
                     <div id="invitePlayersForm" class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Enter username to invite" id="inviteUsername">
-                        <button class="btn btn-outline-success btn-sm" type="button" id="invitePlayerTournamentBtn">Invite</button>
+                        <input type="text" class="form-control" style="height:60px;" placeholder="Enter username to invite" id="inviteUsername">
+                        <button class="btn btn-outline-success btn-sm" style="height:60px; width:80px;" type="button" id="invitePlayerTournamentBtn">Invite</button>
                     </div>
                     <div id="invitedPlayersList" class="list-group">
                         <!-- Invited players will be listed here -->
@@ -180,8 +193,8 @@
         <div id="friends" class="container mt-5 d-none">
             <h1 class="text-center">Friends</h1>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Search for new friends" id="searchFriendsInput">
-                <button class="btn btn-outline-success" type="button" id="searchFriendsBtn">Add</button>
+                <input type="text" class="form-control" style="height:60px;" placeholder="Search for new friends" id="searchFriendsInput">
+                <button class="btn btn-outline-success" style="height:60px; width:80px;" type="button" id="searchFriendsBtn">Add</button>
             </div>
             <div id="friendsList" class="list-group">
                 <!-- Dynamically populated list of friends will go here -->
@@ -244,19 +257,18 @@
                             <label for="profile_pic" class="form-label">Update Profile Picture</label>
                             <input type="file" class="form-control" id="profile_pic" name="profile_pic">
                         </div>
-                        <button type="submit"  class="btn btn-success fs-2">Update Picture</button>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><span id="usernameProfile"></span></li>
+                                <input type="text" class="form-control" id="input-username" name="username" placeholder="Enter new username">
+                                
+                                <li class="list-group-item"><span id="fullnameProfile"></span></li>
+                                
+                                <button type="submit" id="updateUsername" class="btn btn-success fs-2">Update</button>
+                            </ul>
                     </form>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><span id="usernameProfile"></span></li>
-                        <input type="text" class="form-control" id="input-username" name="username" placeholder="Enter new username">
-
-                        <button type="submit" id="updateUsername" class="btn btn-success fs-2">Update Username</button>
-
-                        <li class="list-group-item"><span id="fullnameProfile"></span></li>
-                    </ul>
                 </div>
             </div>
-        </div>        
+        </div>
 
         <div id="profilePageNoChange" class="d-none container mt-5">
             <div class="card bg-success">
@@ -269,9 +281,11 @@
                         <li class="list-group-item"><span id="usernameProfileNoChange"></span></li>
                         <li class="list-group-item"><span id="fullnameProfileNoChange"></span></li>
                     </ul>
+                    <button id="editProfileButton" style="height: 80px; width: 60;" class="btn btn-success fs-2">Edit Profile</button>
+                    
                 </div>
             </div>
-        </div>        
+        </div>   
 
         <div id="endgameStats" class="d-none container mt-5">
             <div class="row justify-content-center">
@@ -318,16 +332,16 @@
                         <!-- The user list will be dynamically populated here by the JavaScript function -->
                     </div>
                     <div class="text-center mt-4">
-                        <button id="playDistantBtn" class="btn btn-outline-success fs-2 btn-sm">Play</button>
-                        <button id="quitRoomBtn" class="btn btn-outline-success fs-2 btn-sm">Quit room</button>
                         <form id="invitePlayerForm" class="d-flex justify-content-center align-items-center">
                             <div class="mb-3">
-                                <label for="usernameInput" class="form-label">Username</label>
+                                <label for="usernameInput" class="form-label">Invite players</label>
                                 <input type="text" class="form-control" id="usernameInput" name="username" placeholder="Enter username">
+                                <button type="button" id="inviteRoomBtn" style="height: 80px; width: 60;" class="btn btn-outline-success fs-2 btn-sm">Invite a player</button>
                             </div>
-                            <button type="button" id="inviteRoomBtn" class="btn btn-outline-success fs-2 btn-sm">Invite a player</button>
                         </form>
                     </div>
+                    <button id="playDistantBtn" style="height: 80px; width: 60;" class="btn btn-outline-success fs-2 btn-sm">Play</button>
+                    <button id="quitRoomBtn" style="height: 80px; width: 60;" class="btn btn-outline-success fs-2 btn-sm">Quit room</button>
                 </div>
             </div>
         </div>
@@ -401,6 +415,8 @@
     });
 </script>
 <script src="/javascript/main.js"></script>
+<script src="/javascript/langDict.js"></script>
+<script src="/javascript/languageManager.js"></script>
 <script src="/javascript/ui.js"></script>
 <script src="/javascript/webSocket.js"></script>
 <script src="/javascript/gamesocket.js"></script>
