@@ -29,7 +29,9 @@ window.addEventListener('load', function() {
 });
 
 window.addEventListener('DOMContentLoaded', function() {
-    userInfoDisplayer.betterUI();
+    if (window.location.href === 'https://localhost:4242/profilePageNoChange') {
+        userInfoDisplayer.betterUI();
+    }
 });
 
 const ui = {
