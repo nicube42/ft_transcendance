@@ -166,7 +166,7 @@ const auth = {
             return;
         }
         fetch(
-            `https://localhost:4242/api/callback/?code=${code}`, {
+            `/api/callback/?code=${code}`, {
                 method: "GET",
                 headers: {
                     "accept": "application/json",
