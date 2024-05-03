@@ -11,8 +11,6 @@ const userInfoDisplayer = {
         this.updateProfilePicUI(data.profile_pic_url); // Assuming 'profile_pic_url' is the key in the response JSON
         this.updateUsernameProfile(data);
         this.updateFullNameProfile(data);
-        this.updateBirthProfile(data);
-        this.updateBioProfile(data);
     },
 
     fetchAndUpdateUserProfile: function() {
@@ -23,7 +21,7 @@ const userInfoDisplayer = {
         .then(response => response.json())
         .then(data => {
             // Assume 'data' contains user information and 'profile_pic_url' for the user's profile picture URL
-            this.updateProfilePicUI(data.profile_pic_url || 'http://localhost:8000/media/profile_pics/default.jpg');
+            this.updateProfilePicUI(data.profile_pic_url || 'http://localhost:8000/media/profile_pics/default.jpg'); //todo change this
             // Update other parts of the UI as necessary
         })
         .catch(error => console.error('Error:', error));
@@ -85,27 +83,6 @@ const userInfoDisplayer = {
         }
     },
 
-    updateBirthProfile: function(data) {
-        if (data.date_of_birth) {
-            const dobDiv = document.getElementById('birthProfile');
-            if (dobDiv) {
-                dobDiv.innerHTML = `<p>Date of birth: ${data.date_of_birth}</p>`;
-            } else {
-                console.error('Error: dobProfile element not found');
-            }
-        }
-    },
-
-    updateBioProfile: function(data) {
-        if (data.bio) {
-            const bioDiv = document.getElementById('bioProfile');
-            if (bioDiv) {
-                bioDiv.innerHTML = `<p>Bio: ${data.bio}</p>`;
-            } else {
-                console.error('Error: bioProfile element not found');
-            }
-        }
-    },
     renameUser: function(username) {
 
         fetch('/api/rename-user/', {

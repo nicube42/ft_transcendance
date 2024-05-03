@@ -38,7 +38,7 @@ const ui = {
     },
 
     showOnlyOneSection: function(sectionId, isPopState = false, queryParams = {}) {
-        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage', 'playerStats', 'friends', 'profilePageNoChange'];
+        const sections = ['firstPage', 'homepage', 'play', 'tournament', 'settings', 'loginContainer', 'login42Container', 'register', 'profilePage', 'endgameStats', 'multiplayer', 'rooms', 'tournamentStage', 'playerStats', 'friends', 'profilePageNoChange', 'callback'];
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
@@ -160,6 +160,10 @@ const ui = {
         async 'navLogin'() {
             this.showOnlyOneSection('loginContainer');
         },
+        async 'navLogin42'() {
+            window.location.href = 'https://localhost:4242/api/authorize/';
+            console.log('test1');
+        },
         async 'navRegister'() {
             this.showOnlyOneSection('register');
         },
@@ -269,19 +273,42 @@ const ui = {
     },
 
     init: function() {
+        console.log('test6');
+        console.log('window.location.url:', window.location.href);
         this.attachEventListeners();
+        if (window.location.pathname === '/callback/') {
+            auth.callback();
+            console.log('callback exception1 called');
+            return;
+        }
         this.checkAuthenticationAndInitializePage();
+
+        console.log('test7');
+        console.log('window.location.pathname:', window.location.pathname);
+        // if path is /callback, call the callback function
+
         window.addEventListener('popstate', function(event) {
+            console.log('popstate called1');
             if (event.state && event.state.section) {
+
+                console.log('popstate called', event.state.section, event.state);
+
                 ui.showOnlyOneSection(event.state.section, true);
+                if (event.state.section === 'callback') {
+                    ui.actionHandlers['callback']();
+                    console.log('callback exception called');
+                }
             } else {
                 ui.showOnlyOneSection('firstPage', true);
             }
         });
+        console.log('after the popstate', window.location.pathname);
+
         this.loadTournamentData();
     },
 
     loadTournamentData: function() {
+        console.log('loading tournament data');
         const tournamentId = localStorage.getItem('tournamentId');
         const maxPlayers = localStorage.getItem('maxPlayers');
         const currentParticipants = localStorage.getItem('currentParticipants');
@@ -301,8 +328,9 @@ const ui = {
     },
 
     checkAuthenticationAndInitializePage: function() {
+        console.log('checkAuthenticationAndInitializePage called');
         auth.checkAuthentication().then((authStatus) => {
-            if (authStatus.isAuthenticated) {
+            if (authStatus) {
                 this.connected = true;
                 navbarManager.updateNavbar(this.connected);
                 const path = window.location.pathname.substring(1) || 'homepage';
