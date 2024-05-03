@@ -18,6 +18,13 @@ var friendsPage = {
             if (data.error) {
                 alert(data.error);
             } else {
+                auth.retrieveInfos().then(userInfo => {
+                    if (userInfo.username === username) {
+                        document.getElementById('editProfileButton').classList.remove('d-none');
+                    } else {
+                        document.getElementById('editProfileButton').classList.add('d-none');
+                    }
+                });
                 document.getElementById('friends').classList.add('d-none');
                 document.getElementById('profilePageNoChange').classList.remove('d-none');
                 document.getElementById('usernameProfileNoChange').textContent = `Username: ${data.username}`;

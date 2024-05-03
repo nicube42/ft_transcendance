@@ -171,5 +171,25 @@ const userInfoDisplayer = {
         .catch(error => {
             console.error('Error:', error);
         });
-    }
+    },
+    betterUI: async function() {
+        try {
+            const userInfo = await auth.retrieveInfos();
+            
+            friendsPage.showUserProfile(userInfo.username);
+
+            document.getElementById('editProfileButton').addEventListener('click', () => {
+                ui.showOnlyOneSection('profilePage');
+                try {
+                    auth.retrieveInfos().then(data => {
+                        userInfoDisplayer.updateUI(data);
+                    });
+                } catch (error) {
+                    console.error('Failed to fetch or display user info:', error);
+                }
+            });
+        } catch (error) {
+            console.error('Failed to fetch or display user info:', error);
+        }
+    },
 };

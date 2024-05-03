@@ -28,6 +28,10 @@ window.addEventListener('load', function() {
     }
 });
 
+window.addEventListener('DOMContentLoaded', function() {
+    userInfoDisplayer.betterUI();
+});
+
 const ui = {
     connected: false,
     toggleSectionVisibility: function(sectionId, isVisible) {
@@ -165,14 +169,10 @@ const ui = {
             this.showOnlyOneSection('register');
         },
         async 'navProfile'() {
-            this.showOnlyOneSection('profilePage');
-            try {
-                const data = await auth.retrieveInfos();
-                userInfoDisplayer.updateUI(data);
-            } catch (error) {
-                console.error('Failed to fetch or display user info:', error);
-            }
+            userInfoDisplayer.betterUI();
+            this.showOnlyOneSection('profilePageNoChange');
         },
+        
         async 'navLogout'() {
             await auth.logout();
         },
@@ -235,6 +235,7 @@ const ui = {
         async 'STATISTICS'() {
             this.showOnlyOneSection('playerStats');
             GameStats.init();
+            location.reload();
         },
         async 'lang_en'() {
             this.handleLanguageChange('en');
