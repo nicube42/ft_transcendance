@@ -109,8 +109,11 @@ const game = {
     },
 
     updateGameSettings: function(settings) {
+        this.settings.ballSpeed = settings.ballSpeed;
+        this.settings.paddleSpeed = settings.paddleSpeed;
         this.ballSpeedX = settings.ballSpeed / 2;
         this.ballSpeedY = settings.ballSpeed / 2;
+        this.ballSpeedMax = this.ballSpeedX * 1.4;
         this.paddleSpeed = settings.paddleSpeed;
         this.winningScore = settings.winningScore;
         this.player1_name = settings.player1;
@@ -124,7 +127,7 @@ const game = {
         this.ballSpeedY = this.settings.ballSpeed / 2;
         this.paddleSpeed = this.settings.paddleSpeed;
         this.winningScore = this.settings.winningScore;
-
+        this.ballSpeedMax = this.ballSpeedX * 1.4;
         this.ballPosX = this.canvas.width / 2;
         this.ballPosY = this.canvas.height / 2;
         this.leftPaddleY = (this.canvas.height - this.paddleHeight) / 2;
@@ -354,6 +357,19 @@ const game = {
         }, 9000);
     },
 
+    modifieAngle: function (impactPointY, paddleCenter){
+        let refractionAngle = ((impactPointY - paddleCenter) / (this.paddleHeight / 2)) * 70;
+        let radianAngle = (refractionAngle * Math.PI) / 180;
+        this.ballSpeedX *= -1;
+        if (this.ballSpeedX < this.ballSpeedMax){
+            this.ballSpeedX *= 1.06;
+        }
+        console.log('speedx:', this.ballSpeedX, this.ballSpeedMax);
+        this.ballSpeed = Math.abs(this.ballSpeedX / Math.cos(radianAngle));
+
+        this.ballSpeedY = Math.sin(radianAngle) * this.ballSpeed;
+    },
+
     updateBallPos: function (delta, obstacle, isX, paddleCenter) {
         let tmpX, tmpY;
         this.ballDirectionChanged = true;
@@ -361,12 +377,8 @@ const game = {
         if (isX && paddleCenter){
             tmpX = obstacle;
             tmpY = this.ballPosY + this.ballSpeedY * delta;
-            let currentAngle = Math.atan2(this.ballSpeedY, this.ballSpeedX);
-            let refraction_coefficient = Math.abs((this.ballPosY - paddleCenter) / (this.paddleHeight / 2));
-            let newAngle = currentAngle + refraction_coefficient / 2; // change le coef pr que l'angle soit + +
-            this.ballSpeedX = -originalSpeed * Math.cos(newAngle);
-            this.ballSpeedY = originalSpeed * Math.sin(newAngle);
-            console.log(Math.sqrt(this.ballSpeedX * this.ballPosX + this.ballSpeedY * this.ballPosY));
+            console.log('change angle');
+            this.modifieAngle(tmpY, paddleCenter);
         }
         else {
             tmpX = this.ballPosX + this.ballSpeedX * delta;
@@ -415,7 +427,6 @@ const game = {
     },
 
     drawPong: function() {
-        console.log('BONUS IS', this.withBonus);
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		// Réinitialise la couleur de la balle si aucun bonus n'est touché
@@ -501,7 +512,6 @@ const game = {
         }
     
         // Always update score display and request next frame
-        console.log("name",this.player1_name);
         document.getElementById('player1_name').textContent = this.player1_name + `: ${this.player1Score}`;
         document.getElementById('player2_name').textContent = this.player2_name + `: ${this.player2Score}`;
         document.getElementById('winning_score').textContent = "Winning score" + `: ${this.winningScore}`;
@@ -529,7 +539,9 @@ const game = {
 		this.ballPosY = this.canvas.height / 2;
 	
 		// Réinitialise la vitesse de la balle à la valeur initiale de configuration
+        this.ballSpeed = this.settings.ballSpeed;
 		this.ballSpeedX = this.settings.ballSpeed / 2;
+        this.ballSpeedY = this.settings.ballSpeed / 2;
 		//this.ballSpeedY = Math.random() > 0.5 ? this.settings.ballSpeed / 2 : -this.settings.ballSpeed / 2;  // Ajoute une variation aléatoire pour la direction verticale
 	
 		// Réinitialise la couleur de la balle

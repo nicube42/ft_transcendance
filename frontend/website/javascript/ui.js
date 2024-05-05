@@ -167,7 +167,7 @@ const ui = {
             this.showOnlyOneSection('loginContainer');
         },
         async 'navLogin42'() {
-            window.location.href = 'https://c3r5s5:4242/api/authorize/';
+            window.location.href = 'https://localhost:4242/api/authorize/';
             console.log('test1');
         },
         async 'navRegister'() {
