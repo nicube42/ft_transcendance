@@ -1,6 +1,7 @@
 var langDict = {
     'en': {
         //navbar
+        'navbardropdown' : 'Account',
         'home': 'Home',
         'language': 'Language',
         'account': 'Account',
@@ -34,12 +35,15 @@ var langDict = {
         'register': 'Register',
         'password': 'Password',
         
-        // https://localhost:4242/register
-        'username': 'Username',
-        'password': 'Password',
-        'full name': 'Full Name',
-        'birth date': 'Birth Date',
-        'bio': 'Bio',
+        // https://localhost:4242/register top
+        'registersubmitbutton': 'Login', 
+        'cancelregisterbutton': 'Cancel',
+        'registerheader' : 'Login',
+        'registerusernamelabel': 'Username',
+        'fullnamelabel': 'Full Name',
+        'registerpasswordlabel': 'Password',
+        'biolabel': 'Bio',
+
         
         // https://localhost:4242/homepage
         'single player': 'Single Player',
@@ -99,6 +103,14 @@ var langDict = {
         'passwordlabel': 'passeword',
         'id_password': 'passeword',
 
+        "gamesplayedlabel": "Games played",
+        "totalwinslabel": "Total wins",
+        "totallosseslabel": "Total losses",
+        "totalscorelabel": "Total score",
+        "playerdetailsheader": "Player details",
+        "lastgamesresultsheader": "List of last games results",
+        "winratechartheader": "Win rate chart",
+
         'registerheader': 'login',
         'passwordlabel': 'passeword',
         'cancelloginbutton': 'Cancel',
@@ -109,6 +121,7 @@ var langDict = {
     
     'fr': {
         //navbar
+        'navbardropdown' : 'Compte',
         'home': 'Accueil',
         'language': 'Langue',
         'account': 'Compte',
@@ -141,12 +154,15 @@ var langDict = {
         
         
         // https://localhost:4242/register
-        'register': 'Inscription', //a double virer si conflit
-        'username': 'Nom d’utilisateur',
-        'password': 'Mot de passe',
-        'full name': 'Nom complet',
-        'birth date': 'Date de naissance',
-        'bio': 'Biographie',
+        'registersubmitbutton': 'S\'enregistrer', 
+        'cancelregisterbutton': 'retour',
+        'registerheader': 'Inscription', //a double virer si conflit
+        'registerusernamelabel': 'Nom d’utilisateur',
+        'registerpasswordlabel': 'Mot de passe',
+        'fullnamelabel': 'Nom complet',
+        'biolabel': 'Biographie',
+
+
         
         // https://localhost:4242/homepage
         'single player': 'Joueur seul',
@@ -216,10 +232,20 @@ var langDict = {
         'cancelloginbutton': 'Annuler',
         'loginheader': 'Identification',
 
+        "gamesplayedlabel": "Parties jouées",
+        "totalwinslabel": "Victoires totales",
+        "totallosseslabel": "Défaites totales",
+        "totalscorelabel": "Score total",
+        "playerdetailsheader": "Détails du joueur",
+        "lastgamesresultsheader": "Liste des derniers résultats des jeux",
+        "winratechartheader": "Graphique du taux de victoire"
+    
+
     },
     
     'es': {
         //navbar
+        'navbardropdown' : 'accountos',
         'home': 'Inicio',
         'language': 'Idioma',
         'account': 'Cuenta',
@@ -255,11 +281,14 @@ var langDict = {
         'password': 'Contraseña',
     
         // https://localhost:4242/register
-        'username': 'Nombre de usuario',
-        'password': 'Contraseña',
-        'full name': 'Nombre completo',
-        'birth date': 'Fecha de nacimiento',
-        'bio': 'Biografía',
+        'registersubmitbutton': 'Loginada', 
+        'cancelregisterbutton': 'Annulada',
+        'registerusernamelabel' : 'usernamado',
+        'registerheader' : 'loginada',
+        'registerusernameabel': 'Nomados Usuario',
+        'registerpasswordlabel': 'Contraseña',
+        'fullnamelabel': 'Nombre completo',
+        'biolabel': 'Biografía',
         
         // https://localhost:4242/homepage
         'single player': 'Un jugador',
@@ -320,7 +349,14 @@ var langDict = {
         'gameslist': 'Resultados de los últimos juegos',
         'winratechart': 'Gráfico de tasa de victorias a lo largo del tiempo',
 
-
+        "gamesplayedlabel": "Partidas jugadas",
+        "totalwinslabel": "Victorias totales",
+        "totallosseslabel": "Derrotas totales",
+        "totalscorelabel": "Puntuación total",
+        "playerdetailsheader": "Detalles del jugador",
+        "lastgamesresultsheader": "Lista de los últimos resultados de juegos",
+        "winratechartheader": "Gráfico de tasa de victorias",
+        
         'loginbutton':'Loginada',
         'cancelloginbutton': 'Annulada',
         'loginheader': 'Loginada',

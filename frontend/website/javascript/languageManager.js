@@ -11,8 +11,11 @@ function updateTexts() {
         'titleTournament', 'titleSettings', 'titleProfile', 'titleStatistics',
         'login_initial', 'register_initial', 'saveSettings', 'cancelLogin', 'cancelRegister', 
         'usernameLabel', 'registerHeader','passwordLabel','loginButton', 'cancelLoginButton', 
-        'loginHeader', 'tournamentHeader', 'playerDetails', 'gamesList', 'winRateChart', 'playerDetailsHeader',
-        'loginForm', 'id_password',
+        'loginHeader', 'tournamentHeader', 'playerStatisticsTitle', 'totalScore', 'player2_score',
+        'player1_score', 'totalScoreTitle', 'gamesPlayedTitle', 'gamesTotalWinsTitle', 'gamesTotalLossesTitle',
+        'gamesTotalScoreTitle', 'registerUsernameLabel', 'registerPasswordLabel', 'bioLabel', 'fullnameLabel',
+        'navbarDropdown', 'registerSubmitButton', 'cancelRegisterButton', 'gamesPlayedLabel', 'gamesPlayedLabel', 
+        'totalLossesLabel', 'totalScoreLabel', 'playerDetailsHeader', 'lastGamesResultsHeader', 'winRateChartHeader',
     ];
 
     elementIds.forEach(id => {
