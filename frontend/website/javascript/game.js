@@ -367,8 +367,8 @@ const game = {
         let refractionAngle = ((impactPointY - paddleCenter) / (this.paddleHeight / 2)) * 70;
         let radianAngle = (refractionAngle * Math.PI) / 180;
         this.ballSpeedX *= -1;
-        if (this.ballSpeedX < this.ballSpeedMax){
-            this.ballSpeedX *= 1.06;
+        if (Math.abs(this.ballSpeedX) < 15){
+            this.ballSpeedX > 0 ? this.ballSpeedX += 1 : this.ballSpeedX -= 1;
         }
         this.ballSpeed = Math.abs(this.ballSpeedX / Math.cos(radianAngle));
 
@@ -378,7 +378,6 @@ const game = {
     updateBallPos: function (delta, obstacle, isX, paddleCenter) {
         let tmpX, tmpY;
         this.ballDirectionChanged = true;
-        const originalSpeed = Math.sqrt(this.ballSpeedX * this.ballSpeedX + this.ballSpeedY * this.ballSpeedY);
         if (isX && paddleCenter){
             tmpX = obstacle;
             tmpY = this.ballPosY + this.ballSpeedY * delta;
@@ -425,6 +424,7 @@ const game = {
 		if (!this.bonusTouched) {
 			this.ball_color = 'white';
 		}
+        console.log(this.ballSpeedX);
     },
 
     drawPong: function() {

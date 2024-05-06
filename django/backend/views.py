@@ -1,8 +1,27 @@
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import GameSettings, Player
+from .forms import CustomUserForm
+from .models import GameSettings, Player, Game, Room, CustomUser, LoggedInUser
+from dateutil import parser
+from django.conf import settings
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.db.models import Q, Sum, F, Count
+from django.db.models.functions import TruncMonth
+from django.dispatch import receiver
+from django.http import HttpResponseRedirect, JsonResponse
+from django.middleware.csrf import get_token
+from django.utils.text import get_valid_filename
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.http import require_http_methods, require_POST
 import json
-from django.views.decorators.http import require_POST
+import os
+import requests
+import unicodedata
+import logging
+logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def save_settings(request):
@@ -44,10 +63,6 @@ def save_settings(request):
         return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
 
 
-
-from django.http import JsonResponse
-from .models import GameSettings
-
 @csrf_exempt
 def retrieve_settings(request):
     if request.method != 'GET':
@@ -80,21 +95,11 @@ def retrieve_settings(request):
     return JsonResponse(response_data)
 
 
-import unicodedata
-from django.utils.text import get_valid_filename
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
-from django.http import JsonResponse
-from django.contrib.auth.hashers import make_password
-from django.conf import settings
-from .forms import CustomUserForm
-from django.views.decorators.csrf import csrf_protect
-
 def strip_accents(s):
     """Remove accentuated characters from a string and return a clean string."""
     return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
-# @csrf_protect
+
 @csrf_exempt
 def register(request):
     if request.method == 'POST':
@@ -141,9 +146,6 @@ def register(request):
     return JsonResponse({"error": "Only POST method is allowed"}, status=405)
 
 
-import os
-from django.http import HttpResponseRedirect
-
 @csrf_exempt
 def intraAuthorize(request):
     if request.method == 'GET':
@@ -155,9 +157,6 @@ def intraAuthorize(request):
 
         return HttpResponseRedirect(authorization_url)
 
-
-import requests
-import json
 
 @csrf_exempt
 def intraCallback(request):
@@ -174,13 +173,9 @@ def intraCallback(request):
             'redirect_uri': os.getenv('REDIRECT_AUTH_URL')
         }
         response = requests.post('https://api.intra.42.fr/oauth/token', data=data_code)
-        print("RESPONSE oauth/token")
-        print(response.status_code)
-        print(response.json())
         try:
             auth_token = response.json()['access_token']
         except KeyError:
-            print("Error: intra 42 'access_token' not found in the response.")
             auth_token = None
 
         if not auth_token:
@@ -193,16 +188,10 @@ def intraCallback(request):
         user_data = response.json()
 
         try:
-            print("MDR2")
-
             username = user_data.get('login')
             fullname = user_data.get('usual_full_name')
-            print(user_data)
             profile_pic = user_data.get('image')
-            print (profile_pic)
             ppUrl = profile_pic['link']
-            print("MDR3")
-            print(f"profile_pic: {ppUrl}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 
             user, is_created = CustomUser.objects.get_or_create(
                 username=username,
@@ -210,33 +199,17 @@ def intraCallback(request):
                 profile_pic_url=ppUrl,
             )
 
-            print("MDR3")
             login(request, user)
-            print("MDR4")
             csrf_token = get_token(request)
-            print("MDR5")
 
             response = JsonResponse({'message': 'Login successful'})
             response.set_cookie('csrftoken', csrf_token, httponly=False)
-            print("end login 42")
-            print("MDR6")
             return response
         except ValidationError as e:
             return JsonResponse({'error': e.message_dict}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-
-from django.contrib.auth import authenticate, login
-from django.http import JsonResponse
-import json
-
-import logging
-
-logger = logging.getLogger(__name__)
-
-from django.middleware.csrf import get_token
-from django.views.decorators.csrf import ensure_csrf_cookie
 
 @csrf_exempt
 def api_login(request):
@@ -273,11 +246,6 @@ def api_login(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-import logging
-
 @csrf_exempt
 def user_info(request):
     try:
@@ -297,10 +265,6 @@ def user_info(request):
         return JsonResponse({'error': 'Internal Server Error'}, status=500)
 
 
-from django.contrib.auth import logout
-from django.http import JsonResponse
-
-
 def api_logout(request):
     try:
         if request.user.is_authenticated:
@@ -310,11 +274,6 @@ def api_logout(request):
             return JsonResponse({'error': 'User is already logged out '}, status=400)
     except Exception as e:
         return JsonResponse({'error': 'Error during logout', 'details': str(e)}, status=500)
-
-
-from django.views.decorators.http import require_http_methods
-from django.http import JsonResponse
-from .models import CustomUser
 
 
 def is_user_logged_in(request):
@@ -341,11 +300,6 @@ def check_auth_status(request):
             return JsonResponse({"is_authenticated": True})
     else:
         return JsonResponse({"is_authenticated": False}, status=401)
-
-
-from django.contrib.auth.signals import user_logged_in, user_logged_out
-from django.dispatch import receiver
-from .models import LoggedInUser
 
 
 @receiver(user_logged_in)
@@ -387,14 +341,6 @@ def profile_pic_update(request):
     return render(request, 'app/profile_update.html', {'form': form})
 
 
-from django.http import JsonResponse
-import json
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import get_user_model
-from .models import Game
-from dateutil import parser
-
-
 @csrf_exempt
 def game_record(request):
     if request.method == 'POST':
@@ -422,12 +368,6 @@ def game_record(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
-from django.http import JsonResponse
-import logging
-from .models import Game
-from django.db.models import Q, Sum, F
-
-
 def player_stats(request):
     try:
         user = request.user
@@ -452,11 +392,6 @@ def player_stats(request):
         return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)
 
 
-from django.http import JsonResponse
-
-from .models import Game
-
-
 def recent_games(request):
     try:
         current_user = request.user
@@ -477,13 +412,6 @@ def recent_games(request):
     except Exception as e:
         logging.exception("Error fetching recent games")
         return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)
-
-
-from django.db.models import Count, Q, F
-from django.http import JsonResponse
-
-from .models import Game
-from django.db.models.functions import TruncMonth
 
 
 def win_rate_over_time(request):
@@ -512,13 +440,6 @@ def win_rate_over_time(request):
         return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)
 
 
-
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.contrib.auth import get_user_model
-from django.views.decorators.csrf import csrf_exempt
-
-
 @require_POST
 def check_user(request):
     if not request.user.is_authenticated:
@@ -531,13 +452,6 @@ def check_user(request):
         return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
     exists = get_user_model().objects.filter(username=username).exists()
     return JsonResponse({'exists': exists})
-
-
-
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-import json
 
 
 @require_POST
@@ -559,11 +473,6 @@ def add_friend(request):
     except Exception as e:
         return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
     
-
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from django.http import JsonResponse
-import json
 
 @login_required
 @require_POST
@@ -587,10 +496,6 @@ def delete_friend(request):
         return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
 
 
-
-from django.http import JsonResponse
-
-
 def list_friends(request):
     try:
         if not request.user.is_authenticated:
@@ -600,11 +505,6 @@ def list_friends(request):
         return JsonResponse({'friends': friends_data}, safe=False)
     except Exception as e:
         return JsonResponse({'error': 'Error fetching friends', 'details': str(e)}, status=401)
-
-
-
-from django.http import JsonResponse
-from .models import CustomUser
 
 
 def get_user_profile(request, username):
@@ -678,7 +578,6 @@ def win_rate_over_time_all(request, username):
         return JsonResponse({'error': 'Win rate over time error', 'details': str(e)}, status=500)
 
 
-
 def player_stats_all(request, username):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'User not authenticated'}, status=401)
@@ -704,14 +603,6 @@ def player_stats_all(request, username):
         return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)
 
 
-from django.contrib.auth import get_user_model
-import json
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-
-from django.views.decorators.csrf import csrf_protect
-
-
 @require_POST
 @csrf_protect
 def update_game_status(request):
@@ -732,14 +623,6 @@ def update_game_status(request):
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-
-
-from django.contrib.auth import get_user_model
-import json
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-
-from django.views.decorators.csrf import csrf_protect
 
 
 @require_POST
@@ -764,11 +647,6 @@ def update_tournament_status(request):
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
-from django.http import JsonResponse
-
-from django.views.decorators.http import require_http_methods
-
-
 @require_http_methods(["GET"])
 def check_user_in_tournament(request):
     user = request.user
@@ -777,9 +655,6 @@ def check_user_in_tournament(request):
     return JsonResponse({
         'is_in_tournament': user.is_in_tournament
     })
-
-from django.http import JsonResponse
-from .models import Room
 
 
 def check_if_user_in_any_room(request):
@@ -828,10 +703,6 @@ def renameUser(request):
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
     
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from .forms import ProfilePicUpdateForm
 
 @login_required
 @require_POST
@@ -858,11 +729,6 @@ def change_profile_pic(request):
         first_error_field = next(iter(errors))
         first_error_message = str(errors[first_error_field][0])
         return JsonResponse({'error': first_error_message}, status=400)
-
-
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from .models import Room, CustomUser
 
 
 def list_other_players_in_room(request):
