@@ -29,7 +29,12 @@ var friendsPage = {
                 document.getElementById('profilePageNoChange').classList.remove('d-none');
                 document.getElementById('usernameProfileNoChange').textContent = `Username: ${data.username}`;
                 document.getElementById('fullnameProfileNoChange').textContent = `Full Name: ${data.fullname}`;
-                document.getElementById('profilePicNoChange').src = data.profile_pic_url;
+                if (data.profile_pic_url) {
+                    document.getElementById('profilePicNoChange').src = data.profile_pic_url;
+                }
+                else {
+                    document.getElementById('profilePicNoChange').src = '/media/pictures/default.jpg';
+                }
                 document.getElementById('csrfTokenProfilePic').value = this.getCSRFToken();
             }
         })
