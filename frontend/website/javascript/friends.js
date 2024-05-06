@@ -34,7 +34,12 @@ var friendsPage = {
                 document.getElementById('profilePageNoChange').classList.remove('d-none');
                 document.getElementById('usernameProfileNoChange').textContent = `Username: ${data.username}`;
                 document.getElementById('fullnameProfileNoChange').textContent = `Full Name: ${data.fullname}`;
-                document.getElementById('profilePicNoChange').src = data.profile_pic_url;
+                if (data.profile_pic_url) {
+                    document.getElementById('profilePicNoChange').src = data.profile_pic_url;
+                }
+                else {
+                    document.getElementById('profilePicNoChange').src = '/media/pictures/default.jpg';
+                }
                 document.getElementById('csrfTokenProfilePic').value = this.getCSRFToken();
             }
         })
@@ -106,7 +111,6 @@ var friendsPage = {
     },
 
     goToStats: function(username) {
-        console.log("Viewing stats for", username);
         this.fetchStatsForUser(username);
         document.getElementById('playerStats').classList.remove('d-none');
     },
@@ -134,7 +138,6 @@ var friendsPage = {
         })
         .then(data => {
             if (data.exists) {
-                console.log("User exists, adding as friend");
                 this.performAddFriend(username);
             } else {
                 alert("User does not exist");
@@ -155,7 +158,6 @@ var friendsPage = {
         .then(response => response.json())
         .then(data => {
             if (data.message) {
-                console.log(data.message);
                 this.listFriends();
             } else if (data.error) {
                 console.error('Error deleting friend:', data.error);
@@ -181,7 +183,6 @@ var friendsPage = {
             return response.json();
         })
         .then(data => {
-            console.log(data.message);
             this.listFriends();
         })
         .catch(error => console.error('Error adding friend:', error));

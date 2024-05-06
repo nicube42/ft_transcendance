@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 from asgiref.sync import sync_to_async
 from .models import Room
 from .models import Tournament
+from .models import GameSettings
 from django.contrib.auth import get_user_model
 import json
 from django.contrib.sessions.models import Session
@@ -143,9 +144,14 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.surrendered(text_data_json)
         elif action == 'broadcast_surrender':
             await self.broadcast_surrender(text_data_json)
+        elif action == 'retrieve_settings':
+            await self.retrieve_settings(text_data_json)
         # elif action == 'start_tournament_matches':
         #     await self.start_tournament_matches(text_data_json)
 
+    
+
+  
     async def create_room(self, data):
         room_name = data['room_name']
         user = self.scope['user']
@@ -154,10 +160,50 @@ class GameConsumer(AsyncWebsocketConsumer):
             return
         room, created = await self.get_or_create_room(name=room_name, user=user)
         if created:
+            user_settings = await database_sync_to_async(GameSettings.objects.get)(user=user)
+            room_settings = await self.create_game_settings(user, user_settings)
+            room.settings = room_settings
+            await database_sync_to_async(room.save)()
             await self.send_message_safe(json.dumps({'message': f'Room {room_name} created'}))
             await self.broadcast_room_list()
         else:
             await self.send_message_safe(json.dumps({'error': 'Room already exists'}))
+    
+    @sync_to_async
+    def create_game_settings(self, user, user_settings):
+        return GameSettings.objects.create(
+            # room=room,
+            player1=user_settings.player1,
+            player2=user_settings.player2,
+            ball_speed=user_settings.ball_speed,
+            paddle_speed=user_settings.paddle_speed,
+            winning_score=user_settings.winning_score,
+            bonus=user_settings.bonus
+        )
+    # async def create_room(self, data):
+    #     room_name = data['room_name']
+    #     user = self.scope['user']
+    #     if user.is_anonymous:
+    #         await self.send_message_safe(json.dumps({'error': 'Authentication required to create room'}))
+    #         return
+    #     room, created = await self.get_or_create_room(name=room_name, user=user)
+    #     if created:
+    #         user_settings = await database_sync_to_async(GameSettings.objects.get)(user=user)
+    #         room_settings = await database_sync_to_async(GameSettings.objects.create(
+    #             room=room,
+    #             player1=user_settings.player1,
+    #             player2=user_settings.player2,
+    #             ball_speed=user_settings.ball_speed,
+    #             paddle_speed=user_settings.paddle_speed,
+    #             winning_score=user_settings.winning_score,
+    #             bonus=user_settings.bonus
+    #         ))
+    #         room.settings = room_settings
+    #         room.save()
+    #         await self.send_message_safe(json.dumps({'message': f'Room {room_name} created with {room_settings}'}))
+    #         await self.broadcast_room_list()
+    #     else:
+    #         await self.send_message_safe(json.dumps({'error': 'Room already exists'}))
 
     async def join_room(self, data, reconnect=False):
         room_name = data['room_name']
@@ -478,6 +524,47 @@ class GameConsumer(AsyncWebsocketConsumer):
             'action': 'update_bonus',
             'bonusGreen': event['bonusGreen'],
             'bonusRed': event['bonusRed'],
+        }))
+
+    async def get_room_settings(self, room):
+        # Ensuring that getting settings is also an async safe call
+        return await database_sync_to_async(lambda: room.settings)()
+    
+    async def retrieve_settings(self, data):
+        room_name = data['room_name']
+        room = await self.get_room_by_name(room_name)
+
+        if room :
+            game_settings = await self.get_room_settings(room)
+            if game_settings:
+                settings_data = {
+                    'player1': room.settings.player1,
+                    'player2': room.settings.player2,
+                    'ballSpeed': room.settings.ball_speed,
+                    'paddleSpeed': room.settings.paddle_speed,
+                    'winningScore': room.settings.winning_score,
+                    'bonus': room.settings.bonus
+                }
+                print('\nDATA:', settings_data, '\n')
+                await self.channel_layer.group_send(
+                    room_name,
+                    {
+                        'action': 'retrieve_settings',
+                        'type': 'broadcast_settings',  # This will trigger the broadcast_settings method to send updates.
+                        'settings': settings_data,
+                        'sender_channel_name': self.channel_name,
+                    }
+                )
+        elif room is None:
+            await self.send_message_safe(json.dumps({'error': 'Room not found'}))
+        else:
+            await self.send_message_safe(json.dumps({'error': 'No settings found for this room'}))
+
+    async def broadcast_settings(self, event):
+        # Broadcast the settings to all clients in the room
+        await self.send_message_safe(json.dumps({
+            'action': 'retrieve_settings',
+            'settings': event['settings'],
         }))
 
     async def update_paddle_pos(self, data):

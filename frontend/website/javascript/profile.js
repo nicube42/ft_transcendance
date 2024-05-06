@@ -34,8 +34,6 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
         if (username !== '')
             userInfoDisplayer.renameUser(username);
 
-
-        console.log('Profile picture form data:', formData.get('profile_pic').name);
         if (formData.get('profile_pic').name === '')
             return;
 
@@ -121,7 +119,6 @@ const userInfoDisplayer = {
                 throw new Error(data.error);
             }
             this.updateProfilePicUI(data.profile_pic_url);
-            console.log(data);
         })
         .catch(error => {
             auth.registerErrorModal(error);
