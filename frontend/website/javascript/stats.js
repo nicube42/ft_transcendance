@@ -53,7 +53,7 @@ const stats = {
                     if (userInfo && userInfo.username) {
                         var postData = {
                             player1: userInfo.username,
-                            player2: opponent,
+                            player2: "opponent",
                             player1_score: player1Score,
                             player2_score: player2Score,
                             start_time: stats.startTime.toISOString(),
@@ -68,6 +68,16 @@ const stats = {
                                     player2: opponent,
                                     player1_score: player2Score,
                                     player2_score: player1Score,
+                                    start_time: stats.startTime.toISOString(),
+                                    end_time: stats.endTime.toISOString()
+                                };
+                            }
+                            else{
+                                postData = {
+                                    player1: userInfo.username,
+                                    player2: opponent,
+                                    player1_score: player1Score,
+                                    player2_score: player2Score,
                                     start_time: stats.startTime.toISOString(),
                                     end_time: stats.endTime.toISOString()
                                 };
@@ -173,10 +183,10 @@ const stats = {
     fetchGameResultDetails: async function(game, winner) {
         const userInfo = await auth.retrieveInfos();
         const opponentName = await auth.get_opponent_name();
-        if (!opponentName.other_player || !userInfo.username)
-            return (1);
     
         if (game.gameMode === 'distant') {
+            if (!opponentName.other_player || !userInfo.username)
+                return (1);
             if (game.playerRole === 'right') {
                 document.getElementById('endGameUsername1').innerHTML = opponentName.other_player;
                 document.getElementById('endGameUsername2').innerHTML = userInfo.username;
@@ -187,9 +197,9 @@ const stats = {
                 document.getElementById('winner_endgame').textContent = (winner === 2) ? opponentName.other_player : userInfo.username;
             }
         } else {
-            document.getElementById('endGameUsername1').innerHTML = game.settings.player1Name;
-            document.getElementById('endGameUsername2').innerHTML = game.settings.player2Name;
-            document.getElementById('winner_endgame').textContent = (winner === 1) ? game.settings.player1Name : game.settings.player2Name;
+            document.getElementById('endGameUsername1').innerHTML = userInfo.username;
+            document.getElementById('endGameUsername2').innerHTML = "opponent";
+            document.getElementById('winner_endgame').textContent = (winner === 1) ? userInfo.username : "opponent";
         }
         console.log("Game Result Details Updated");
         return (0);

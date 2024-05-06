@@ -105,8 +105,10 @@ const game = {
         if (this.gameMode === 'distant') {
             this.fetchPlayerNames();
         } else {
-            this.player1_name = settings.player1Name; 
-            this.player2_name = settings.player2Name;
+            auth.retrieveInfos().then(userInfo => {
+                this.player1_name = userInfo.username;
+            });
+            this.player2_name = "opponent";
         }
         this.withBonus = settings.bonus;
     },
@@ -148,8 +150,10 @@ const game = {
         if (this.gameMode === 'distant') {
             this.fetchPlayerNames();
         } else {
-            this.player1_name = this.settings.player1Name;
-            this.player2_name = this.settings.player2Name;
+            auth.retrieveInfos().then(userInfo => {
+                this.player1_name = userInfo.username;
+            });
+            this.player2_name = "opponent";
         }
         this.aiPaddleDirection = 1;
         this.leftPaddleMovingUp = false;
