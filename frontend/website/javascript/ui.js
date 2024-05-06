@@ -160,7 +160,7 @@ const ui =
         async 'previousSettings'() {
             this.showOnlyOneSection('homepage');
         },
-        async 'cancelLogin'() {
+        async 'cancelLoginButton'() {
             if (this.connected)
                 this.showOnlyOneSection('homepage');
             else
@@ -171,6 +171,9 @@ const ui =
                 this.showOnlyOneSection('homepage');
             else
                 this.showOnlyOneSection('firstPage');
+        },
+        async 'previous_tournament'() {
+            this.showOnlyOneSection('homepage');
         },
         async 'navLogin'() {
             this.showOnlyOneSection('loginContainer');
