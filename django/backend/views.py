@@ -98,6 +98,31 @@ def strip_accents(s):
 def register(request):
     if request.method == 'POST':
         form = CustomUserForm(request.POST, request.FILES)
+        if CustomUser.objects.filter(username=request.POST.get('username')).exists():
+            return JsonResponse({'error': 'Username already exists'}, status=400)
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        fullname = request.POST.get('fullname')
+        profile_pic = request.FILES.get('profile_pic')
+        if username is None:
+            return JsonResponse({'error': 'Username is missing'}, status=400)
+        if password is None:
+            return JsonResponse({'error': 'Password is missing'}, status=400)
+        if fullname is None:
+            return JsonResponse({'error': 'Fullname is missing'}, status=400)
+        if len(username) < 4 or len(username) > 20:
+            return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
+        if len(password) < 4 or len(password) > 20:
+            return JsonResponse({'error': 'Password must be between 4 and 20 characters'}, status=400)
+        if len(fullname) < 4 or len(fullname) > 20:
+            return JsonResponse({'error': 'Fullname must be between 4 and 20 characters'}, status=400)
+
+        #check profile picture size and format
+        if profile_pic:
+            if profile_pic.size > 1024 * 1024:
+                return JsonResponse({'error': 'Profile picture size is too large'}, status=400)
+            if not profile_pic.content_type.startswith('image'):
+                return JsonResponse({'error': 'Profile picture must be an image'}, status=400)
         if form.is_valid():
             user = form.save(commit=False)
             user.password = make_password(form.cleaned_data['password'])
@@ -105,19 +130,15 @@ def register(request):
             # Check if a profile picture was uploaded
             if 'profile_pic' in request.FILES:
                 file = request.FILES['profile_pic']
-                # Normalize and strip accents from the filename
                 normalized_filename = strip_accents(file.name)
-                # Get a valid filename for the file system
                 safe_filename = get_valid_filename(normalized_filename)
-                # Save the file
                 file_name = default_storage.save(safe_filename, ContentFile(file.read()))
-                # Create the URL
                 user.profile_pic_url = request.build_absolute_uri("https://localhost:4242/media/pictures/" + file_name)
 
             user.save()  # Save the user and the file path
             return JsonResponse({'message': 'User created successfully'}, status=201)
         else:
-            return JsonResponse({'error': form.errors}, status=400)
+            return JsonResponse({'error': form.errors.as_json(escape_html=True)}, status=400)
     return JsonResponse({"error": "Only POST method is allowed"}, status=405)
 
 
@@ -306,20 +327,26 @@ def api_login(request):
             data = json.loads(request.body.decode('utf-8'))
             username = data.get('username')
             password = data.get('password')
-            if username is None or password is None:
-                return JsonResponse({'error': 'Username or password is missing'}, status=400)
+            if username is None:
+                return JsonResponse({'error': 'Username is missing'}, status=400)
+            if password is None:
+                return JsonResponse({'error': 'Password is missing'}, status=400)
+            if len(username) < 4 or len(username) > 20:
+                return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
+            if len(password) < 4 or len(password) > 20:
+                return JsonResponse({'error': 'Password must be between 4 and 20 characters'}, status=400)
 
             user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                csrf_token = get_token(request)
-                response = JsonResponse({'message': 'Login successful'})
-                response.set_cookie('csrftoken', csrf_token, httponly=False)
-                return response
-            else:
-                return JsonResponse({'error': 'Invalid credentials'}, status=400)
+            if user is None:
+                return JsonResponse({'error': 'Incorrect username or password. Please try again.'}, status=400)
+
+            login(request, user)
+            csrf_token = get_token(request)
+            response = JsonResponse({'message': 'Login successful'}, status=200)
+            response.set_cookie('csrftoken', csrf_token, httponly=False)
+            return response
         except json.JSONDecodeError:
-            logger.exception('Error decoding JSON in api_login')
+            logger.exception('Error decoding JSON')
             return JsonResponse({'error': 'Invalid JSON format'}, status=400)
         except Exception as e:
             logger.exception(f'Error in api_login: {e}')

@@ -1,10 +1,29 @@
 const auth = {
+
+    loginErrorModal: function(error) {
+        var modal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
+        var modalBody = document.getElementById('loginErrorBody');
+        modalBody.innerHTML = error;
+        modal.show();
+    },
+
     login: function() {
         const csrfToken = getCookie('csrftoken');
         const formData = {
             username: document.getElementById('id_username').value,
             password: document.getElementById('id_password').value
         };
+
+        let username = formData.username;
+        if (username.length < 4 || username.length > 20) {
+            this.loginErrorModal('Username must be between 4 and 20 characters.');
+            return;
+        }
+        let password = formData.password;
+        if (password.length < 4 || password.length > 20) {
+            this.loginErrorModal('Password must be between 4 and 20 characters.');
+            return;
+        }
         fetch('/api/login/', {
             method: 'POST',
             headers: { 
@@ -15,12 +34,12 @@ const auth = {
             body: JSON.stringify(formData)
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error(response.error);
-            }
             return response.json();
         })
         .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
             console.log('Login success:', data);
             sessionStorage.setItem('isLoggedIn', 'true');
             ui.connected = true;
@@ -44,8 +63,7 @@ const auth = {
         })
         .catch(error => {
             console.error('Login error:', error);
-            var loginErrorModal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
-            loginErrorModal.show();
+            this.loginErrorModal(error);
         });
     },
 
@@ -111,6 +129,13 @@ const auth = {
         .catch(error => console.error('Logout error:', error));
     },
 
+    registerErrorModal: function(error) {
+        var modal = new bootstrap.Modal(document.getElementById('registerErrorModal'));
+        var modalBody = document.getElementById('registerErrorBody');
+        modalBody.innerHTML = error;
+        modal.show();
+    },
+
     register: function() {
         console.log('Registering...');
         const csrfToken = getCookie('csrftoken');
@@ -121,16 +146,35 @@ const auth = {
         formData.append('fullname', document.getElementById('fullname').value);
         formData.append('profile_pic', document.getElementById('picture').files[0]);
 
+        let profilePic = formData.get('profile_pic');
+        if(profilePic.size > 0)
+        {
+            if (profilePic.size > 1024 * 1024) {
+                this.registerErrorModal('Profile picture must be less than 1MB.');
+                return;
+            }
+            let allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+            if (!allowedExtensions.exec(profilePic.name)) {
+                this.registerErrorModal('Profile picture must be a jpg, jpeg, or png file.');
+                return;
+            }
+        }
+        let fullname = formData.get("fullname");
+        if (fullname.length < 4 || fullname.length > 20) {
+            this.registerErrorModal('Full name must be between 4 and 20 characters.');
+            return;
+        }
         let username = formData.get("username");
-        let password = formData.get("password");
         if (username.length < 4 || username.length > 20) {
-            alert('Username must be between 4 and 20 characters.');
+            this.registerErrorModal('Username must be between 4 and 20 characters.');
             return;
         }
+        let password = formData.get("password");
         if (password.length < 4 || password.length > 20) {
-            alert('Password must be between 4 and 20 characters.');
+            this.registerErrorModal('Password must be between 4 and 20 characters.');
             return;
         }
+
         fetch('/api/register/', {
             method: 'POST',
             headers: {
@@ -141,19 +185,21 @@ const auth = {
 
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            if (!response.ok && response.status !== 400 && response.status !== 405) {
+                throw new Error("Server error or network issue.");
             }
             return response.json();
         })
         .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
             console.log('Registration success:', data);
             ui.showOnlyOneSection('loginContainer');
         })
         .catch(error => {
             console.error('Registration error:', error)
-            var registrationErrorModal = new bootstrap.Modal(document.getElementById('registerErrorModal'));
-            registrationErrorModal.show();
+            this.registerErrorModal(error);
         });
     },
 
