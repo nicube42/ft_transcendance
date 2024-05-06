@@ -335,7 +335,7 @@ const auth = {
     },
 
     get_opponent_name: function() {
-        return fetch('/api/list_other_players_in_room/', {
+        return fetch('/api/list-other-players-in-room/', {
             method: 'GET',
             credentials: 'include'
         })

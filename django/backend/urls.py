@@ -38,5 +38,5 @@ urlpatterns = [
     path('api/rename-user/', views.renameUser, name='renameUser'),
     path('api/change-profile-pic/', views.change_profile_pic, name='change_proifile_pic'),
     path('api/delete_friend/', views.delete_friend, name='delete_friend'),
-    path('api/list_other_players_in_room/', views.list_other_players_in_room, name='list_other_players_in_room'),
+    path('api/list-other-players-in-room/', views.list_other_players_in_room, name='list_other_players_in_room'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

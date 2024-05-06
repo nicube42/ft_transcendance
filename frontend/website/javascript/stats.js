@@ -30,7 +30,12 @@ const stats = {
         const totalBalls = this.totalBallsServed;
         const player1Score = game.player1Score;
         const player2Score = game.player2Score;
-        const winner = player1Score > player2Score ? game.settings.player1Name : game.settings.player2Name;
+        if (player1Score > player2Score) {
+            winner = 1;
+        }
+        else {
+            winner = 2;
+        }
         document.getElementById('player1_endgame').textContent = player1Score;
         document.getElementById('player2_endgame').textContent = player2Score;
         document.getElementById('gameDuration').textContent = `Duration: ${duration.toFixed(2)} seconds`;
@@ -43,23 +48,40 @@ const stats = {
                 {
                     if (game.playerRole === 'right')
                     {
-                        document.getElementById('endGameUsername1').textContent = opponentName.other_player;
-                        document.getElementById('endGameUsername2').textContent = userInfo.username;
+                        document.getElementById('endGameUsername1').innerHTML = opponentName.other_player;
+                        document.getElementById('endGameUsername2').innerHTML = userInfo.username;
+                        if (winner === 1) {
+                            document.getElementById('winner_endgame').textContent = opponentName.other_player;
+                        }
+                        else {
+                            document.getElementById('winner_endgame').textContent = userInfo.username;
+                        }
                     }
                     else
                     {
                         console.log(userInfo.username);
                         console.log(opponentName.other_player);
-                        document.getElementById('endGameUsername1').textContent = userInfo.username;
-                        document.getElementById('endGameUsername2').textContent = opponentName.other_player;
+                        document.getElementById('endGameUsername1').innerHTML = userInfo.username;
+                        document.getElementById('endGameUsername2').innerHTML = opponentName.other_player;
+                        if (winner === 2) {
+                            document.getElementById('winner_endgame').textContent = opponentName.other_player;
+                        }
+                        else {
+                            document.getElementById('winner_endgame').textContent = userInfo.username;
+                        }
                     }
                 }
                 else
                 {
-                    document.getElementById('endGameUsername1').textContent = game.settings.player1Name;
-                    document.getElementById('endGameUsername2').textContent = game.settings.player2Name;
+                    document.getElementById('endGameUsername1').innerHTML = game.settings.player1Name;
+                    document.getElementById('endGameUsername2').innerHTML = game.settings.player2Name;
+                    if (winner === 1) {
+                        document.getElementById('winner_endgame').textContent = game.settings.player1Name;
+                    }
+                    else {
+                        document.getElementById('winner_endgame').textContent = game.settings.player2Name;
+                    }
                 }
-                document.getElementById('winner_endgame').textContent = winner;
             });
         });
 
@@ -209,23 +231,40 @@ const stats = {
                 {
                     if (game.playerRole === 'right')
                     {
-                        document.getElementById('endGameUsername1').textContent = opponentName.other_player;
-                        document.getElementById('endGameUsername2').textContent = userInfo.username;
+                        document.getElementById('endGameUsername1').innerHTML = opponentName.other_player;
+                        document.getElementById('endGameUsername2').innerHTML = userInfo.username;
+                        if (winner === 1) {
+                            document.getElementById('winner_endgame').textContent = opponentName.other_player;
+                        }
+                        else {
+                            document.getElementById('winner_endgame').textContent = userInfo.username;
+                        }
                     }
                     else
                     {
                         console.log(userInfo.username);
                         console.log(opponentName.other_player);
-                        document.getElementById('endGameUsername1').textContent = userInfo.username;
-                        document.getElementById('endGameUsername2').textContent = opponentName.other_player;
+                        document.getElementById('endGameUsername1').innerHTML = userInfo.username;
+                        document.getElementById('endGameUsername2').innerHTML = opponentName.other_player;
+                        if (winner === 2) {
+                            document.getElementById('winner_endgame').textContent = opponentName.other_player;
+                        }
+                        else {
+                            document.getElementById('winner_endgame').textContent = userInfo.username;
+                        }
                     }
                 }
                 else
                 {
-                    document.getElementById('endGameUsername1').textContent = game.settings.player1Name;
-                    document.getElementById('endGameUsername2').textContent = game.settings.player2Name;
+                    document.getElementById('endGameUsername1').innerHTML = game.settings.player1Name;
+                    document.getElementById('endGameUsername2').innerHTML = game.settings.player2Name;
+                    if (winner === 1) {
+                        document.getElementById('winner_endgame').textContent = game.settings.player1Name;
+                    }
+                    else {
+                        document.getElementById('winner_endgame').textContent = game.settings.player2Name;
+                    }
                 }
-                document.getElementById('winner_endgame').textContent = winner;
             });
         });
         if (this.endTime === null) {

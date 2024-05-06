@@ -1,10 +1,5 @@
 To do updated
 
-- end of game names more or less
-- auth error for names
-- error name first game
-
-
 - personnalisation du jeu KO 0.5 (thomas)
     - activer ou non les bonus dans les settings
     - gérer les bonus dans les modes distants

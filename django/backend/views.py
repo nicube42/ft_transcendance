@@ -870,7 +870,7 @@ def list_other_players_in_room(request):
     user_rooms = Room.objects.filter(users__id=request.user.id)
 
     if not user_rooms.exists():
-        return JsonResponse({'error': 'User is not in any room'}, status=404)
+        return JsonResponse({'error': 'No other players in room'}, status=200)
 
     room = user_rooms.first()
     

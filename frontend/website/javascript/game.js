@@ -113,23 +113,31 @@ const game = {
         this.paddleSpeed = settings.paddleSpeed;
         this.winningScore = settings.winningScore;
         if (this.gameMode === 'distant') {
-            auth.retrieveInfos().then(userInfo => {
-                auth.get_opponent_name().then(opponentName => {
-                    if (this.playerRole === 'left'){
-                        this.player1_name = userInfo.username;
-                        this.player2_name = opponentName.other_player;
-                    }
-                    else {
-                        this.player1_name = opponentName.other_player;
-                        this.player2_name = userInfo.username;
-                    }
-                });
-            });
+            this.fetchPlayerNames();
         } else {
             this.player1_name = settings.player1Name; 
             this.player2_name = settings.player2Name;
         }
         this.withBonus = settings.bonus;
+    },
+
+    fetchPlayerNames: async function () {
+        const userInfo = await auth.retrieveInfos();
+        const opponentName = await auth.get_opponent_name();
+
+        if (userInfo && userInfo.username && opponentName && opponentName.other_player) {
+            if (this.playerRole === 'left') {
+                this.player1_name = userInfo.username;
+                this.player2_name = opponentName.other_player;
+            } else {
+                this.player1_name = opponentName.other_player;
+                this.player2_name = userInfo.username;
+            }
+            console.log("Player 1: " + this.player1_name + ", Player 2: " + this.player2_name);
+        } else {
+            console.log("Waiting for all player info to be available...");
+            setTimeout(this.fetchPlayerNames, 1000);
+        }
     },
 
     resetVars: function() {
@@ -147,18 +155,7 @@ const game = {
         this.scoreMessage = '';
         this.messageDisplayCounter = 0;
         if (this.gameMode === 'distant') {
-            auth.retrieveInfos().then(userInfo => {
-                auth.get_opponent_name().then(opponentName => {
-                    if (this.playerRole === 'left'){
-                        this.player1_name = userInfo.username;
-                        this.player2_name = opponentName.other_player;
-                    }
-                    else {
-                        this.player1_name = opponentName.other_player;
-                        this.player2_name = userInfo.username;
-                    }
-                });
-            });
+            this.fetchPlayerNames();
         } else {
             this.player1_name = this.settings.player1Name;
             this.player2_name = this.settings.player2Name;

@@ -20,16 +20,46 @@ const GameStats = {
             .then(response => response.json())
             .then(games => {
                 const gamesList = document.getElementById('gamesList');
-                gamesList.innerHTML = '';
+                gamesList.innerHTML = ''; // Clear existing list
                 games.forEach(game => {
                     const listItem = document.createElement('li');
-                    listItem.className = 'list-group-item';
-                    listItem.textContent = `${game.player1} vs ${game.player2} - Score: ${game.player1_score}-${game.player2_score}, Duration: ${game.duration.toFixed(2)} seconds, Created: ${game.created_at}`;
+                    listItem.className = 'list-group-item game-item'; // Added 'game-item' for CSS targeting
+        
+                    // Create div to hold all game info
+                    let gameInfoDiv = document.createElement('div');
+                    gameInfoDiv.classList.add('game-info'); 
+        
+                    // Players
+                    let players = document.createElement('p');
+                    players.className = 'game-players'; // Class for CSS
+                    players.textContent = `${game.player1} vs ${game.player2}`;
+                    gameInfoDiv.appendChild(players);
+        
+                    // Score
+                    let score = document.createElement('p');
+                    score.className = 'game-score'; // Class for CSS
+                    score.textContent = `Score: ${game.player1_score}-${game.player2_score}`;
+                    gameInfoDiv.appendChild(score);
+        
+                    // Duration
+                    let duration = document.createElement('p');
+                    duration.className = 'game-duration'; // Class for CSS
+                    duration.textContent = `Duration: ${game.duration.toFixed(2)} seconds`;
+                    gameInfoDiv.appendChild(duration);
+        
+                    // Created at
+                    let created = document.createElement('p');
+                    created.className = 'game-created'; // Class for CSS
+                    created.textContent = `Created: ${game.created_at}`;
+                    gameInfoDiv.appendChild(created);
+        
+                    // Append the structured div to the list item
+                    listItem.appendChild(gameInfoDiv);
                     gamesList.appendChild(listItem);
                 });
             })
             .catch(error => console.error('Error fetching recent games:', error));
-    },    
+    },       
     
     fetchWinRateData: function() {
         fetch('/api/winrate_over_time/')

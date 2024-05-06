@@ -22,10 +22,8 @@ window.addEventListener('load', function() {
             stats.displayEndGameStatsSurrender(1, 0);
         else
             stats.displayEndGameStatsSurrender(0, 1);
-        gameSocket.l
-        eaveRoom(gameSocket.currentRoom);
-        gameSocket.delet
-        eRoom(gameSocket.currentRoom);
+        gameSocket.leaveRoom(gameSocket.currentRoom);
+        gameSocket.deleteRoom(gameSocket.currentRoom);
         localStorage.removeItem('navigateToHome');
     
     }
@@ -57,6 +55,9 @@ const ui =
 
         if (sectionId === 'homepage') {
             auth.updateUserTournamentStatus('false');
+        }
+        if (sectionId === 'play') {
+            settings.populateSettings();
         }
     
         if (!isPopState) {
