@@ -450,6 +450,17 @@ def profile_pic_update(request):
         if request.user.is_authenticated is False:
             return JsonResponse({'error': 'User not authenticated'}, status=401)
         form = ProfilePicUpdateForm(request.POST, request.FILES, instance=request.user)
+        username = request.POST.get('username')
+        if username is None:
+            return JsonResponse({'error': 'Username is missing'}, status=400)
+        if len(username) < 4 or len(username) > 20:
+            return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
+        picture = request.FILES.get('profile_pic')
+        if picture:
+            if picture.size > 1024 * 1024:
+                return JsonResponse({'error': 'Profile picture size is too large'}, status=400)
+            if not picture.content_type.startswith('image'):
+                return JsonResponse({'error': 'Profile picture must be an image'}, status=400)
         if form.is_valid():
             form.save()
             return redirect('profile')
@@ -598,6 +609,10 @@ def check_user(request):
         return JsonResponse({'error': 'User not authenticated'}, status=401)
     data = json.loads(request.body)
     username = data.get('username')
+    if not username:
+        return JsonResponse({'error': 'Username is required'}, status=400)
+    if len(username) < 4 or len(username) > 20:
+        return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
     exists = get_user_model().objects.filter(username=username).exists()
     return JsonResponse({'exists': exists})
 
@@ -919,6 +934,10 @@ def change_profile_pic(request):
         user = form.save(commit=False)
         if 'profile_pic' in request.FILES:
             file = request.FILES['profile_pic']
+            if file.size > 1024 * 1024:
+                return JsonResponse({'error': 'Profile picture size is too large'}, status=400)
+            if not file.content_type.startswith('image'):
+                return JsonResponse({'error': 'Profile picture must be an image'}, status=400)
             normalized_filename = strip_accents(file.name)
             safe_filename = get_valid_filename(normalized_filename)
             file_name = default_storage.save('pictures/' + safe_filename, ContentFile(file.read()))
@@ -927,4 +946,7 @@ def change_profile_pic(request):
         user.save()
         return JsonResponse({'message': 'Profile picture updated successfully'}, status=200)
     else:
-        return JsonResponse({'error': form.errors}, status=400)
+        errors = form.errors.as_data()
+        first_error_field = next(iter(errors))
+        first_error_message = str(errors[first_error_field][0])
+        return JsonResponse({'error': first_error_message}, status=400)

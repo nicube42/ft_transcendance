@@ -22,11 +22,13 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
 
         const userData = await checkUserResponse.json();
         if (!checkUserResponse.ok) {
+            if (userData.error)
+                throw new Error(userData.error);
             throw new Error('Network response was not ok');
         }
 
         if (userData.exists) {
-            alert("Username already exists, choose a different one.");
+            auth.registerErrorModal('Username already exists, choose a different one.');
             return;
         }
         if (username !== '')
@@ -46,11 +48,13 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
 
         const updateData = await updatePicResponse.json();
         if (!updatePicResponse.ok) {
+            if (updateData.error)
+                throw new Error(updateData.error);
             throw new Error('Failed to update profile picture: ' + JSON.stringify(updateData.error));
         }
 
         if(updateData.message) {
-            alert('Profile picture updated successfully.');
+            auth.registerErrorModal('Profile picture updated successfully.');
             document.getElementById('usernameProfile').textContent = username;
             const newPicURL = URL.createObjectURL(document.querySelector('#profile_pic').files[0]);
             document.getElementById('profilePic').src = newPicURL;
@@ -60,7 +64,7 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
 
     } catch (error) {
         console.error('Error:', error);
-        alert(error.message);
+        auth.registerErrorModal(error);
     }
 });
 
@@ -107,18 +111,21 @@ const userInfoDisplayer = {
             body: formData,
         })
         .then(response => {
-            if (!response.ok) {
+            if (!response.ok && response.status === 500) {
                 throw new Error('Network response was not ok');
             }
             return response.json();
         })
         .then(data => {
-            // Assuming the response includes the updated profile picture URL
+            if (data.error) {
+                throw new Error(data.error);
+            }
             this.updateProfilePicUI(data.profile_pic_url);
             console.log(data);
         })
         .catch(error => {
-            console.error('Error:', error);
+            auth.registerErrorModal(error);
+            console.error('Error updating profile picture:', error);
         });
     },
 
