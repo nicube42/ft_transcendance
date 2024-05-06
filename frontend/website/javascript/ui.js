@@ -154,7 +154,6 @@ const ui =
         },
         async 'saveSettings'() {
             await settings.saveSettings();
-            //await settings.populateSettings();
             this.showOnlyOneSection('homepage');
         },
         async 'previousSettings'() {

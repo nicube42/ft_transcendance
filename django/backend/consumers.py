@@ -203,11 +203,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             }))
 
     async def add_or_retrieve_user_in_room(self, room):
-        """
-        Add a user to a room if they're not already part of it.
-        This function is idempotent; it can be called multiple times without additional effect.
-        Returns a tuple of (user_added, user_count), where user_added is a boolean indicating if the user was newly added.
-        """
         user = self.scope['user']
         if user.is_anonymous:
             return False, 0
@@ -225,15 +220,9 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def is_user_in_room(self, user, room):
-        """
-        Check if a user is in the given room.
-        """
         return room.users.filter(id=user.id).exists()
 
     async def get_user_count(self, room):
-        """
-        Asynchronously return the number of users in the given room.
-        """
         return await database_sync_to_async(room.users.count)()
 
 
@@ -423,7 +412,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def is_user_admin_of_room(self, user, room):
-        """Check if the given user is the admin of the specified room."""
         return room.admin == user
     
     async def get_user_instance(self):
