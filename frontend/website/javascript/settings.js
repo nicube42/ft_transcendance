@@ -3,6 +3,9 @@ const settings = {
         await fetch('/api/settings/retrieve')
             .then(response => response.json())
             .then(data => {
+                if (game.gameMode === 'distant'){
+                    return ;
+                }
                 document.getElementById('player1').value = data.player1;
                 if (data.player1 === null)
                     document.getElementById('player1').value = 'One';

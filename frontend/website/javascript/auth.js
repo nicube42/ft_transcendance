@@ -27,8 +27,11 @@ const auth = {
                 auth.retrieveInfos()
                     .then(data => {
                         userInfoDisplayer.updateUI(data);
-                        settings.saveSettings();
-                        settings.populateSettings();
+                        if (game.gameMode !== 'distant' && !game.isPlaying){
+
+                            settings.saveSettings();
+                            settings.populateSettings();
+                        }
                         ui.showOnlyOneSection('homepage');
                         navbarManager.updateNavbar(true);
                         location.reload();
