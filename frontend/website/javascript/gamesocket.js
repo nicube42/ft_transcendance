@@ -77,7 +77,7 @@ var gameSocket = {
                     game.bonusRed = data.bonusRed;
                 }
             } else if (data.action === 'assign_role') {
-                game.playerRole = data.role; // 'left' or 'right'
+                game.playerRole = data.role;
             } else if (data.error && data.action === 'delete_room') {
                 console.error(data.error);
             } else if (data.action === 'receive_invite') {
@@ -143,7 +143,6 @@ var gameSocket = {
         const acceptButton = document.getElementById('acceptInvite');
         const refuseButton = document.getElementById('refuseInvite');
     
-        // Set the invitation message based on the type
         if (inviteType === 'tournament') {
             inviteMessage.textContent = `You have been invited to join the tournament by ${fromUser}. Do you accept?`;
             acceptButton.onclick = () => {
@@ -162,7 +161,6 @@ var gameSocket = {
             inviteModal.hide();
         };
     
-        // Show the modal
         inviteModal.show();
     },      
 
@@ -546,7 +544,6 @@ var gameSocket = {
                             room_name: roomName});
     }
 
-    // quitGame: function(roomName)
 };
 
 window.addEventListener('beforeunload', function() {

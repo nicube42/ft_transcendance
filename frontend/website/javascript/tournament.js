@@ -92,32 +92,6 @@ const tournament = {
         });
     },
 
-    // showInvitePopup: function(tournamentId, fromUser) {
-    //     const popupDiv = document.createElement('div');
-    //     popupDiv.id = 'invitePopup';
-        
-    //     const message = document.createElement('p');
-    //     message.textContent = `You have been invited to join the tournament by ${fromUser}. Do you accept?`;
-    //     popupDiv.appendChild(message);
-        
-    //     const acceptButton = document.createElement('button');
-    //     acceptButton.textContent = 'Accept';
-    //     acceptButton.onclick = () => {
-    //         this.acceptTournamentInvite(tournamentId);
-    //         document.body.removeChild(popupDiv);
-    //     };
-    //     popupDiv.appendChild(acceptButton);
-    
-    //     const refuseButton = document.createElement('button');
-    //     refuseButton.textContent = 'Refuse';
-    //     refuseButton.onclick = () => {
-    //         document.body.removeChild(popupDiv);
-    //     };
-    //     popupDiv.appendChild(refuseButton);
-        
-    //     document.body.appendChild(popupDiv);
-    // }, 
-
     acceptTournamentInvite: function(tournamentId) {
         gameSocket.sendMessage({
             action: 'accept_tournament_invite',

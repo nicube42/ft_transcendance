@@ -234,7 +234,6 @@ const ui =
             }
         },
         async 'nextStageBtn'() {
-            //this.showOnlyOneSection('tournamentStage');
             tournament.createTournament();
         },
         async 'invitePlayerTournamentBtn'() {

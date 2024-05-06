@@ -36,54 +36,8 @@ const stats = {
         else {
             winner = 2;
         }
-        // document.getElementById('player1_endgame').textContent = player1Score;
-        // document.getElementById('player2_endgame').textContent = player2Score;
         document.getElementById('gameDuration').textContent = `Duration: ${duration.toFixed(2)} seconds`;
         document.getElementById('totalBalls').textContent = `Total balls served: ${totalBalls}`;
-        // auth.retrieveInfos().then(userInfo => {
-        //     auth.get_opponent_name().then(opponentName => {
-
-        //         var username = '';
-        //         if (game.gameMode === 'distant')
-        //         {
-        //             if (game.playerRole === 'right')
-        //             {
-        //                 document.getElementById('endGameUsername1').innerHTML = opponentName.other_player;
-        //                 document.getElementById('endGameUsername2').innerHTML = userInfo.username;
-        //                 if (winner === 1) {
-        //                     document.getElementById('winner_endgame').textContent = opponentName.other_player;
-        //                 }
-        //                 else {
-        //                     document.getElementById('winner_endgame').textContent = userInfo.username;
-        //                 }
-        //             }
-        //             else
-        //             {
-        //                 console.log(userInfo.username);
-        //                 console.log(opponentName.other_player);
-        //                 document.getElementById('endGameUsername1').innerHTML = userInfo.username;
-        //                 document.getElementById('endGameUsername2').innerHTML = opponentName.other_player;
-        //                 if (winner === 2) {
-        //                     document.getElementById('winner_endgame').textContent = opponentName.other_player;
-        //                 }
-        //                 else {
-        //                     document.getElementById('winner_endgame').textContent = userInfo.username;
-        //                 }
-        //             }
-        //         }
-        //         else
-        //         {
-        //             document.getElementById('endGameUsername1').innerHTML = game.settings.player1Name;
-        //             document.getElementById('endGameUsername2').innerHTML = game.settings.player2Name;
-        //             if (winner === 1) {
-        //                 document.getElementById('winner_endgame').textContent = game.settings.player1Name;
-        //             }
-        //             else {
-        //                 document.getElementById('winner_endgame').textContent = game.settings.player2Name;
-        //             }
-        //         }
-        //     });
-        // });
         ret = this.fetchGameResultDetails(game, winner);
         if (ret === 1)
             return;
@@ -246,54 +200,8 @@ const stats = {
         const totalBalls = this.totalBallsServed;
         const winner = player1Score > player2Score ? game.settings.player1Name : game.settings.player2Name;
         var username = '';
-        // document.getElementById('player1_endgame').textContent = player1Score;
-        // document.getElementById('player2_endgame').textContent = player2Score;
         document.getElementById('gameDuration').textContent = `Duration: ${duration.toFixed(2)} seconds`;
         document.getElementById('totalBalls').textContent = `Total balls served: ${totalBalls}`;
-        // auth.retrieveInfos().then(userInfo => {
-        //     auth.get_opponent_name().then(opponentName => {
-
-        //         var username = '';
-        //         if (game.gameMode === 'distant')
-        //         {
-        //             if (game.playerRole === 'right')
-        //             {
-        //                 document.getElementById('endGameUsername1').innerHTML = opponentName.other_player;
-        //                 document.getElementById('endGameUsername2').innerHTML = userInfo.username;
-        //                 if (winner === 1) {
-        //                     document.getElementById('winner_endgame').textContent = opponentName.other_player;
-        //                 }
-        //                 else {
-        //                     document.getElementById('winner_endgame').textContent = userInfo.username;
-        //                 }
-        //             }
-        //             else
-        //             {
-        //                 console.log(userInfo.username);
-        //                 console.log(opponentName.other_player);
-        //                 document.getElementById('endGameUsername1').innerHTML = userInfo.username;
-        //                 document.getElementById('endGameUsername2').innerHTML = opponentName.other_player;
-        //                 if (winner === 2) {
-        //                     document.getElementById('winner_endgame').textContent = opponentName.other_player;
-        //                 }
-        //                 else {
-        //                     document.getElementById('winner_endgame').textContent = userInfo.username;
-        //                 }
-        //             }
-        //         }
-        //         else
-        //         {
-        //             document.getElementById('endGameUsername1').innerHTML = game.settings.player1Name;
-        //             document.getElementById('endGameUsername2').innerHTML = game.settings.player2Name;
-        //             if (winner === 1) {
-        //                 document.getElementById('winner_endgame').textContent = game.settings.player1Name;
-        //             }
-        //             else {
-        //                 document.getElementById('winner_endgame').textContent = game.settings.player2Name;
-        //             }
-        //         }
-        //     });
-        // });
         ret = this.fetchGameResultDetails(game, winner);
         if (ret === 1)
             return;

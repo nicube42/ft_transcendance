@@ -13,32 +13,27 @@ def predict_ball_position_at_right_paddle(ball_pos_x, ball_pos_y, ball_speed_x, 
     Predict the ball's y position when it reaches the right edge of the screen, considering collisions with the top,
     bottom walls, and paddles.
     """
-    time_step = 0.01  # Smaller time step for more precision in prediction
+    time_step = 0.01
     start_time = time.time()
 
     while ball_pos_x + ball_radius < canvas_width:
         if ball_speed_x == 0:
             return
-        # Calculate next position
         next_ball_pos_x = ball_pos_x + ball_speed_x * time_step
         next_ball_pos_y = ball_pos_y + ball_speed_y * time_step
 
-        # Check collision with the top and bottom walls
         if next_ball_pos_y - ball_radius <= 0 or next_ball_pos_y + ball_radius >= canvas_height:
-            ball_speed_y *= -1  # Invert Y speed on collision
-            next_ball_pos_y = ball_pos_y  # Revert to previous y position before updating for next frame
+            ball_speed_y *= -1
+            next_ball_pos_y = ball_pos_y
 
-        # Check for collision with left paddle
         if 0 < ball_pos_x < 10 + ball_radius and paddle_left_y <= ball_pos_y <= paddle_left_y + paddle_height:
-            ball_speed_x *= -1  # Invert X speed on paddle collision
-            next_ball_pos_x = ball_pos_x  # Revert to previous x position before updating for next frame
+            ball_speed_x *= -1
+            next_ball_pos_x = ball_pos_x
 
-        # Check for collision with right paddle
         if canvas_width - 10 - ball_radius < ball_pos_x < canvas_width and paddle_right_y <= ball_pos_y <= paddle_right_y + paddle_height:
-            ball_speed_x *= -1  # Invert X speed on paddle collision
-            next_ball_pos_x = ball_pos_x  # Revert to previous x position before updating for next frame
+            ball_speed_x *= -1
+            next_ball_pos_x = ball_pos_x
 
-        # Update ball position
         ball_pos_x = next_ball_pos_x
         ball_pos_y = next_ball_pos_y
 
@@ -47,14 +42,13 @@ def predict_ball_position_at_right_paddle(ball_pos_x, ball_pos_y, ball_speed_x, 
             ball_pos_y = -1
             break
 
-        # If we've reached the right edge, no need to continue
         if ball_pos_x + ball_radius >= canvas_width:
             break
 
         if ball_pos_x + ball_radius < 0:
             break
     
-    return ball_pos_y  # Return the Y position when the ball reaches the right edge
+    return ball_pos_y
 
 
 async def ai_server(websocket, path):
@@ -76,21 +70,15 @@ async def ai_server(websocket, path):
                 canvas_height = data['canvas_height']
                 update_ai = data['update_ai']
 
-                # Simulate ball movement to predict future position
-                # future_ball_pos_y = simulate_ball_movement(ball_pos_x, ball_pos_y, ball_speed_x, ball_speed_y, paddle_y, paddle_y, paddle_height, canvas_width, canvas_height)
-
                 if update_ai is True:
                     future_ball_pos_y = predict_ball_position_at_right_paddle(ball_pos_x, ball_pos_y, ball_speed_x, ball_speed_y, paddle_left_y, paddle_y, paddle_height, canvas_width, canvas_height, 10, update_ai)
 
                 print(f"Predicted ball position: {future_ball_pos_y}")
 
-                # Determine the center of the paddle
                 paddle_center = paddle_y + paddle_height / 2
 
-                # Decide to move the paddle up or down to go towards the predicted ball's Y position
                 action = "DOWN" if paddle_center < future_ball_pos_y else "UP"
 
-                # Send a single JSON response
                 response = json.dumps({
                     "action": action,
                     "predicted_pos_y": future_ball_pos_y
@@ -100,7 +88,7 @@ async def ai_server(websocket, path):
 
             except websockets.exceptions.ConnectionClosed as e:
                 print(f"Connection closed with reason: {e}")
-                break  # Break the loop and end the handler properly
+                break
             except Exception as e:
                 print(f"Unhandled error: {e}")
                 continue
@@ -108,7 +96,6 @@ async def ai_server(websocket, path):
         connected.remove(websocket)
         print("Connection handler ended.")
 
-# Load SSL configuration
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 cert_path = os.getenv('SSL_CERT_PATH', '/app/ssl/domain.crt')
 key_path = os.getenv('SSL_KEY_PATH', '/app/ssl/domain.key')
@@ -116,10 +103,8 @@ key_path = os.getenv('SSL_KEY_PATH', '/app/ssl/domain.key')
 try:
     ssl_context.load_cert_chain(cert_path, key_path)
 except FileNotFoundError as e:
-    logging.critical("SSL files not found. Server is shutting down.", exc_info=True)
     raise SystemExit(e)
 
-# Start the WebSocket server
 server = websockets.serve(ai_server, "0.0.0.0", 5678, ssl=ssl_context)
 
 asyncio.get_event_loop().run_until_complete(server)

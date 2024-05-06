@@ -117,7 +117,6 @@ def register(request):
         if len(fullname) < 4 or len(fullname) > 20:
             return JsonResponse({'error': 'Fullname must be between 4 and 20 characters'}, status=400)
 
-        #check profile picture size and format
         if profile_pic:
             if profile_pic.size > 1024 * 1024:
                 return JsonResponse({'error': 'Profile picture size is too large'}, status=400)
@@ -127,7 +126,6 @@ def register(request):
             user = form.save(commit=False)
             user.password = make_password(form.cleaned_data['password'])
 
-            # Check if a profile picture was uploaded
             if 'profile_pic' in request.FILES:
                 file = request.FILES['profile_pic']
                 normalized_filename = strip_accents(file.name)
@@ -135,7 +133,7 @@ def register(request):
                 file_name = default_storage.save(safe_filename, ContentFile(file.read()))
                 user.profile_pic_url = request.build_absolute_uri("https://localhost:4242/media/pictures/" + file_name)
 
-            user.save()  # Save the user and the file path
+            user.save()
             return JsonResponse({'message': 'User created successfully'}, status=201)
         else:
             return JsonResponse({'error': form.errors.as_json(escape_html=True)}, status=400)
@@ -167,7 +165,6 @@ def intraCallback(request):
         if not code:
             return JsonResponse({"error": "Authorization code not provided"}, status=400)
 
-        # Get token from intra
         data_code = {
             'grant_type': 'authorization_code',
             'client_id': os.getenv('AUTH_CLIENT_ID'),
@@ -184,18 +181,15 @@ def intraCallback(request):
         except KeyError:
             print("Error: intra 42 'access_token' not found in the response.")
             auth_token = None
-        # End of getting token from intra
 
         if not auth_token:
             return JsonResponse({"error": "Could not get token from intra"}, status=400)
 
-        # Get user data from intra
         headers = {
             'Authorization': f'Bearer {auth_token}'
         }
         response = requests.get('https://api.intra.42.fr/v2/me', headers=headers)
         user_data = response.json()
-        # End user data from intra
 
         try:
             print("MDR2")
@@ -215,7 +209,6 @@ def intraCallback(request):
                 profile_pic_url=ppUrl,
             )
 
-            # Login the created user
             print("MDR3")
             login(request, user)
             print("MDR4")
@@ -242,8 +235,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 from django.middleware.csrf import get_token
-# from django.shortcuts import render
-# from django.core.context_processors import csrf
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 @csrf_exempt
@@ -586,7 +577,6 @@ def delete_friend(request):
         if not friend:
             return JsonResponse({'error': 'User not found'}, status=404)
 
-        # Check if the user actually has this friend
         if friend not in request.user.friends.all():
             return JsonResponse({'error': 'This user is not your friend'}, status=400)
 
@@ -792,14 +782,11 @@ from .models import Room
 
 
 def check_if_user_in_any_room(request):
-    # Ensure the user is authenticated
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'User is not authenticated'}, status=401)
 
-    # Get all rooms the user is part of
     user_rooms = Room.objects.filter(users__id=request.user.id)
 
-    # Check if the user is in any room
     if user_rooms.exists():
         room_names = user_rooms.values_list('name', flat=True)
         return JsonResponse({'status': 'User is in a room', 'rooms': list(room_names)}, status=200)
@@ -808,18 +795,14 @@ def check_if_user_in_any_room(request):
 
 
 def check_number_users_in_room(request, room_name):
-    # Ensure the user is authenticated
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'User is not authenticated'}, status=401)
 
-    # Retrieve the room by name
     room = Room.objects.get(name=room_name)
     if not room:
         return JsonResponse({'error': 'Room not found'}, status=404)
-    # Count the number of users in the room
     user_count = room.users.count()
 
-    # Return the count of users in the room
     return JsonResponse({'room': room_name, 'user_count': user_count}, status=200)
 
 

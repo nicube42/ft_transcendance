@@ -8,8 +8,7 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
 
     const username = document.querySelector('#input-username').value;
     const formData = new FormData(this);
-    formData.append('username', username);  // Assuming backend will handle this too.
-    // First, check if the username is available
+    formData.append('username', username);
     try {
         const checkUserResponse = await fetch('/api/check_user/', {
             method: 'POST',
@@ -37,7 +36,6 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
         if (formData.get('profile_pic').name === '')
             return;
 
-        // If the username does not exist, proceed with updating the profile picture
         const updatePicResponse = await fetch('api/change-profile-pic/', {
             method: 'POST',
             body: formData,
@@ -68,22 +66,19 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
 
 const userInfoDisplayer = {
     updateUI: function(data) {
-        this.updateProfilePicUI(data.profile_pic_url); // Assuming 'profile_pic_url' is the key in the response JSON
+        this.updateProfilePicUI(data.profile_pic_url);
         this.updateUsernameProfile(data);
         this.updateFullNameProfile(data);
         userInfoDisplayer.fetchAndUpdateUserProfile();
     },
 
     fetchAndUpdateUserProfile: function() {
-        // Fetch user profile information (assuming you have an endpoint set up for this)
         fetch('/api/user-info/', {
-            credentials: 'include', // Include cookies for session management
+            credentials: 'include',
         })
         .then(response => response.json())
         .then(data => {
-            // Assume 'data' contains user information and 'profile_pic_url' for the user's profile picture URL
-            this.updateProfilePicUI(data.profile_pic_url || '/media/pictures/default.jpg'); //todo change this
-            // Update other parts of the UI as necessary
+            this.updateProfilePicUI(data.profile_pic_url || '/media/pictures/default.jpg');
         })
         .catch(error => console.error('Error:', error));
     },
@@ -163,7 +158,6 @@ const userInfoDisplayer = {
             return response.json();
         })
         .then(data => {
-            // Assuming the response includes the updated profile picture URL
             try {
                 const data = auth.retrieveInfos();
                 userInfoDisplayer.updateUI(data);
