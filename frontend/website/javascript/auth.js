@@ -40,7 +40,6 @@ const auth = {
             if (data.error) {
                 throw new Error(data.error);
             }
-            console.log('Login success:', data);
             sessionStorage.setItem('isLoggedIn', 'true');
             ui.connected = true;
             this.waitForAuthToBeRecognized(() => {
@@ -194,7 +193,6 @@ const auth = {
             if (data.error) {
                 throw new Error(data.error);
             }
-            console.log('Registration success:', data);
             ui.showOnlyOneSection('loginContainer');
         })
         .catch(error => {
@@ -338,7 +336,6 @@ const auth = {
             return response.json();
         })
         .then(data => {
-            console.log('Game status updated:', data);
         })
         .catch(error => {
             console.error('Error updating game status:', error);
@@ -363,7 +360,6 @@ const auth = {
             return response.json();
         })
         .then(data => {
-            console.log('Tournament status updated:', data);
         })
         .catch(error => {
             console.error('Error updating tournament status:', error);
