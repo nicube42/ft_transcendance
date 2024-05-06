@@ -424,7 +424,6 @@ const game = {
 		if (!this.bonusTouched) {
 			this.ball_color = 'white';
 		}
-        console.log(this.ballSpeedX);
     },
 
     drawPong: function() {

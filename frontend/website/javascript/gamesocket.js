@@ -127,8 +127,6 @@ var gameSocket = {
             }
         });
     
-        this.socket.addEventListener('close', (event) => {
-        });
     },
 
     showInvitePopup: function(inviteId, fromUser, inviteType) {
