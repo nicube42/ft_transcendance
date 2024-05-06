@@ -50,8 +50,9 @@ const ui =
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
-        gameSocket.init()
-        ;
+        if (sessionStorage.getItem('isLoggedIn') === 'true') {
+            gameSocket.init();
+        }
 
         if (game.isPlaying && sectionId !== 'play' && game.gameMode === 'distant'){
             gameSocket.surrenderGame(gameSocket.currentRoom);
