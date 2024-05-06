@@ -61,7 +61,11 @@ var langDict = {
         'total wins': 'Total Wins',
         'total losses': 'Total Losses',
         'total score': 'Total Score',
-        'chart of winrate over time': 'Chart of Winrate Over Time',
+
+        'playerdetails': 'Player Details',
+        'gameslist': 'Last Games Results',
+        'winratechart': 'Chart of Winrate Over Time',
+
         
         // https://localhost:4242/settings
         'player 1': 'Player 1',
@@ -93,6 +97,7 @@ var langDict = {
         'usernamelabel': 'Username',
         'registerheader': 'Register',
         'passwordlabel': 'passeword',
+        'id_password': 'passeword',
 
         'registerheader': 'login',
         'passwordlabel': 'passeword',
@@ -164,6 +169,11 @@ var langDict = {
         'total losses': 'Total des défaites',
         'total score': 'Score total',
         'chart of winrate over time': 'Graphique des taux de victoire dans le temps',
+       
+        'playerdetails': 'Détails du joueur',
+        'gameslist': 'Résultats des derniers jeux',
+        'winratechart': 'Graphique des taux de victoire dans le temps',
+
         
         
         // https://localhost:4242/settings
@@ -198,10 +208,11 @@ var langDict = {
 
         
         //https://localhost:4242/loginContainer top
-        'loginbutton':'S\'enregistre',
+        'loginForm':'S\'enregistre',
         'canceloginbutton': 'Sortir',
         'registerheader': 'S\'enregistrer',
         'passwordlabel': 'Mot de passe',
+        'id_password': 'Mot de passe',
         'cancelloginbutton': 'Annuler',
         'loginheader': 'Identification',
 
@@ -303,6 +314,12 @@ var langDict = {
         'usernamelabel': 'Utilisados',
         'registerheader': 'Enregistrada',
         'passwordlabel': 'Passewordado',
+        'id_password': 'Passewordado',
+        
+        'playerdetails': 'Detalles del jugador',
+        'gameslist': 'Resultados de los últimos juegos',
+        'winratechart': 'Gráfico de tasa de victorias a lo largo del tiempo',
+
 
         'loginbutton':'Loginada',
         'cancelloginbutton': 'Annulada',

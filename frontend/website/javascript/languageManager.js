@@ -11,7 +11,8 @@ function updateTexts() {
         'titleTournament', 'titleSettings', 'titleProfile', 'titleStatistics',
         'login_initial', 'register_initial', 'saveSettings', 'cancelLogin', 'cancelRegister', 
         'usernameLabel', 'registerHeader','passwordLabel','loginButton', 'cancelLoginButton', 
-        'loginHeader', 'tournamentHeader',
+        'loginHeader', 'tournamentHeader', 'playerDetails', 'gamesList', 'winRateChart', 'playerDetailsHeader',
+        'loginForm', 'id_password',
     ];
 
     elementIds.forEach(id => {
