@@ -31,7 +31,10 @@ var gameSocket = {
                 }
             }
 
-            if (data.action === 'list_users') { 
+            if (data.action === 'list_users') {
+                if (data.users.length === 1){
+                    game.playerRole = 'left';
+                }
                 this.updateUserList(data.users, data.room_name);
             } else if (data.action === 'list_rooms') {
                 this.updateRoomList(data.rooms);
