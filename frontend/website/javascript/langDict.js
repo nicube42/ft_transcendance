@@ -1,6 +1,7 @@
 var langDict = {
     'en': {
         //navbar
+        'navbardropdown' : 'Account',
         'home': 'Home',
         'language': 'Language',
         'account': 'Account',
@@ -21,26 +22,31 @@ var langDict = {
         'cancelRegister': 'test6',
         
         'titlehomepage': 'Pong',
-        'player1_scoreLabel': 'Player 1',
-        'player2_scoreLabel': 'Player 2',
+        'player1_name': 'Player 1',
+        'player1_name': 'Player 2',
         'usernameLabel': 'Username',
         'cancelregister': 'test10',
-        
+        'winning_score': 'Winning score',
+
+
         //tournois
         'nextStageBtn': 'Next',
-        
+
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Login',
         'register': 'Register',
         'password': 'Password',
-        
-        // https://localhost:4242/register
-        'username': 'Username',
-        'password': 'Password',
-        'full name': 'Full Name',
-        'birth date': 'Birth Date',
-        'bio': 'Bio',
-        
+
+        // https://localhost:4242/register top
+        'registersubmitbutton': 'Login',
+        'cancelregisterbutton': 'Cancel',
+        'registerheader' : 'Login',
+        'registerusernamelabel': 'Username',
+        'fullnamelabel': 'Full Name',
+        'registerpasswordlabel': 'Password',
+        'biolabel': 'Bio',
+
+
         // https://localhost:4242/homepage
         'single player': 'Single Player',
         'local multiplayer': 'Local Multiplayer',
@@ -48,7 +54,7 @@ var langDict = {
         'tournament': 'Tournament',
         'statistics': 'Statistics',
         'settings': 'Settings',
-        
+
         // https://localhost:4242/playerStats
         'player statistics': 'Player Statistics',
         'last games results': 'Last Games Results',
@@ -61,8 +67,12 @@ var langDict = {
         'total wins': 'Total Wins',
         'total losses': 'Total Losses',
         'total score': 'Total Score',
-        'chart of winrate over time': 'Chart of Winrate Over Time',
-        
+
+        'playerdetails': 'Player Details',
+        'gameslist': 'Last Games Results',
+        'winratechart': 'Chart of Winrate Over Time',
+
+
         // https://localhost:4242/settings
         'player 1': 'Player 1',
         'player 2': 'Player 2',
@@ -71,20 +81,20 @@ var langDict = {
         'winning score': 'Winning Score',
         'save': 'Save',
         'cancel': 'Cancel',
-        
+
         //https://localhost:4242/multiplayer
         'users connected to the room': 'Users Connected to the Room',
         'room name': 'Room Name',
         'invite a player': 'Invite a Player',
         'enter username': 'Enter Username',
         'rooms': 'Rooms',
-        
+
         //https://localhost:4242/tournament
         'tournamentheader': 'Tournament Setup',
         'match tree': 'Match Tree',
         'tournament_matches_display': 'Tournament matches will be displayed here once setup is complete.',
         'enter username to': 'Enter Username to',
-        
+
         'navTournament': 'Tournament',
         'profile': 'Profile',
         'set': 'Settings',
@@ -93,6 +103,15 @@ var langDict = {
         'usernamelabel': 'Username',
         'registerheader': 'Register',
         'passwordlabel': 'passeword',
+        'id_password': 'passeword',
+
+        "gamesplayedlabel": "Games played",
+        "totalwinslabel": "Total wins",
+        "totallosseslabel": "Total losses",
+        "totalscorelabel": "Total score",
+        "playerdetailsheader": "Player details",
+        "lastgamesresultsheader": "List of last games results",
+        "winratechartheader": "Win rate chart",
 
         'registerheader': 'login',
         'passwordlabel': 'passeword',
@@ -101,9 +120,10 @@ var langDict = {
 
 
     },
-    
+
     'fr': {
         //navbar
+        'navbardropdown' : 'Compte',
         'home': 'Accueil',
         'language': 'Langue',
         'account': 'Compte',
@@ -123,26 +143,29 @@ var langDict = {
         'cancelRegister': 'test6',
 
         'titlehomepage': 'Pong',
-        'player1_scoreLabel': 'Joueur 1',
-        'player2_scoreLabel': 'Joueur 2',
+        'player1_name': 'Joueur 1',
+        'player2_name': 'Joueur 2',
         'cancelregister': 'test10',
-        'winning_scoreLabel': 'test101',
-        
+        'winning_score': 'Score gagnant',
+
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Connexion',
         'register': 'Inscription',
         'password': 'Mot de passe', //a double virer si conflit
-        
-        
-        
+
+
+
         // https://localhost:4242/register
-        'register': 'Inscription', //a double virer si conflit
-        'username': 'Nom d’utilisateur',
-        'password': 'Mot de passe',
-        'full name': 'Nom complet',
-        'birth date': 'Date de naissance',
-        'bio': 'Biographie',
-        
+        'registersubmitbutton': 'S\'enregistrer',
+        'cancelregisterbutton': 'retour',
+        'registerheader': 'Inscription', //a double virer si conflit
+        'registerusernamelabel': 'Nom d’utilisateur',
+        'registerpasswordlabel': 'Mot de passe',
+        'fullnamelabel': 'Nom complet',
+        'biolabel': 'Biographie',
+
+
+
         // https://localhost:4242/homepage
         'single player': 'Joueur seul',
         'local multiplayer': 'Multijoueur local',
@@ -150,7 +173,7 @@ var langDict = {
         'tournament': 'Tournoi',
         'statistics': 'Statistiques',
         'settings': 'Paramètres',
-        
+
         // https://localhost:4242/playerStats
         'player statistics': 'Statistiques du joueur',
         'last games results': 'Résultats des derniers jeux',
@@ -164,8 +187,13 @@ var langDict = {
         'total losses': 'Total des défaites',
         'total score': 'Score total',
         'chart of winrate over time': 'Graphique des taux de victoire dans le temps',
-        
-        
+
+        'playerdetails': 'Détails du joueur',
+        'gameslist': 'Résultats des derniers jeux',
+        'winratechart': 'Graphique des taux de victoire dans le temps',
+
+
+
         // https://localhost:4242/settings
         'player 1': 'Joueur 1',
         'player 2': 'Joueur 2',
@@ -174,15 +202,15 @@ var langDict = {
         'winning score': 'Score gagnant',
         'save': 'Sauvegarder',
         'cancel': 'Annuler',
-        
+
         //https://localhost:4242/multiplayer
-        
+
         'users connected to the room': 'Utilisateurs connectés',
         'room name': 'Nom de la salle',
         'invite a player': 'inviter un joueur',
         'enter username': 'Entrer utilisateur',
         'rooms': 'Salles',
-        
+
         //https://localhost:4242/tournament
         'tournamentheader': 'Configuration du Tournoi',
         'match tree': 'Prochains matchs',
@@ -196,19 +224,31 @@ var langDict = {
         'nextStageBtn': 'Suivant',
         'usernamelabel': 'Nom dutilisateur',
 
-        
+
         //https://localhost:4242/loginContainer top
-        'loginbutton':'S\'enregistre',
+        'loginForm':'S\'enregistre',
         'canceloginbutton': 'Sortir',
         'registerheader': 'S\'enregistrer',
         'passwordlabel': 'Mot de passe',
+        'id_password': 'Mot de passe',
         'cancelloginbutton': 'Annuler',
         'loginheader': 'Identification',
 
+        "gamesplayedlabel": "Parties jouées",
+        "totalwinslabel": "Victoires totales",
+        "totallosseslabel": "Défaites totales",
+        "totalscorelabel": "Score total",
+        "playerdetailsheader": "Détails du joueur",
+        "lastgamesresultsheader": "Liste des derniers résultats des jeux",
+        "winratechartheader": "Graphique du taux de victoire"
+
+
+
     },
-    
+
     'es': {
         //navbar
+        'navbardropdown' : 'accountos',
         'home': 'Inicio',
         'language': 'Idioma',
         'account': 'Cuenta',
@@ -228,11 +268,11 @@ var langDict = {
         'cancelRegister': 'test6',
 
         'titlehomepage': 'Pong',
-        'player1_scoreLabel': 'Playcito 1',
-        'player2_scoreLabel': 'Playcito 2',
+        'player1_name': 'Playcito 1',
+        'player1_name': 'Playcito 2',
         'usernameLabel': 'Utilisado',
         'cancelregister': 'test10',
-        'winning_scoreLabel': 'test101',
+        'winning_score': 'Scorado gagnacito',
 
 
         'login_initial': 'Iniciar sesio35n',
@@ -244,11 +284,14 @@ var langDict = {
         'password': 'Contraseña',
     
         // https://localhost:4242/register
-        'username': 'Nombre de usuario',
-        'password': 'Contraseña',
-        'full name': 'Nombre completo',
-        'birth date': 'Fecha de nacimiento',
-        'bio': 'Biografía',
+        'registersubmitbutton': 'Loginada', 
+        'cancelregisterbutton': 'Annulada',
+        'registerusernamelabel' : 'usernamado',
+        'registerheader' : 'loginada',
+        'registerusernameabel': 'Nomados Usuario',
+        'registerpasswordlabel': 'Contraseña',
+        'fullnamelabel': 'Nombre completo',
+        'biolabel': 'Biografía',
         
         // https://localhost:4242/homepage
         'single player': 'Un jugador',
@@ -303,7 +346,20 @@ var langDict = {
         'usernamelabel': 'Utilisados',
         'registerheader': 'Enregistrada',
         'passwordlabel': 'Passewordado',
+        'id_password': 'Passewordado',
+        
+        'playerdetails': 'Detalles del jugador',
+        'gameslist': 'Resultados de los últimos juegos',
+        'winratechart': 'Gráfico de tasa de victorias a lo largo del tiempo',
 
+        "gamesplayedlabel": "Partidas jugadas",
+        "totalwinslabel": "Victorias totales",
+        "totallosseslabel": "Derrotas totales",
+        "totalscorelabel": "Puntuación total",
+        "playerdetailsheader": "Detalles del jugador",
+        "lastgamesresultsheader": "Lista de los últimos resultados de juegos",
+        "winratechartheader": "Gráfico de tasa de victorias",
+        
         'loginbutton':'Loginada',
         'cancelloginbutton': 'Annulada',
         'loginheader': 'Loginada',
