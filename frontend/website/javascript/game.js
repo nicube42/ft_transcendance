@@ -104,7 +104,6 @@ const game = {
             this.stopControlAndDisconnect();
         }
         else if (mode === 'distant') {
-            alert('setGameMode');
             gameSocket.retrieveGameSettings(gameSocket.currentRoom);
             //this.ensureWebSocketConnection();
         }
@@ -419,6 +418,8 @@ const game = {
     },
 
     checkColisions: function () {
+        if (!this.ballPosX || !this.ballPosY)
+            return;
         //check the potential nextFrame position if no collisions occurs
         nextFrameBallX = this.ballPosX + this.ballSpeedX;
         nextFrameBallY = this.ballPosY + this.ballSpeedY;

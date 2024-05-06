@@ -526,29 +526,35 @@ class GameConsumer(AsyncWebsocketConsumer):
             'bonusRed': event['bonusRed'],
         }))
 
+    async def get_room_settings(self, room):
+        # Ensuring that getting settings is also an async safe call
+        return await database_sync_to_async(lambda: room.settings)()
+    
     async def retrieve_settings(self, data):
         room_name = data['room_name']
         room = await self.get_room_by_name(room_name)
 
-        if room and room.settings:
-            settings_data = {
-                'player1': room.settings.player1,
-                'player2': room.settings.player2,
-                'ball_speed': room.settings.ball_speed,
-                'paddle_speed': room.settings.paddle_speed,
-                'winning_score': room.settings.winning_score,
-                'bonus': room.settings.bonus
-            }
-            print('\nDATA:', settings_data, '\n')
-            await self.channel_layer.group_send(
-                room_name,
-                {
-                    'action': 'retrieve_settings',
-                    'type': 'broadcast_settings',  # This will trigger the broadcast_settings method to send updates.
-                    'settings': settings_data,
-                    'sender_channel_name': self.channel_name,
+        if room :
+            game_settings = await self.get_room_settings(room)
+            if game_settings:
+                settings_data = {
+                    'player1': room.settings.player1,
+                    'player2': room.settings.player2,
+                    'ballSpeed': room.settings.ball_speed,
+                    'paddleSpeed': room.settings.paddle_speed,
+                    'winningScore': room.settings.winning_score,
+                    'bonus': room.settings.bonus
                 }
-            )
+                print('\nDATA:', settings_data, '\n')
+                await self.channel_layer.group_send(
+                    room_name,
+                    {
+                        'action': 'retrieve_settings',
+                        'type': 'broadcast_settings',  # This will trigger the broadcast_settings method to send updates.
+                        'settings': settings_data,
+                        'sender_channel_name': self.channel_name,
+                    }
+                )
         elif room is None:
             await self.send_message_safe(json.dumps({'error': 'Room not found'}))
         else:

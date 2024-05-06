@@ -125,9 +125,9 @@ var gameSocket = {
                     }
                 });
             } else if (data.action === 'retrieve_settings'){
-                alert('change settings', data)
-                //game.settings = data.settings;
+                console.log('pos before:', game.ballPosX, game.ballPosY);
                 game.updateGameSettings(data.settings);
+                console.log('pos after:', game.ballPosX, game.ballPosY);
 
             }
         });
@@ -542,7 +542,6 @@ var gameSocket = {
     },
 
     retrieveGameSettings: function(roomName) {
-        alert('settings')
         this.sendMessage({action: 'retrieve_settings',
                             room_name: roomName});
     }
