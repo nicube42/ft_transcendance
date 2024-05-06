@@ -104,11 +104,14 @@ const game = {
             this.stopControlAndDisconnect();
         }
         else if (mode === 'distant') {
+            alert('setGameMode');
+            gameSocket.retrieveGameSettings(gameSocket.currentRoom);
             //this.ensureWebSocketConnection();
         }
     },
 
     updateGameSettings: function(settings) {
+        this.settings = settings;
         this.settings.ballSpeed = settings.ballSpeed;
         this.settings.paddleSpeed = settings.paddleSpeed;
         this.ballSpeedX = settings.ballSpeed / 2;
@@ -121,6 +124,7 @@ const game = {
         this.withBonus = settings.bonus;
         console.log('withBonus', this.withBonus);
     },
+    
 
     resetVars: function() {
         this.ballSpeedX = this.settings.ballSpeed / 2;
@@ -377,8 +381,7 @@ const game = {
         if (isX && paddleCenter){
             tmpX = obstacle;
             tmpY = this.ballPosY + this.ballSpeedY * delta;
-            console.log('change angle');
-            this.modifieAngle(tmpY, paddleCenter);
+            this.modifieAngle(tmpY, paddleCenter);  
         }
         else {
             tmpX = this.ballPosX + this.ballSpeedX * delta;

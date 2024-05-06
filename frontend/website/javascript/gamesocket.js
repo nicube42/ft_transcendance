@@ -140,6 +140,11 @@ var gameSocket = {
                             stats.displayEndGameStatsSurrender(0, 1);
                     }
                 });
+            } else if (data.action === 'retrieve_settings'){
+                alert('change settings', data)
+                //game.settings = data.settings;
+                game.updateGameSettings(data.settings);
+
             }
         });
     
@@ -556,6 +561,12 @@ var gameSocket = {
         this.sendMessage(surrenderData);
         console.log('Surrender message sent for room:', roomName);
     },
+
+    retrieveGameSettings: function(roomName) {
+        alert('settings')
+        this.sendMessage({action: 'retrieve_settings',
+                            room_name: roomName});
+    }
 
     // quitGame: function(roomName)
 };

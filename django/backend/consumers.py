@@ -143,6 +143,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.surrendered(text_data_json)
         elif action == 'broadcast_surrender':
             await self.broadcast_surrender(text_data_json)
+        elif action == 'retrieve_settings':
+            await self.retrieve_settings(text_data_json)
         # elif action == 'start_tournament_matches':
         #     await self.start_tournament_matches(text_data_json)
 
@@ -154,6 +156,18 @@ class GameConsumer(AsyncWebsocketConsumer):
             return
         room, created = await self.get_or_create_room(name=room_name, user=user)
         if created:
+            user_settings = await database_sync_to_async(GameSettings.objects.get)(user=user)
+            room_settings = GameSettings.objects.create(
+                room=room,
+                player1=user_settings.player1,
+                player2=user_settings.player2,
+                ball_speed=user_settings.ball_speed,
+                paddle_speed=user_settings.paddle_speed,
+                winning_score=user_settings.winning_score,
+                bonus=user_settings.bonus
+            )
+            room.settings = room_settings
+            room.save()
             await self.send_message_safe(json.dumps({'message': f'Room {room_name} created'}))
             await self.broadcast_room_list()
         else:
@@ -478,6 +492,41 @@ class GameConsumer(AsyncWebsocketConsumer):
             'action': 'update_bonus',
             'bonusGreen': event['bonusGreen'],
             'bonusRed': event['bonusRed'],
+        }))
+
+    async def retrieve_settings(self, data):
+        room_name = data['room_name']
+        room = await self.get_room_by_name(room_name)
+
+        if room and room.settings:
+            settings_data = {
+                'player1': room.settings.player1,
+                'player2': room.settings.player2,
+                'ball_speed': room.settings.ball_speed,
+                'paddle_speed': room.settings.paddle_speed,
+                'winning_score': room.settings.winning_score,
+                'bonus': room.settings.bonus
+            }
+            
+            await self.channel_layer.group_send(
+                room_name,
+                {
+                    'action': 'retrieve_settings',
+                    'type': 'broadcast_settings',  # This will trigger the broadcast_settings method to send updates.
+                    'settings': settings_data,
+                    'sender_channel_name': self.channel_name,
+                }
+            )
+        elif room is None:
+            await self.send_message_safe(json.dumps({'error': 'Room not found'}))
+        else:
+            await self.send_message_safe(json.dumps({'error': 'No settings found for this room'}))
+
+    async def broadcast_settings(self, event):
+        # Broadcast the settings to all clients in the room
+        await self.send_message_safe(json.dumps({
+            'action': 'retrieve_settings',
+            'settings': event['settings'],
         }))
 
     async def update_paddle_pos(self, data):
