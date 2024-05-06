@@ -16,7 +16,7 @@ const auth = {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(response.error);
             }
             return response.json();
         })
@@ -98,11 +98,14 @@ const auth = {
             credentials: 'include'
         })
         .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+            }
             return response.json();
         })
         .then(data => {
             if (data.error) {
-                console.error('Logout error:', data.error);
+                throw new Error(data.error);
             }
         })
         .catch(error => console.error('Logout error:', error));
@@ -174,7 +177,7 @@ const auth = {
             }
         ).then(response => {
             if (!response.ok) {
-                throw new Error('Network response for login intra 42 was not ok');
+                throw new Error(response.error);
             }
             return response.json();
         })
@@ -199,7 +202,9 @@ const auth = {
                 console.error('Auth recognition error:', error);
             });
         })
-        console.log('callback exception3 called');
+        .catch(error => {
+            console.error('Callback error:', error);
+        });
     },
 
     retrieveInfos: function() {
@@ -210,7 +215,7 @@ const auth = {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(response.error);
             }
             return response.json();
         })
@@ -266,7 +271,7 @@ const auth = {
                 credentials: 'include',
             });
             if (!response.ok) {
-                throw new Error(`Request failed with status: ${response.status}`);
+                throw new Error('Failed to check for ' + username);
             }
             const data = await response.json();
             if (data.is_logged_in) {
@@ -280,7 +285,7 @@ const auth = {
             }
         } catch (error) {
             console.error('Error checking user login status:', error);
-            alert('Error checking user login status.');
+            alert('Error checking user login status.'); //todo remove ?
         }
     },
     updateUserGameStatus: function(isInGame) {
@@ -296,11 +301,10 @@ const auth = {
             })
         })
         .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Failed to update game status');
+            if (!response.ok) {
+                throw new Error('Failed to update');
             }
+            return response.json();
         })
         .then(data => {
             console.log('Game status updated:', data);
@@ -323,11 +327,10 @@ const auth = {
             })
         })
         .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
+            if (!response.ok) {
                 throw new Error('Failed to update tournament status');
             }
+            return response.json();
         })
         .then(data => {
             console.log('Tournament status updated:', data);

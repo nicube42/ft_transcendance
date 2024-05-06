@@ -13,7 +13,12 @@ var friendsPage = {
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.error) {
                 alert(data.error);
@@ -38,10 +43,15 @@ var friendsPage = {
 
     fetchStatsForUser: function(username) {
         fetch(`/api/player_stats/${username}/`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.error) {
-                console.error('Error fetching player stats:', data.error);
+                throw new Error('Error fetching player stats:', data.error);
             } else {
                 document.getElementById('friends').classList.add('d-none');
                 document.getElementById('gamesPlayed').textContent = data.gamesPlayed;
@@ -57,7 +67,12 @@ var friendsPage = {
 
     fetchRecentGames: function(username) {
         fetch(`/api/recent_games/${username}/`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+            }
+            return response.json();
+        })
         .then(data => {
             const gamesList = document.getElementById('gamesList');
             gamesList.innerHTML = '';
@@ -73,7 +88,13 @@ var friendsPage = {
 
     fetchWinRateData: function(username) {
         fetch(`/api/win_rate_over_time/${username}/`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.dates.length > 0) {
                 GameStats.drawLineChart(data);
@@ -93,7 +114,7 @@ var friendsPage = {
     addFriend: function(username) {
         const csrfToken = this.getCSRFToken();
         if (!csrfToken) {
-            console.error('CSRF token is not available.');
+            throw new Error('CSRF token is not available.');
             return;
         }
     
@@ -107,7 +128,7 @@ var friendsPage = {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(response.error);
             }
             return response.json();
         })
@@ -153,7 +174,12 @@ var friendsPage = {
             },
             body: JSON.stringify({ friend_username: username })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+            }
+            return response.json();
+        })
         .then(data => {
             console.log(data.message);
             this.listFriends();
@@ -168,7 +194,12 @@ var friendsPage = {
                 'Content-Type': 'application/json'
             },
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+            }
+            return response.json();
+        })
         .then(data => {
             const friendsList = document.getElementById('friendsList');
             friendsList.innerHTML = '';

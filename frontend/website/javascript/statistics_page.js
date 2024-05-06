@@ -4,7 +4,7 @@ const GameStats = {
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    console.error('Error fetching player stats:', data.error);
+                    throw new Error(data.error);
                 } else {
                     console.log('Received data:', data);
                     document.getElementById('gamesPlayed').textContent = data.gamesPlayed;
@@ -20,6 +20,9 @@ const GameStats = {
         fetch('/api/recent_games/')
             .then(response => response.json())
             .then(games => {
+                if (games.error) {
+                    throw new Error(games.error);
+                }
                 const gamesList = document.getElementById('gamesList');
                 gamesList.innerHTML = '';
                 games.forEach(game => {
@@ -37,7 +40,7 @@ const GameStats = {
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    console.error('Error fetching win rate data:', data.error);
+                    throw new Error(data.error);
                 } else {
                     GameStats.drawLineChart(data);
                 }
