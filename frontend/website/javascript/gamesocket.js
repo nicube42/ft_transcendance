@@ -125,15 +125,12 @@ var gameSocket = {
                     }
                 });
             } else if (data.action === 'retrieve_settings'){
-                console.log('pos before:', game.ballPosX, game.ballPosY);
                 game.updateGameSettings(data.settings);
-                console.log('pos after:', game.ballPosX, game.ballPosY);
 
             }
         });
     
         this.socket.addEventListener('close', (event) => {
-            console.log("Disconnected from WebSocket");
         });
     },
 
@@ -536,7 +533,6 @@ var gameSocket = {
             room_name: roomName,
         };
         this.sendMessage(surrenderData);
-        console.log('Surrender message sent for room:', roomName);
     },
 
     retrieveGameSettings: function(roomName) {

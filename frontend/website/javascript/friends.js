@@ -103,8 +103,6 @@ var friendsPage = {
         .then(data => {
             if (data.dates.length > 0) {
                 GameStats.drawLineChart(data);
-            } else {
-                console.log('No win rate data available');
             }
         })
         .catch(error => console.error('Error fetching win rate data:', error));

@@ -125,9 +125,7 @@ const game = {
                 this.player1_name = opponentName.other_player;
                 this.player2_name = userInfo.username;
             }
-            console.log("Player 1: " + this.player1_name + ", Player 2: " + this.player2_name);
         } else {
-            console.log("Waiting for all player info to be available...");
             setTimeout(this.fetchPlayerNames, 1000);
         }
     },
@@ -288,7 +286,6 @@ const game = {
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
-            console.log('Game paused');
             auth.updateUserGameStatus('false');
             this.isPlaying = false;
             this.resetVars();
@@ -369,7 +366,6 @@ const game = {
         if (this.ballSpeedX < this.ballSpeedMax){
             this.ballSpeedX *= 1.06;
         }
-        console.log('speedx:', this.ballSpeedX, this.ballSpeedMax);
         this.ballSpeed = Math.abs(this.ballSpeedX / Math.cos(radianAngle));
 
         this.ballSpeedY = Math.sin(radianAngle) * this.ballSpeed;

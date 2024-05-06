@@ -201,7 +201,6 @@ const stats = {
             document.getElementById('endGameUsername2').innerHTML = "opponent";
             document.getElementById('winner_endgame').textContent = (winner === 1) ? userInfo.username : "opponent";
         }
-        console.log("Game Result Details Updated");
         return (0);
     },    
     
