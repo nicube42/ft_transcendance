@@ -121,11 +121,10 @@ class GameConsumer(AsyncWebsocketConsumer):
         elif action == 'accept_tournament_invite':
             await self.accept_tournament_invite(text_data_json)
         elif action == 'update_participants':
-            tournament_id = text_data_json.get('tournament_id')  # Extract the tournament_id as a string
+            tournament_id = text_data_json.get('tournament_id')
             if tournament_id:
-                await self.update_tournament_participants(tournament_id)  # Pass the extracted ID as a string
+                await self.update_tournament_participants(tournament_id)
             else:
-                # Handle the case where tournament_id is not provided or is invalid
                 await self.send_message_safe(json.dumps({'error': 'tournament_id is required for updating participants'}))
         elif action == 'send_user_status':
             username = text_data_json.get('username')
@@ -146,10 +145,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.broadcast_surrender(text_data_json)
         elif action == 'retrieve_settings':
             await self.retrieve_settings(text_data_json)
-        # elif action == 'start_tournament_matches':
-        #     await self.start_tournament_matches(text_data_json)
-
-    
 
   
     async def create_room(self, data):
@@ -172,7 +167,6 @@ class GameConsumer(AsyncWebsocketConsumer):
     @sync_to_async
     def create_game_settings(self, user, user_settings):
         return GameSettings.objects.create(
-            # room=room,
             player1=user_settings.player1,
             player2=user_settings.player2,
             ball_speed=user_settings.ball_speed,
@@ -180,30 +174,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             winning_score=user_settings.winning_score,
             bonus=user_settings.bonus
         )
-    # async def create_room(self, data):
-    #     room_name = data['room_name']
-    #     user = self.scope['user']
-    #     if user.is_anonymous:
-    #         await self.send_message_safe(json.dumps({'error': 'Authentication required to create room'}))
-    #         return
-    #     room, created = await self.get_or_create_room(name=room_name, user=user)
-    #     if created:
-    #         user_settings = await database_sync_to_async(GameSettings.objects.get)(user=user)
-    #         room_settings = await database_sync_to_async(GameSettings.objects.create(
-    #             room=room,
-    #             player1=user_settings.player1,
-    #             player2=user_settings.player2,
-    #             ball_speed=user_settings.ball_speed,
-    #             paddle_speed=user_settings.paddle_speed,
-    #             winning_score=user_settings.winning_score,
-    #             bonus=user_settings.bonus
-    #         ))
-    #         room.settings = room_settings
-    #         room.save()
-    #         await self.send_message_safe(json.dumps({'message': f'Room {room_name} created with {room_settings}'}))
-    #         await self.broadcast_room_list()
-    #     else:
-    #         await self.send_message_safe(json.dumps({'error': 'Room already exists'}))
 
     async def join_room(self, data, reconnect=False):
         room_name = data['room_name']
@@ -211,17 +181,14 @@ class GameConsumer(AsyncWebsocketConsumer):
         if room:
             user_added, user_count = await self.add_or_retrieve_user_in_room(room)
             
-            # Determine player position based on the current count of users in the room
-            # The first player to join gets "left", the second gets "right"
             logger.info(f"User count in room {room_name}: {user_count}")
             if user_count == 1:
-                player_position = "left"  # The first player joining
+                player_position = "left"
             elif user_count == 2:
-                player_position = "right"  # The second player joining
+                player_position = "right"
 
             if not reconnect:
                 await self.channel_layer.group_add(room_name, self.channel_name)
-                # await self.send_message_safe(json.dumps({'position': player_position}))
                 await self.list_users_in_room(data)
                 await self.channel_layer.group_send(room_name, {
                     "type": "player.joined",
@@ -230,18 +197,12 @@ class GameConsumer(AsyncWebsocketConsumer):
                     "user_count": user_count,
                 })
             
-            # Inform the client of their assigned role
             await self.send_message_safe(json.dumps({
                 'action': 'assign_role',
-                'role': player_position  # Assigns 'left', 'right'
+                'role': player_position
             }))
 
     async def add_or_retrieve_user_in_room(self, room):
-        """
-        Add a user to a room if they're not already part of it.
-        This function is idempotent; it can be called multiple times without additional effect.
-        Returns a tuple of (user_added, user_count), where user_added is a boolean indicating if the user was newly added.
-        """
         user = self.scope['user']
         if user.is_anonymous:
             return False, 0
@@ -259,15 +220,9 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def is_user_in_room(self, user, room):
-        """
-        Check if a user is in the given room.
-        """
         return room.users.filter(id=user.id).exists()
 
     async def get_user_count(self, room):
-        """
-        Asynchronously return the number of users in the given room.
-        """
         return await database_sync_to_async(room.users.count)()
 
 
@@ -457,7 +412,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def is_user_admin_of_room(self, user, room):
-        """Check if the given user is the admin of the specified room."""
         return room.admin == user
     
     async def get_user_instance(self):
@@ -512,7 +466,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             room_name,
             {
                 'action': 'update_bonus',
-                'type': 'broadcast_bonus',  # This refers to the function that will actually send updates to clients.
+                'type': 'broadcast_bonus',
                 'bonusGreen': bonusGreen,
                 'bonusRed': bonusRed,
                 'sender_channel_name': self.channel_name,
@@ -527,7 +481,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         }))
 
     async def get_room_settings(self, room):
-        # Ensuring that getting settings is also an async safe call
         return await database_sync_to_async(lambda: room.settings)()
     
     async def retrieve_settings(self, data):
@@ -550,7 +503,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                     room_name,
                     {
                         'action': 'retrieve_settings',
-                        'type': 'broadcast_settings',  # This will trigger the broadcast_settings method to send updates.
+                        'type': 'broadcast_settings',
                         'settings': settings_data,
                         'sender_channel_name': self.channel_name,
                     }
@@ -561,7 +514,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.send_message_safe(json.dumps({'error': 'No settings found for this room'}))
 
     async def broadcast_settings(self, event):
-        # Broadcast the settings to all clients in the room
         await self.send_message_safe(json.dumps({
             'action': 'retrieve_settings',
             'settings': event['settings'],
@@ -697,21 +649,16 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 
     async def create_tournament(self, data):
-        # Extract necessary data (e.g., tournament name) from the incoming message
         tournament_name = data.get('name', 'Unnamed Tournament')
         user = self.scope['user']
         max_players = data.get('numPlayers', 4)
         
-        # Generate a unique tournament ID
         tournament_id = str(uuid.uuid4())
         
-        # Create the tournament in the database
         tournament = await self.create_tournament_record(tournament_id, tournament_name, max_players)
         error_message = await self.add_user_to_tournament_participants(user.id, tournament_id)
         await self.channel_layer.group_add(f"tournament_{tournament_id}", self.channel_name)
-        # Check if the tournament was successfully created
         if tournament:
-            # await self.update_tournament_participants(tournament_id)
             response = {
                 'action': 'tournament_created',
                 'tournamentId': tournament_id,
@@ -724,13 +671,10 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'message': 'Failed to create tournament'
             }
         
-        # Send the response back to the client
         await self.send(text_data=json.dumps(response))
 
     @database_sync_to_async
     def create_tournament_record(self, tournament_id, name, max_players):
-        # Logic to save the tournament to your database
-        # This is a simplified example. Adapt according to your actual Tournament model.
         try:
             tournament = Tournament.objects.create(id=tournament_id, name=name)
             tournament.max_players = max_players
@@ -741,7 +685,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             return None
 
     async def send_tournament_invite(self, event):
-        # Sending the actual invite message to the WebSocket client
         await self.send(text_data=json.dumps({
             'action': 'receive_tournament_invite',
             'from_user': event['from_user'],
@@ -754,24 +697,19 @@ class GameConsumer(AsyncWebsocketConsumer):
         tournament_id = data['tournamentId']
         from_user = self.scope["user"].username
 
-        # Use Redis to check if the invitee is currently connected by looking up their channel name
         async with get_redis_connection() as redis:
             invitee_channel_name = await redis.get(f"user_channel:{invitee_username}")
 
         if invitee_channel_name:
-            # Prepare the message with the corrected type that points to our handler method
             invite_message = {
-                'type': 'send_tournament_invite',  # Corrected to match the handler method in GameConsumer
+                'type': 'send_tournament_invite',
                 'from_user': from_user,
                 'tournament_id': tournament_id,
                 'message': f"You have been invited to join the tournament {tournament_id} by {from_user}"
             }
-            # Send the message to the invitee's channel
             await self.channel_layer.send(invitee_channel_name, invite_message)
-            # Optionally, confirm to the inviter that the invite was sent
             await self.send_message_safe(json.dumps({'message': f'Invitation sent to {invitee_username}'}))
         else:
-            # Handle the case where the invitee is not online or cannot be found
             await self.send_message_safe(json.dumps({'error': f'User {invitee_username} is not online or does not exist.'}))
 
     async def update_tournament_participants(self, tournament_id):
@@ -802,17 +740,14 @@ class GameConsumer(AsyncWebsocketConsumer):
         user = self.scope['user']
         tournament_id = data['tournamentId']
 
-        # Ensure the user is authenticated before proceeding
         if user.is_anonymous:
             await self.send_message_safe({'error': 'User must be authenticated to accept an invitation.'})
             return
 
-        # Attempt to add the user to the tournament's participants
         added, error_message = await self.add_user_to_tournament_participants(user.id, tournament_id)
         await self.channel_layer.group_add(f"tournament_{tournament_id}", self.channel_name)
 
         if added:
-            # After successfully adding the user, broadcast the updated participant count.
             await self.broadcast_tournament_participant_update(tournament_id)
         else:
             await self.send_message_safe({'error': error_message})
@@ -828,7 +763,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             participants = await database_sync_to_async(list)(tournament.participants.all())
             participant_usernames = [p.username for p in participants]
             update_message = {
-                'type': 'send_json',  # Use the built-in handler to send JSON data.
+                'type': 'send_json',
                 'text': json.dumps({
                     'action': 'update_participant_count',
                     'participants': participant_usernames,
@@ -847,27 +782,16 @@ class GameConsumer(AsyncWebsocketConsumer):
             user = get_user_model().objects.get(id=user_id)
             tournament = Tournament.objects.get(id=tournament_id)
             
-            # Check if user is already a participant to avoid duplicates
             if tournament.participants.filter(id=user_id).exists():
                 return False, 'User is already a participant in this tournament.'
 
             tournament.participants.add(user)
             tournament.save()
-            return True, None  # Successfully added
+            return True, None
         except get_user_model().DoesNotExist:
             return False, 'User does not exist.'
         except Tournament.DoesNotExist:
             return False, 'Tournament does not exist.'
-
-
-    # async def start_tournament_matches(self, data):
-    #     # Logic to start tournament matches
-    #     # This might involve setting up matches, selecting players, etc.
-    #     # Respond to clients with match start information
-    #     tournament_id = data['tournamentId']
-    #     # Example response
-    #     match_info = {'action': 'matches_started', 'matches': 'details_here'}
-    #     await self.send(text_data=json.dumps(match_info))
 
     async def send_user_status(self, username):
         async with get_redis_connection() as redis:
@@ -909,7 +833,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             logger.info("Attempted to send message to anonymous user, action skipped.")
 
     async def delete_participant_from_tournament(self, data):
-        # Extract the tournament ID and the username of the participant to be removed
         tournament_id = data.get('tournament_id')
         username_to_remove = data.get('username')
 
@@ -917,14 +840,12 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.send_error_message('Tournament ID and username are required.')
             return
 
-        # Remove the participant from the tournament
         user_removed, message = await self.remove_user_from_tournament(tournament_id, username_to_remove)
         
         if user_removed:
             await self.send_message_safe(json.dumps({
                 'message': f'User {username_to_remove} has been removed from the tournament.'
             }))
-            # Broadcast the updated tournament state to all connected clients
             await self.broadcast_tournament_participant_update(tournament_id)
         else:
             await self.send_error_message(message)

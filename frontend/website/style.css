@@ -233,7 +233,6 @@ canvas {
     src: url('fonts/SpaceMission.otf') format('opentype');
 }
 
-/* Custom styles for range inputs */
 input[type='range'] {
     overflow: hidden;
     width: 80%;
@@ -256,7 +255,6 @@ input[type='range']::-webkit-slider-thumb {
     box-shadow: 0 0 0 1px #43e5f7;
 }
 
-/* Adjustments for non-WebKit browsers */
 input[type='range']::-moz-range-track {
     background-color: #9a905d;
 }

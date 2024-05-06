@@ -8,8 +8,7 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
 
     const username = document.querySelector('#input-username').value;
     const formData = new FormData(this);
-    formData.append('username', username);  // Assuming backend will handle this too.
-    // First, check if the username is available
+    formData.append('username', username);
     try {
         const checkUserResponse = await fetch('/api/check_user/', {
             method: 'POST',
@@ -22,11 +21,13 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
 
         const userData = await checkUserResponse.json();
         if (!checkUserResponse.ok) {
+            if (userData.error)
+                throw new Error(userData.error);
             throw new Error('Network response was not ok');
         }
 
         if (userData.exists) {
-            alert("Username already exists, choose a different one.");
+            auth.registerErrorModal('Username already exists, choose a different one.');
             return;
         }
         if (username !== '')
@@ -35,7 +36,6 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
         if (formData.get('profile_pic').name === '')
             return;
 
-        // If the username does not exist, proceed with updating the profile picture
         const updatePicResponse = await fetch('api/change-profile-pic/', {
             method: 'POST',
             body: formData,
@@ -44,11 +44,13 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
 
         const updateData = await updatePicResponse.json();
         if (!updatePicResponse.ok) {
+            if (updateData.error)
+                throw new Error(updateData.error);
             throw new Error('Failed to update profile picture: ' + JSON.stringify(updateData.error));
         }
 
         if(updateData.message) {
-            alert('Profile picture updated successfully.');
+            auth.registerErrorModal('Profile picture updated successfully.');
             document.getElementById('usernameProfile').textContent = username;
             const newPicURL = URL.createObjectURL(document.querySelector('#profile_pic').files[0]);
             document.getElementById('profilePic').src = newPicURL;
@@ -58,28 +60,25 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
 
     } catch (error) {
         console.error('Error:', error);
-        alert(error.message);
+        auth.registerErrorModal(error);
     }
 });
 
 const userInfoDisplayer = {
     updateUI: function(data) {
-        this.updateProfilePicUI(data.profile_pic_url); // Assuming 'profile_pic_url' is the key in the response JSON
+        this.updateProfilePicUI(data.profile_pic_url);
         this.updateUsernameProfile(data);
         this.updateFullNameProfile(data);
         userInfoDisplayer.fetchAndUpdateUserProfile();
     },
 
     fetchAndUpdateUserProfile: function() {
-        // Fetch user profile information (assuming you have an endpoint set up for this)
         fetch('/api/user-info/', {
-            credentials: 'include', // Include cookies for session management
+            credentials: 'include',
         })
         .then(response => response.json())
         .then(data => {
-            // Assume 'data' contains user information and 'profile_pic_url' for the user's profile picture URL
-            this.updateProfilePicUI(data.profile_pic_url || '/media/pictures/default.jpg'); //todo change this
-            // Update other parts of the UI as necessary
+            this.updateProfilePicUI(data.profile_pic_url || '/media/pictures/default.jpg');
         })
         .catch(error => console.error('Error:', error));
     },
@@ -105,16 +104,20 @@ const userInfoDisplayer = {
             body: formData,
         })
         .then(response => {
-            if (!response.ok) {
+            if (!response.ok && response.status === 500) {
                 throw new Error('Network response was not ok');
             }
             return response.json();
         })
         .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
             this.updateProfilePicUI(data.profile_pic_url);
         })
         .catch(error => {
-            console.error('Error:', error);
+            auth.registerErrorModal(error);
+            console.error('Error updating profile picture:', error);
         });
     },
 
@@ -155,7 +158,6 @@ const userInfoDisplayer = {
             return response.json();
         })
         .then(data => {
-            // Assuming the response includes the updated profile picture URL
             try {
                 const data = auth.retrieveInfos();
                 userInfoDisplayer.updateUI(data);

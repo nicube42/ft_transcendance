@@ -2,19 +2,17 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import GameSettings, Player
 import json
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
 @csrf_exempt
-@login_required
 def save_settings(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
-
+    if request.user.is_authenticated is False:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
     try:
         print('\n\nSAVE_SETTINGS\n\n')
         data = json.loads(request.body)
-        print(data)
         player1_name = data.get('player1')
         player2_name = data.get('player2')
         ball_speed = int(data.get('ballSpeed', 5))
@@ -49,13 +47,13 @@ def save_settings(request):
 
 from django.http import JsonResponse
 from .models import GameSettings
-from django.contrib.auth.decorators import login_required
 
 @csrf_exempt
-@login_required
 def retrieve_settings(request):
     if request.method != 'GET':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+    if request.user.is_authenticated is False:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
 
     defaults = {
         'player1': 'One',
@@ -96,105 +94,51 @@ def strip_accents(s):
     """Remove accentuated characters from a string and return a clean string."""
     return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
-@csrf_protect
+# @csrf_protect
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
         form = CustomUserForm(request.POST, request.FILES)
+        if CustomUser.objects.filter(username=request.POST.get('username')).exists():
+            return JsonResponse({'error': 'Username already exists'}, status=400)
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        fullname = request.POST.get('fullname')
+        profile_pic = request.FILES.get('profile_pic')
+        if username is None:
+            return JsonResponse({'error': 'Username is missing'}, status=400)
+        if password is None:
+            return JsonResponse({'error': 'Password is missing'}, status=400)
+        if fullname is None:
+            return JsonResponse({'error': 'Fullname is missing'}, status=400)
+        if len(username) < 4 or len(username) > 20:
+            return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
+        if len(password) < 4 or len(password) > 20:
+            return JsonResponse({'error': 'Password must be between 4 and 20 characters'}, status=400)
+        if len(fullname) < 4 or len(fullname) > 20:
+            return JsonResponse({'error': 'Fullname must be between 4 and 20 characters'}, status=400)
+
+        if profile_pic:
+            if profile_pic.size > 1024 * 1024:
+                return JsonResponse({'error': 'Profile picture size is too large'}, status=400)
+            if not profile_pic.content_type.startswith('image'):
+                return JsonResponse({'error': 'Profile picture must be an image'}, status=400)
         if form.is_valid():
             user = form.save(commit=False)
             user.password = make_password(form.cleaned_data['password'])
 
-            # Check if a profile picture was uploaded
             if 'profile_pic' in request.FILES:
                 file = request.FILES['profile_pic']
-                # Normalize and strip accents from the filename
                 normalized_filename = strip_accents(file.name)
-                # Get a valid filename for the file system
                 safe_filename = get_valid_filename(normalized_filename)
-                # Save the file
                 file_name = default_storage.save(safe_filename, ContentFile(file.read()))
-                # Create the URL
-                user.profile_pic_url = request.build_absolute_uri("https://localhost:4242/media/pictures/" + file_name)
+                user.profile_pic_url = request.build_absolute_uri("https://c3r5s2:4242/media/pictures/" + file_name)
 
-            user.save()  # Save the user and the file path
+            user.save()
             return JsonResponse({'message': 'User created successfully'}, status=201)
         else:
-            return JsonResponse({'error': form.errors}, status=400)
+            return JsonResponse({'error': form.errors.as_json(escape_html=True)}, status=400)
     return JsonResponse({"error": "Only POST method is allowed"}, status=405)
-
-
-
-
-# from django.http import JsonResponse
-# import json
-# from django.contrib.auth.hashers import make_password
-# from django.core.exceptions import ValidationError
-# from .models import CustomUser
-
-# @csrf_exempt
-# def register(request):
-#     if request.method == 'POST':
-#         try:
-#             data = {
-#                 "username": request.POST.get('username'),
-#                 "password": request.POST.get('password'),
-#                 "fullname": request.POST.get('fullname'),
-#             }
-#             username = data.get('username')
-#             print(username)
-#             password = data.get('password')
-#             print(password)
-#             fullname = data.get('fullname')
-#             picture = request.FILES.get('picture')
-
-#             if not username or not password or not fullname:
-#                 return JsonResponse({"error": "signup information not provided"}, status=400)
-#             print("LOL4")
-
-#             if CustomUser.objects.filter(username=username).exists():
-#                 return JsonResponse({'error': 'Username already exists'}, status=400)
-
-#             print("LOL5")
-#             user = CustomUser.objects.create(
-#                 username=username,
-#                 password=make_password(password),
-#                 fullname=fullname,
-#             )
-#             print("LOL6")
-
-#             if picture:
-#                 print("picture exists")
-#                 print(picture)
-#                 user.profile_pic = picture
-
-#             print("LOL8")
-#             # user.full_clean()
-#             #print(user.picture)
-#             print("LOL9")
-#             user.save()
-
-#             print("LOL10")
-#             # print(user.picture)
-#             print("LOL11")
-#             user_again = CustomUser.objects.get(username=username)
-#             print("LOL12")
-#             print(user_again.username)
-#             print("LOL13")
-#             print(user_again.fullname)
-#             print("LOL14")
-#             print(user_again.password)
-#             print("LOL15")
-#             print(user_again)
-#             print("LOL16")
-#           #  print(user_again.picture)
-#             print("LOL17")
-
-#             print("LOL_final")
-#             return JsonResponse({'message': 'User created successfully'}, status=201)
-#         except ValidationError as e:
-#             return JsonResponse({'error': e.message_dict}, status=400)
-#         except Exception as e:
-#             return JsonResponse({'error': str(e)}, status=500)
 
 
 import os
@@ -222,7 +166,6 @@ def intraCallback(request):
         if not code:
             return JsonResponse({"error": "Authorization code not provided"}, status=400)
 
-        # Get token from intra
         data_code = {
             'grant_type': 'authorization_code',
             'client_id': os.getenv('AUTH_CLIENT_ID'),
@@ -239,18 +182,15 @@ def intraCallback(request):
         except KeyError:
             print("Error: intra 42 'access_token' not found in the response.")
             auth_token = None
-        # End of getting token from intra
 
         if not auth_token:
             return JsonResponse({"error": "Could not get token from intra"}, status=400)
 
-        # Get user data from intra
         headers = {
             'Authorization': f'Bearer {auth_token}'
         }
         response = requests.get('https://api.intra.42.fr/v2/me', headers=headers)
         user_data = response.json()
-        # End user data from intra
 
         try:
             print("MDR2")
@@ -270,7 +210,6 @@ def intraCallback(request):
                 profile_pic_url=ppUrl,
             )
 
-            # Login the created user
             print("MDR3")
             login(request, user)
             print("MDR4")
@@ -297,8 +236,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 from django.middleware.csrf import get_token
-# from django.shortcuts import render
-# from django.core.context_processors import csrf
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 @csrf_exempt
@@ -308,20 +245,26 @@ def api_login(request):
             data = json.loads(request.body.decode('utf-8'))
             username = data.get('username')
             password = data.get('password')
-            if username is None or password is None:
-                return JsonResponse({'error': 'Username or password is missing'}, status=400)
+            if username is None:
+                return JsonResponse({'error': 'Username is missing'}, status=400)
+            if password is None:
+                return JsonResponse({'error': 'Password is missing'}, status=400)
+            if len(username) < 4 or len(username) > 20:
+                return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
+            if len(password) < 4 or len(password) > 20:
+                return JsonResponse({'error': 'Password must be between 4 and 20 characters'}, status=400)
 
             user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                csrf_token = get_token(request)
-                response = JsonResponse({'message': 'Login successful'})
-                response.set_cookie('csrftoken', csrf_token, httponly=False)
-                return response
-            else:
-                return JsonResponse({'error': 'Invalid credentials'}, status=400)
+            if user is None:
+                return JsonResponse({'error': 'Incorrect username or password. Please try again.'}, status=400)
+
+            login(request, user)
+            csrf_token = get_token(request)
+            response = JsonResponse({'message': 'Login successful'}, status=200)
+            response.set_cookie('csrftoken', csrf_token, httponly=False)
+            return response
         except json.JSONDecodeError:
-            logger.exception('Error decoding JSON in api_login')
+            logger.exception('Error decoding JSON')
             return JsonResponse({'error': 'Invalid JSON format'}, status=400)
         except Exception as e:
             logger.exception(f'Error in api_login: {e}')
@@ -336,7 +279,6 @@ from django.views.decorators.csrf import csrf_exempt
 import logging
 
 @csrf_exempt
-@login_required
 def user_info(request):
     try:
         if request.user.is_authenticated:
@@ -359,13 +301,17 @@ from django.contrib.auth import logout
 from django.http import JsonResponse
 
 
-@login_required
 def api_logout(request):
-    logout(request)
-    return JsonResponse({'message': 'Logout successful'})
+    try:
+        if request.user.is_authenticated:
+            logout(request)
+            return JsonResponse({'message': 'Logout successful'}, status=200)
+        else:
+            return JsonResponse({'error': 'User is already logged out '}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': 'Error during logout', 'details': str(e)}, status=500)
 
 
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from .models import CustomUser
@@ -414,14 +360,25 @@ def on_user_logout(sender, request, user, **kwargs):
 
 from django.shortcuts import render, redirect
 from .forms import ProfilePicUpdateForm
-from django.contrib.auth.decorators import login_required
 
 
-@login_required
 @require_POST
 def profile_pic_update(request):
     if request.method == 'POST':
+        if request.user.is_authenticated is False:
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
         form = ProfilePicUpdateForm(request.POST, request.FILES, instance=request.user)
+        username = request.POST.get('username')
+        if username is None:
+            return JsonResponse({'error': 'Username is missing'}, status=400)
+        if len(username) < 4 or len(username) > 20:
+            return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
+        picture = request.FILES.get('profile_pic')
+        if picture:
+            if picture.size > 1024 * 1024:
+                return JsonResponse({'error': 'Profile picture size is too large'}, status=400)
+            if not picture.content_type.startswith('image'):
+                return JsonResponse({'error': 'Profile picture must be an image'}, status=400)
         if form.is_valid():
             form.save()
             return redirect('profile')
@@ -436,14 +393,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from .models import Game
 from dateutil import parser
-from django.contrib.auth.decorators import login_required
 
 
 @csrf_exempt
-@login_required
 def game_record(request):
     if request.method == 'POST':
         try:
+            if request.user.is_authenticated is False:
+                return JsonResponse({'error': 'User not authenticated'}, status=401)
             data = json.loads(request.body)
             player1_username = data.get('player1')
             player2_name = data.get('player2')
@@ -468,15 +425,14 @@ def game_record(request):
 from django.http import JsonResponse
 import logging
 from .models import Game
-from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum, F
 
 
-@login_required
 def player_stats(request):
-    user = request.user
-
     try:
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
         games_won = Game.objects.filter(player1=user, player1_score__gt=F('player2_score')).count()
         games_lost = Game.objects.filter(player1=user, player1_score__lt=F('player2_score')).count()
 
@@ -497,52 +453,64 @@ def player_stats(request):
 
 
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
+
 from .models import Game
 
 
-@login_required
 def recent_games(request):
-    current_user = request.user
-    games = Game.objects.filter(player1=current_user).order_by('-start_time')[:5]
-    games_data = [{
-        'player1': game.player1.username,
-        'player2': game.player2,
-        'player1_score': game.player1_score,
-        'player2_score': game.player2_score,
-        'duration': game.duration,
-        'start_time': game.start_time.strftime('%Y-%m-%d %H:%M:%S'),
-        'end_time': game.end_time.strftime('%Y-%m-%d %H:%M:%S'),
-        'created_at': game.created_at.strftime('%Y-%m-%d %H:%M:%S')
-    } for game in games]
-    return JsonResponse(games_data, safe=False)
+    try:
+        current_user = request.user
+        if not current_user.is_authenticated:
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
+        games = Game.objects.filter(player1=current_user).order_by('-start_time')[:5]
+        games_data = [{
+            'player1': game.player1.username,
+            'player2': game.player2,
+            'player1_score': game.player1_score,
+            'player2_score': game.player2_score,
+            'duration': game.duration,
+            'start_time': game.start_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'end_time': game.end_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'created_at': game.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        } for game in games]
+        return JsonResponse(games_data, safe=False)
+    except Exception as e:
+        logging.exception("Error fetching recent games")
+        return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)
 
 
 from django.db.models import Count, Q, F
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
+
 from .models import Game
 from django.db.models.functions import TruncMonth
 
 
-@login_required
 def win_rate_over_time(request):
     current_user = request.user
-    games_by_month = Game.objects.filter(
-        Q(player1=current_user) | Q(player2=current_user.username)
-    ).annotate(
-        month=TruncMonth('created_at')
-    ).values('month').annotate(
-        total_games=Count('id'),
-        wins=Count('id', filter=Q(player1=current_user, player1_score__gt=F('player2_score')) | Q(player2=current_user.username, player2_score__gt=F('player1_score')))
-    ).order_by('month')
+    if not current_user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
+    try:
+        games_by_month = Game.objects.filter(
+            Q(player1=current_user) | Q(player2=current_user.username)
+        ).annotate(
+            month=TruncMonth('created_at')
+        ).values('month').annotate(
+            total_games=Count('id'),
+            wins=Count('id', filter=Q(player1=current_user, player1_score__gt=F('player2_score')) | Q(
+                player2=current_user.username, player2_score__gt=F('player1_score')))
+        ).order_by('month')
 
-    data = {
-        'dates': [game['month'].strftime('%Y-%m') for game in games_by_month if game['month']],
-        'winRates': [(game['wins'] / game['total_games'] * 100) if game['total_games'] > 0 else 0 for game in games_by_month]
-    }
+        data = {
+            'dates': [game['month'].strftime('%Y-%m') for game in games_by_month if game['month']],
+            'winRates': [(game['wins'] / game['total_games'] * 100) if game['total_games'] > 0 else 0 for game in
+                         games_by_month]
+        }
+        return JsonResponse(data)
+    except Exception as e:
+        logging.exception("Error fetching win rate over time")
+        return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)
 
-    return JsonResponse(data)
 
 
 from django.http import JsonResponse
@@ -552,25 +520,31 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 @require_POST
-@login_required
 def check_user(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
     data = json.loads(request.body)
     username = data.get('username')
+    if not username:
+        return JsonResponse({'error': 'Username is required'}, status=400)
+    if len(username) < 4 or len(username) > 20:
+        return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
     exists = get_user_model().objects.filter(username=username).exists()
     return JsonResponse({'exists': exists})
 
 
-from django.contrib.auth.decorators import login_required
+
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 import json
 
 
-@login_required
 @require_POST
 def add_friend(request):
     try:
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
         data = json.loads(request.body)
         friend_username = data.get('friend_username')
         if not friend_username:
@@ -604,7 +578,6 @@ def delete_friend(request):
         if not friend:
             return JsonResponse({'error': 'User not found'}, status=404)
 
-        # Check if the user actually has this friend
         if friend not in request.user.friends.all():
             return JsonResponse({'error': 'This user is not your friend'}, status=400)
 
@@ -614,26 +587,33 @@ def delete_friend(request):
         return JsonResponse({'error': 'Error processing your request', 'details': str(e)}, status=500)
 
 
-from django.contrib.auth.decorators import login_required
+
 from django.http import JsonResponse
 
 
-@login_required
 def list_friends(request):
-    friends_list = request.user.friends.all()
-    friends_data = [{'username': friend.username, 'fullname': friend.fullname} for friend in friends_list]
-    return JsonResponse({'friends': friends_data}, safe=False)
+    try:
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
+        friends_list = request.user.friends.all()
+        friends_data = [{'username': friend.username, 'fullname': friend.fullname} for friend in friends_list]
+        return JsonResponse({'friends': friends_data}, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': 'Error fetching friends', 'details': str(e)}, status=401)
 
 
-from django.contrib.auth.decorators import login_required
+
 from django.http import JsonResponse
 from .models import CustomUser
 
 
-@login_required
 def get_user_profile(request, username):
     try:
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
         user = CustomUser.objects.get(username=username)
+        if not user:
+            return JsonResponse({'error': 'User not found'}, status=404)
         user_data = {
             'username': user.username,
             'fullname': user.fullname,
@@ -645,51 +625,66 @@ def get_user_profile(request, username):
         return JsonResponse({'error': 'User not found'}, status=404)
 
 
-from django.shortcuts import get_object_or_404
-
-
-@login_required
 def recent_games_all(request, username):
-    user = get_object_or_404(CustomUser, username=username)
-    games = Game.objects.filter(Q(player1=user) | Q(player2=user.username)).order_by('-start_time')[:5]
-    games_data = [{
-        'player1': game.player1.username,
-        'player2': game.player2,
-        'player1_score': game.player1_score,
-        'player2_score': game.player2_score,
-        'duration': game.duration,
-        'start_time': game.start_time.strftime('%Y-%m-%d %H:%M:%S'),
-        'end_time': game.end_time.strftime('%Y-%m-%d %H:%M:%S'),
-        'created_at': game.created_at.strftime('%Y-%m-%d %H:%M:%S')
-    } for game in games]
+    try:
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
+        user = CustomUser.objects.get(username=username)
+        if not user:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        games = Game.objects.filter(Q(player1=user) | Q(player2=user.username)).order_by('-start_time')[:5]
+        games_data = [{
+            'player1': game.player1.username,
+            'player2': game.player2,
+            'player1_score': game.player1_score,
+            'player2_score': game.player2_score,
+            'duration': game.duration,
+            'start_time': game.start_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'end_time': game.end_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'created_at': game.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        } for game in games]
 
-    return JsonResponse(games_data, safe=False)
+        return JsonResponse(games_data, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': 'recent games error', 'details': str(e)}, status=500)
 
 
-@login_required
 def win_rate_over_time_all(request, username):
-    user = get_object_or_404(CustomUser, username=username)
-    games_by_month = Game.objects.filter(
-        Q(player1=user) | Q(player2=user.username)
-    ).annotate(
-        month=TruncMonth('start_time')
-    ).values('month').annotate(
-        total_games=Count('id'),
-        wins=Count('id', filter=Q(player1=user, player1_score__gt=F('player2_score')) | Q(player2=user.username, player2_score__gt=F('player1_score')))
-    ).order_by('month')
+    try:
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
+        user = CustomUser.objects.get(username=username)
+        if not user:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        games_by_month = Game.objects.filter(
+            Q(player1=user) | Q(player2=user.username)
+        ).annotate(
+            month=TruncMonth('start_time')
+        ).values('month').annotate(
+            total_games=Count('id'),
+            wins=Count('id', filter=Q(player1=user, player1_score__gt=F('player2_score')) | Q(player2=user.username,
+                                                                                              player2_score__gt=F(
+                                                                                                  'player1_score')))
+        ).order_by('month')
 
-    data = {
-        'dates': [game['month'].strftime('%Y-%m') for game in games_by_month if game['month']],
-        'winRates': [(game['wins'] / game['total_games'] * 100) if game['total_games'] > 0 else 0 for game in games_by_month]
-    }
+        data = {
+            'dates': [game['month'].strftime('%Y-%m') for game in games_by_month if game['month']],
+            'winRates': [(game['wins'] / game['total_games'] * 100) if game['total_games'] > 0 else 0 for game in
+                         games_by_month]
+        }
 
-    return JsonResponse(data)
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({'error': 'Win rate over time error', 'details': str(e)}, status=500)
 
 
-@login_required
+
 def player_stats_all(request, username):
-    user = get_object_or_404(CustomUser, username=username)
-
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
+    user = CustomUser.objects.get(username=username)
+    if not user:
+        return JsonResponse({'error': 'User not found'}, status=404)
     try:
         games_won = Game.objects.filter(player1=user, player1_score__gt=F('player2_score')).count()
         games_lost = Game.objects.filter(player1=user, player1_score__lt=F('player2_score')).count()
@@ -713,14 +708,15 @@ from django.contrib.auth import get_user_model
 import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
+
 from django.views.decorators.csrf import csrf_protect
 
 
 @require_POST
-@login_required
 @csrf_protect
 def update_game_status(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
     User = get_user_model()
     try:
         data = json.loads(request.body)
@@ -742,14 +738,15 @@ from django.contrib.auth import get_user_model
 import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
+
 from django.views.decorators.csrf import csrf_protect
 
 
 @require_POST
-@login_required
 @csrf_protect
 def update_tournament_status(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
     User = get_user_model()
     try:
         data = json.loads(request.body)
@@ -768,56 +765,52 @@ def update_tournament_status(request):
 
 
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
+
 from django.views.decorators.http import require_http_methods
 
 
-@login_required
 @require_http_methods(["GET"])
 def check_user_in_tournament(request):
     user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
     return JsonResponse({
         'is_in_tournament': user.is_in_tournament
     })
 
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from .models import Room
 
-@login_required
+
 def check_if_user_in_any_room(request):
-    # Ensure the user is authenticated
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'User is not authenticated'}, status=401)
 
-    # Get all rooms the user is part of
     user_rooms = Room.objects.filter(users__id=request.user.id)
 
-    # Check if the user is in any room
     if user_rooms.exists():
         room_names = user_rooms.values_list('name', flat=True)
         return JsonResponse({'status': 'User is in a room', 'rooms': list(room_names)}, status=200)
     else:
         return JsonResponse({'status': 'User is not in any room'}, status=200)  # Changed to 200 OK
 
-@login_required
+
 def check_number_users_in_room(request, room_name):
-    # Ensure the user is authenticated (redundant due to @login_required)
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'User is not authenticated'}, status=401)
 
-    # Retrieve the room by name or return a 404 if not found
-    room = get_object_or_404(Room, name=room_name)
-
-    # Count the number of users in the room
+    room = Room.objects.get(name=room_name)
+    if not room:
+        return JsonResponse({'error': 'Room not found'}, status=404)
     user_count = room.users.count()
 
-    # Return the count of users in the room
     return JsonResponse({'room': room_name, 'user_count': user_count}, status=200)
 
-@login_required
+
 def renameUser(request):
     if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
         try:
             data = json.loads(request.body)
             new_name = data.get('username')
@@ -849,6 +842,10 @@ def change_profile_pic(request):
         user = form.save(commit=False)
         if 'profile_pic' in request.FILES:
             file = request.FILES['profile_pic']
+            if file.size > 1024 * 1024:
+                return JsonResponse({'error': 'Profile picture size is too large'}, status=400)
+            if not file.content_type.startswith('image'):
+                return JsonResponse({'error': 'Profile picture must be an image'}, status=400)
             normalized_filename = strip_accents(file.name)
             safe_filename = get_valid_filename(normalized_filename)
             file_name = default_storage.save('pictures/' + safe_filename, ContentFile(file.read()))
@@ -857,13 +854,17 @@ def change_profile_pic(request):
         user.save()
         return JsonResponse({'message': 'Profile picture updated successfully'}, status=200)
     else:
-        return JsonResponse({'error': form.errors}, status=400)
-    
+        errors = form.errors.as_data()
+        first_error_field = next(iter(errors))
+        first_error_message = str(errors[first_error_field][0])
+        return JsonResponse({'error': first_error_message}, status=400)
+
+
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .models import Room, CustomUser
 
-@login_required
+
 def list_other_players_in_room(request):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'User is not authenticated'}, status=401)
@@ -874,7 +875,7 @@ def list_other_players_in_room(request):
         return JsonResponse({'error': 'No other players in room'}, status=200)
 
     room = user_rooms.first()
-    
+
     other_users = room.users.exclude(id__in=[request.user.id])
 
     other_usernames = [user.username for user in other_users]

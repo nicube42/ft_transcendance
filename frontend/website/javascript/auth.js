@@ -1,10 +1,29 @@
 const auth = {
+
+    loginErrorModal: function(error) {
+        var modal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
+        var modalBody = document.getElementById('loginErrorBody');
+        modalBody.innerHTML = error;
+        modal.show();
+    },
+
     login: function() {
         const csrfToken = getCookie('csrftoken');
         const formData = {
             username: document.getElementById('id_username').value,
             password: document.getElementById('id_password').value
         };
+
+        let username = formData.username;
+        if (username.length < 4 || username.length > 20) {
+            this.loginErrorModal('Username must be between 4 and 20 characters.');
+            return;
+        }
+        let password = formData.password;
+        if (password.length < 4 || password.length > 20) {
+            this.loginErrorModal('Password must be between 4 and 20 characters.');
+            return;
+        }
         fetch('/api/login/', {
             method: 'POST',
             headers: { 
@@ -15,12 +34,12 @@ const auth = {
             body: JSON.stringify(formData)
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
             return response.json();
         })
         .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
             sessionStorage.setItem('isLoggedIn', 'true');
             ui.connected = true;
             this.waitForAuthToBeRecognized(() => {
@@ -45,8 +64,7 @@ const auth = {
         })
         .catch(error => {
             console.error('Login error:', error);
-            var loginErrorModal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
-            loginErrorModal.show();
+            this.loginErrorModal(error);
         });
     },
 
@@ -85,6 +103,10 @@ const auth = {
     
     logout: function() {
         const csrfToken = getCookie('csrftoken');
+        sessionStorage.removeItem('isLoggedIn');
+        ui.showOnlyOneSection('loginContainer');
+        navbarManager.updateNavbar(false);
+        ui.connected = false;
         fetch('/api/logout/', {
             method: 'POST',
             headers: {
@@ -95,17 +117,23 @@ const auth = {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(response.error);
             }
             return response.json();
         })
         .then(data => {
-            sessionStorage.removeItem('isLoggedIn');
-            ui.showOnlyOneSection('loginContainer');
-            navbarManager.updateNavbar(false);
-            ui.connected = false;
+            if (data.error) {
+                throw new Error(data.error);
+            }
         })
         .catch(error => console.error('Logout error:', error));
+    },
+
+    registerErrorModal: function(error) {
+        var modal = new bootstrap.Modal(document.getElementById('registerErrorModal'));
+        var modalBody = document.getElementById('registerErrorBody');
+        modalBody.innerHTML = error;
+        modal.show();
     },
 
     register: function() {
@@ -117,16 +145,35 @@ const auth = {
         formData.append('fullname', document.getElementById('fullname').value);
         formData.append('profile_pic', document.getElementById('picture').files[0]);
 
+        let profilePic = formData.get('profile_pic');
+        if(profilePic.size > 0)
+        {
+            if (profilePic.size > 1024 * 1024) {
+                this.registerErrorModal('Profile picture must be less than 1MB.');
+                return;
+            }
+            let allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+            if (!allowedExtensions.exec(profilePic.name)) {
+                this.registerErrorModal('Profile picture must be a jpg, jpeg, or png file.');
+                return;
+            }
+        }
+        let fullname = formData.get("fullname");
+        if (fullname.length < 4 || fullname.length > 20) {
+            this.registerErrorModal('Full name must be between 4 and 20 characters.');
+            return;
+        }
         let username = formData.get("username");
-        let password = formData.get("password");
         if (username.length < 4 || username.length > 20) {
-            alert('Username must be between 4 and 20 characters.');
+            this.registerErrorModal('Username must be between 4 and 20 characters.');
             return;
         }
+        let password = formData.get("password");
         if (password.length < 4 || password.length > 20) {
-            alert('Password must be between 4 and 20 characters.');
+            this.registerErrorModal('Password must be between 4 and 20 characters.');
             return;
         }
+
         fetch('/api/register/', {
             method: 'POST',
             headers: {
@@ -137,18 +184,20 @@ const auth = {
 
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            if (!response.ok && response.status !== 400 && response.status !== 405) {
+                throw new Error("Server error or network issue.");
             }
             return response.json();
         })
         .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
             ui.showOnlyOneSection('loginContainer');
         })
         .catch(error => {
             console.error('Registration error:', error)
-            var registrationErrorModal = new bootstrap.Modal(document.getElementById('registerErrorModal'));
-            registrationErrorModal.show();
+            this.registerErrorModal(error);
         });
     },
 
@@ -170,7 +219,7 @@ const auth = {
             }
         ).then(response => {
             if (!response.ok) {
-                throw new Error('Network response for login intra 42 was not ok');
+                throw new Error(response.error);
             }
             return response.json();
         })
@@ -193,6 +242,9 @@ const auth = {
                 console.error('Auth recognition error:', error);
             });
         })
+        .catch(error => {
+            console.error('Callback error:', error);
+        });
     },
 
     retrieveInfos: function() {
@@ -202,14 +254,11 @@ const auth = {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(response.error);
             }
             return response.json();
         })
         .then(data => {
-            if (data.error) {
-            } else {
-            }
             return data;
         })
         .catch(error => {
@@ -247,7 +296,7 @@ const auth = {
         });
     },
     checkIfUserLoggedIn: async function(username) {
-        if (game.gameMode !== 'distant') 
+        if (game.gameMode !== 'distant')
             return null;
         try {
             const response = await fetch(`/api/is-user-logged-in/?username=${encodeURIComponent(username)}`, {
@@ -255,7 +304,7 @@ const auth = {
                 credentials: 'include',
             });
             if (!response.ok) {
-                throw new Error(`Request failed with status: ${response.status}`);
+                throw new Error('Failed to check for ' + username);
             }
             const data = await response.json();
             if (data.is_logged_in) {
@@ -267,7 +316,6 @@ const auth = {
             }
         } catch (error) {
             console.error('Error checking user login status:', error);
-            alert('Error checking user login status.');
         }
     },
     updateUserGameStatus: function(isInGame) {
@@ -282,14 +330,12 @@ const auth = {
             })
         })
         .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Failed to update game status');
+            if (!response.ok) {
+                throw new Error('Failed to update');
             }
+            return response.json();
         })
         .then(data => {
-            console.log('Game status updated:', data);
         })
         .catch(error => {
             console.error('Error updating game status:', error);
@@ -308,14 +354,12 @@ const auth = {
             })
         })
         .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
+            if (!response.ok) {
                 throw new Error('Failed to update tournament status');
             }
+            return response.json();
         })
         .then(data => {
-            console.log('Tournament status updated:', data);
         })
         .catch(error => {
             console.error('Error updating tournament status:', error);

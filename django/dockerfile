@@ -14,4 +14,4 @@ COPY django /code/
 COPY django/requirements.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
 
-#CMD entrypoint.sh
+CMD entrypoint.sh

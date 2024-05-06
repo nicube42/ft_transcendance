@@ -13,7 +13,6 @@ const websocket = {
         this.aiSocket = new WebSocket(url);
 
         this.aiSocket.onopen = () => {
-            console.log("Connected to AI server");
         };
 
         this.aiSocket.onclose = (event) => {
@@ -46,7 +45,6 @@ const websocket = {
             });
             this.aiSocket.send(message);
         } else {
-            console.log("WebSocket is not open. Message not sent.");
         }
     },
 
@@ -54,7 +52,6 @@ const websocket = {
         if (this.aiSocket && this.aiSocket.readyState === WebSocket.OPEN) {
             this.aiSocket.close();
         } else {
-            console.log("WebSocket was not open or already closing.");
         }
     }
 };
