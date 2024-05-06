@@ -86,7 +86,7 @@ const ui =
             if (target.matches('.btn-close[data-room-name]')) {
                 e.preventDefault();
                 const roomName = target.getAttribute('data-room-name');
-                this.handleDeleteRoom(roomName).catch(console.error);
+                this.handleDeleteRoom(roomName).catch();
                 return;
             }
     
@@ -95,7 +95,7 @@ const ui =
             }
             if (this.actionHandlers[target.id]) {
                 e.preventDefault();
-                this.actionHandlers[target.id].call(this, e).catch(console.error);
+                this.actionHandlers[target.id].call(this, e).catch();
             }
         });
     },
@@ -229,7 +229,6 @@ const ui =
                     gameSocket.currentRoom = null;
                 }, 500);
             } else {
-                console.error('Attempted to leave a room, but no current room is set.');
             }
         },
         async 'nextStageBtn'() {
@@ -318,7 +317,6 @@ const ui =
                 this.showOnlyOneSection('firstPage', true);
             }
         }).catch((error) => {
-            console.error('Error checking authentication status:', error);
             this.showOnlyOneSection('firstPage', true);
         });
     },

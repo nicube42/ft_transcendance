@@ -106,6 +106,8 @@ const game = {
             this.fetchPlayerNames();
         } else {
             auth.retrieveInfos().then(userInfo => {
+                if (!userInfo)
+                    return;
                 this.player1_name = userInfo.username;
             });
             this.player2_name = "opponent";
@@ -149,6 +151,8 @@ const game = {
             this.fetchPlayerNames();
         } else {
             auth.retrieveInfos().then(userInfo => {
+                if (!userInfo)
+                    return;
                 this.player1_name = userInfo.username;
             });
             this.player2_name = "opponent";

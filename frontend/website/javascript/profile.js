@@ -59,14 +59,18 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
         }
 
     } catch (error) {
-        console.error('Error:', error);
         auth.registerErrorModal(error);
     }
 });
 
 const userInfoDisplayer = {
     updateUI: function(data) {
-        this.updateProfilePicUI(data.profile_pic_url);
+        if (!data)
+            return;
+        if (!data.profilePicUrl)
+            this.updateProfilePicUI('/media/pictures/default.jpg');
+        else
+            this.updateProfilePicUI(data.profile_pic_url);
         this.updateUsernameProfile(data);
         this.updateFullNameProfile(data);
         userInfoDisplayer.fetchAndUpdateUserProfile();
@@ -80,7 +84,7 @@ const userInfoDisplayer = {
         .then(data => {
             this.updateProfilePicUI(data.profile_pic_url || '/media/pictures/default.jpg');
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {});
     },
 
     updateProfilePicUI: function(profilePicUrl) {
@@ -88,7 +92,6 @@ const userInfoDisplayer = {
         if (profilePicImg) {
             profilePicImg.src = profilePicUrl;
         } else {
-            console.error('Error: profilePic element not found');
         }
     },
 
@@ -117,7 +120,6 @@ const userInfoDisplayer = {
         })
         .catch(error => {
             auth.registerErrorModal(error);
-            console.error('Error updating profile picture:', error);
         });
     },
 
@@ -126,7 +128,6 @@ const userInfoDisplayer = {
         if (userInfoDiv) {
             userInfoDiv.innerHTML = `<p>Username: ${data.username}</p>`;
         } else {
-            console.error('Error: usernameProfile element not found');
         }
     },
 
@@ -136,7 +137,6 @@ const userInfoDisplayer = {
             if (fullNameDiv) {
                 fullNameDiv.innerHTML = `<p>Full name: ${data.fullname}</p>`;
             } else {
-                console.error('Error: fullNameProfile element not found');
             }
         }
     },
@@ -163,11 +163,9 @@ const userInfoDisplayer = {
                 userInfoDisplayer.updateUI(data);
                 ui.showOnlyOneSection('profilePage');
             } catch (error) {
-                console.error('Failed to fetch or display user info:', error);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
         });
     },
     betterUI: async function() {
@@ -183,11 +181,9 @@ const userInfoDisplayer = {
                         userInfoDisplayer.updateUI(data);
                     });
                 } catch (error) {
-                    console.error('Failed to fetch or display user info:', error);
                 }
             });
         } catch (error) {
-            console.error('Failed to fetch or display user info:', error);
         }
     },
 };

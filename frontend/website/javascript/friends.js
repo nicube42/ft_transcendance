@@ -43,7 +43,7 @@ var friendsPage = {
                 document.getElementById('csrfTokenProfilePic').value = this.getCSRFToken();
             }
         })
-        .catch(error => console.error('Error fetching profile:', error));
+        .catch(error => {});
     },
 
     fetchStatsForUser: function(username) {
@@ -65,7 +65,7 @@ var friendsPage = {
                 document.getElementById('totalScore').textContent = data.totalScore;
             }
         })
-        .catch(error => console.error('Error fetching player stats:', error));
+        .catch(error => {});
         this.fetchRecentGames(username);
         this.fetchWinRateData(username);
     },
@@ -88,7 +88,7 @@ var friendsPage = {
                 gamesList.appendChild(listItem);
             });
         })
-        .catch(error => console.error('Error fetching recent games:', error));
+        .catch(error => {});
     },
 
     fetchWinRateData: function(username) {
@@ -105,7 +105,7 @@ var friendsPage = {
                 GameStats.drawLineChart(data);
             }
         })
-        .catch(error => console.error('Error fetching win rate data:', error));
+        .catch(error => {});
     },
 
     goToStats: function(username) {
@@ -141,7 +141,7 @@ var friendsPage = {
                 alert("User does not exist");
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {});
     },
 
     deleteFriend: function(username) {
@@ -158,10 +158,9 @@ var friendsPage = {
             if (data.message) {
                 this.listFriends();
             } else if (data.error) {
-                console.error('Error deleting friend:', data.error);
             }
         })
-        .catch(error => console.error('Error processing delete:', error));
+        .catch(error => {});
     },
 
     performAddFriend: function(username) {
@@ -183,7 +182,7 @@ var friendsPage = {
         .then(data => {
             this.listFriends();
         })
-        .catch(error => console.error('Error adding friend:', error));
+        .catch(error => {});
     },
 
     listFriends: function() {
@@ -216,7 +215,7 @@ var friendsPage = {
                 }, 2000);
             });
         })
-        .catch(error => console.error('Error listing friends:', error));
+        .catch(error => {});
     },       
 
     searchFriends: function() {

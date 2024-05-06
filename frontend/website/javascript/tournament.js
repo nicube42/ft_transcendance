@@ -194,7 +194,6 @@ const tournament = {
 
     startNextRoundMatches: function(currentRound, maxPlayers) {
         if (this.maxPlayers !== maxPlayers) {
-            console.error('Player count mismatch. Unable to start matches for the next round.');
             return;
         }
     
@@ -286,14 +285,12 @@ const tournament = {
             return data.is_in_tournament;
         })
         .catch(error => {
-            console.error('Error checking tournament status:', error);
             return false;
         });
     },
 
     navigateToTournamentStage: function() {
         if (!this.tournamentId) {
-            console.error('No tournament ID is set in the tournament object');
             return;
         }
     
@@ -309,7 +306,6 @@ const tournament = {
         ui.loadTournamentData();
         const index = this.participants.indexOf(username);
         if (index === -1) {
-            console.error('User not found in the tournament');
             return;
         }
     

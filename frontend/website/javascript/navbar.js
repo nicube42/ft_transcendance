@@ -30,13 +30,12 @@ const navbarManager = {
                     .then(response => response.json())
                     .then(data => {
                         if (data.error) {
-                            console.error('Error fetching profile:', data.error);
                         } else {
                             profilePicNav.src = data.profile_pic_url || '/media/pictures/default.jpg';
                             document.getElementById('csrfTokenProfilePic').value = auth.getCSRFToken();
                         }
                     })
-                    .catch(error => console.error('Error fetching profile:', error));
+                    .catch(error => {});
                 }
             });
         } else {

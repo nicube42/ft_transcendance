@@ -92,14 +92,12 @@ const stats = {
                             body: JSON.stringify(postData)
                         })
                         .then(response => response.json())
-                        .then(data => console.log('Game data saved:', data))
-                        .catch(error => console.error('Failed to save game data:', error));
+                        .then(data => {})
+                        .catch(error => {});
                     } else {
-                        console.error('Failed to retrieve user info or username missing');
                     }
                 });
             }).catch(error => {
-                console.error('Error in retrieving user info:', error);
             });
             tournament.checkUserInTournament().then(isInTournament => {
                 const returnHomeButton = document.getElementById('returnHome');
@@ -170,12 +168,10 @@ const stats = {
                             }
                         })
                         .catch(error => {
-                            console.error('Error:', error);
                             alert('There was an error checking your room status. Please try again.');
                         });
                 }
             }).catch(error => {
-                console.error('Error checking tournament status:', error);
             });
         }, 1000);
     },
@@ -254,14 +250,11 @@ const stats = {
                         body: JSON.stringify(postData)
                     })
                     .then(response => response.json())
-                    .then(data => console.log('Game data saved:', data))
-                    .catch(error => console.error('Failed to save game data:', error));
+                    .catch(error => {});
                 } else {
-                    console.error('Failed to retrieve user info or username missing');
                 }
             });
         }).catch(error => {
-            console.error('Error in retrieving user info:', error);
         });
         tournament.checkUserInTournament().then(isInTournament => {
             const returnHomeButton = document.getElementById('returnHome');
@@ -324,12 +317,10 @@ const stats = {
                             }
                         })
                         .catch(error => {
-                            console.error('Error:', error);
                             alert('There was an error checking your room status. Please try again.');
                         });
                 }
         }).catch(error => {
-            console.error('Error checking tournament status:', error);
         });
     },
         

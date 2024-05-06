@@ -79,7 +79,6 @@ var gameSocket = {
             } else if (data.action === 'assign_role') {
                 game.playerRole = data.role;
             } else if (data.error && data.action === 'delete_room') {
-                console.error(data.error);
             } else if (data.action === 'receive_invite') {
                 this.showInvitePopup(data.room_name, data.from_user, 'room');
             } else if(data.action === 'receive_tournament_invite') {
@@ -94,11 +93,6 @@ var gameSocket = {
                     statusIndicator.style.color = data.status === 'online' ? 'green' : 'red';
                 }
             } else if (data.action === 'user_in_game') {
-                if (data.in_game) {
-                    console.log(`${data.username} is in a game.`);
-                } else {
-                    console.log(`${data.username} is not in a game.`);
-                }
             } else if (data.action === 'user_in_game_status') {
                 if (data.in_game == false)
                     return ;
@@ -218,7 +212,6 @@ var gameSocket = {
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
                 alert('There was an error checking your room status. Please try again.');
             });
     },
@@ -263,7 +256,6 @@ var gameSocket = {
         }
         const roomListDiv = document.getElementById('roomList');
         if (!roomListDiv) {
-            console.error('Element with ID "roomList" not found.');
             return;
         }
         roomListDiv.innerHTML = '';
@@ -304,7 +296,6 @@ var gameSocket = {
     updateUserList: function(users, roomName) {
         const usersListDiv = document.getElementById('roomUsersList');
         if (!usersListDiv) {
-            console.error('Element with ID "roomUsersList" not found.');
             return;
         }
         usersListDiv.innerHTML = '';
@@ -321,7 +312,6 @@ var gameSocket = {
         if (roomNameHeading) {
             roomNameHeading.textContent = `Users in ${roomName}:`;
         } else {
-            console.error('Element with ID "roomNameHeading" not found.');
         }
     },
 
@@ -418,7 +408,6 @@ var gameSocket = {
     
         const checkSocket = () => {
             if (!this.socket) {
-                console.error("WebSocket has not been initialized.");
                 return;
             }
     
@@ -426,7 +415,6 @@ var gameSocket = {
                 callback();
             } else {
                 if (attemptsLeft <= 0) {
-                    console.error("Failed to send message: WebSocket is not open and max attempts reached.");
                 } else {
                     attemptsLeft--;
                     setTimeout(checkSocket, interval);

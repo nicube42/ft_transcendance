@@ -26,10 +26,8 @@ function updateTexts() {
             if (dictionaryValue) {
                 element.textContent = dictionaryValue;
             } else {
-                console.error("Dictionary key missing for:", textKey);
             }
         } else {
-            console.error("Element not found for ID:", id);
         }
     });    
 
@@ -51,7 +49,6 @@ function updateSpecificPageElements() {
         if (element) {
             element.textContent = additionalElements[id];
         } else {
-            console.error("Element not found for ID:", id);
         }
     });
 }

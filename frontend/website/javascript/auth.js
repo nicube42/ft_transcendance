@@ -56,14 +56,11 @@ const auth = {
                         location.reload();
                     })
                     .catch(error => {
-                        console.error('Failed to fetch/display user info:', error);
                     });
             }, (error) => {
-                console.error('Auth recognition error:', error);
             });
         })
         .catch(error => {
-            console.error('Login error:', error);
             this.loginErrorModal(error);
         });
     },
@@ -126,7 +123,7 @@ const auth = {
                 throw new Error(data.error);
             }
         })
-        .catch(error => console.error('Logout error:', error));
+        .catch(error => {});
     },
 
     registerErrorModal: function(error) {
@@ -196,7 +193,6 @@ const auth = {
             ui.showOnlyOneSection('loginContainer');
         })
         .catch(error => {
-            console.error('Registration error:', error)
             this.registerErrorModal(error);
         });
     },
@@ -206,7 +202,6 @@ const auth = {
         ui.showOnlyOneSection('callback');
         const code = url.searchParams.get("code");
         if (code === null) {
-            console.error("No code in URL");
             return;
         }
         fetch(
@@ -236,14 +231,11 @@ const auth = {
                         navbarManager.updateNavbar(true);
                     })
                     .catch(error => {
-                        console.error('Failed to fetch/display user info:', error);
                     });
             }, (error) => {
-                console.error('Auth recognition error:', error);
             });
         })
         .catch(error => {
-            console.error('Callback error:', error);
         });
     },
 
@@ -262,8 +254,6 @@ const auth = {
             return data;
         })
         .catch(error => {
-            console.error('Error fetching user info:', error);
-            throw error;
         });
     },
     
@@ -291,7 +281,6 @@ const auth = {
             }
         })
         .catch(error => {
-            console.error(error.message);
             return false;
         });
     },
@@ -315,7 +304,6 @@ const auth = {
                 return null;
             }
         } catch (error) {
-            console.error('Error checking user login status:', error);
         }
     },
     updateUserGameStatus: function(isInGame) {
@@ -338,7 +326,6 @@ const auth = {
         .then(data => {
         })
         .catch(error => {
-            console.error('Error updating game status:', error);
         });
     },
 
@@ -362,7 +349,6 @@ const auth = {
         .then(data => {
         })
         .catch(error => {
-            console.error('Error updating tournament status:', error);
         });
     },    
 
@@ -393,7 +379,6 @@ const auth = {
             return response.json();
         })
         .catch(error => {
-            console.error('There has been a problem with your fetch operation:', error);
             throw error;
         });
     },

@@ -12,7 +12,7 @@ const GameStats = {
                     document.getElementById('totalScore').textContent = data.totalScore;
                 }
             })
-            .catch(error => console.error('Error fetching player stats:', error));
+            .catch(error => {});
     },    
 
     fetchRecentGames: function() {
@@ -57,7 +57,7 @@ const GameStats = {
                     gamesList.appendChild(listItem);
                 });
             })
-            .catch(error => console.error('Error fetching recent games:', error));
+            .catch(error => {});
     },       
     
     fetchWinRateData: function() {
@@ -70,7 +70,7 @@ const GameStats = {
                     GameStats.drawLineChart(data);
                 }
             })
-            .catch(error => console.error('Error fetching win rate data:', error));
+            .catch(error => {});
     },
     
     drawLineChart: function(data) {

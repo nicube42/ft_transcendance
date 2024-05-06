@@ -26,7 +26,7 @@ const settings = {
                     document.getElementById('Bonus').checked = true;
                 game.updateGameSettings(data);
             })
-            .catch(error => console.error('Error fetching settings:', error));
+            .catch(error => {});
     },
     saveSettings: async function() {
         if (ui.connected === false) {
@@ -56,7 +56,6 @@ const settings = {
             }
         })
         .catch(error => {
-            console.error('Error saving settings:', error);
         });
     }
 };
