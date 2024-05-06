@@ -28,21 +28,25 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.user = self.scope.get("user")
-        session_key = self.scope["cookies"].get("sessionid", None)
+        session_key = self.scope["cookies"].get("sessionid")
 
-        if self.user.is_anonymous and session_key:
-            self.user = await self.get_user_from_session(session_key)
-            if self.user:
-                logger.info(f"Authenticated user from session: {self.user.username}")
+        if self.user is None or self.user.is_anonymous:
+            if session_key:
+                self.user = await self.get_user_from_session(session_key)
+                if self.user:
+                    logger.info(f"Authenticated user from session: {self.user.username}")
+                else:
+                    logger.info("Failed to authenticate user from session.")
             else:
-                logger.info("Failed to authenticate user from session.")
+                logger.info("No session key found or user is anonymous.")
 
         if self.user and not self.user.is_anonymous:
             await self.track_user_channel(self.user.username, self.channel_name)
             logger.info(f"Tracking user {self.user.username} on channel {self.channel_name}")
+            await self.accept()
         else:
-            logger.info("User is anonymous, skipping tracking.")
-        await self.accept()
+            logger.info("User is anonymous or not found, connection rejected.")
+            await self.close()
 
     async def restore_user_state(self):
         user_rooms = await self.get_user_rooms_from_redis(self.user.username)
@@ -85,6 +89,8 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         if action == 'create_room':
             await self.create_room(text_data_json)
+        elif action == 'update_paddle_pos':
+            await self.update_paddle_pos(text_data_json)
         elif action == 'join_room':
             await self.join_room(text_data_json)
         elif action == 'list_rooms':
@@ -101,6 +107,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.game_start()
         elif action == 'update_ball_state':
             await self.update_ball_state(text_data_json)
+        elif action == 'update_bonus':
+            await self.update_bonus(text_data_json)
         elif action == 'delete_room':
             await self.delete_room(text_data_json)
         elif action == 'send_invite':
@@ -129,6 +137,12 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.check_if_user_in_game(username)
         elif action == 'delete_participant_from_tournament':
             await self.delete_participant_from_tournament(text_data_json)
+        elif action == 'stop_game':
+            await self.stop_game(text_data_json)
+        elif action == 'surrender':
+            await self.surrendered(text_data_json)
+        elif action == 'broadcast_surrender':
+            await self.broadcast_surrender(text_data_json)
         # elif action == 'start_tournament_matches':
         #     await self.start_tournament_matches(text_data_json)
 
@@ -441,6 +455,54 @@ class GameConsumer(AsyncWebsocketConsumer):
             'role': event['role'],
             'player': event['player'],
             'keyEvent': event['keyEvent']
+        }))
+
+    async def update_bonus(self, data):
+        room_name = data['room_name']
+        bonusGreen = data['bonusGreen']
+        bonusRed = data['bonusRed']
+
+        await self.channel_layer.group_send(
+            room_name,
+            {
+                'action': 'update_bonus',
+                'type': 'broadcast_bonus',  # This refers to the function that will actually send updates to clients.
+                'bonusGreen': bonusGreen,
+                'bonusRed': bonusRed,
+                'sender_channel_name': self.channel_name,
+            }
+        )
+
+    async def broadcast_bonus(self, event):
+        await self.send_message_safe(json.dumps({
+            'action': 'update_bonus',
+            'bonusGreen': event['bonusGreen'],
+            'bonusRed': event['bonusRed'],
+        }))
+
+    async def update_paddle_pos(self, data):
+        room_name = data['room']
+
+        role = data.get('role')
+        leftPaddle = data.get('leftPaddle')
+        rightPaddle = data.get('rightPaddle')
+
+        await self.channel_layer.group_send(
+            room_name,
+            {
+                'type': 'broadcast_paddle_pos',
+                'role': role,
+                'leftPaddle': leftPaddle,
+                'rightPaddle': rightPaddle,
+            }
+        )
+
+    async def broadcast_paddle_pos(self, event):
+        await self.send_message_safe(json.dumps({
+            'action': 'update_paddle_pos',
+            'role': event['role'],
+            'leftPaddle': event['leftPaddle'],
+            'rightPaddle': event['rightPaddle'],
         }))
 
     async def update_ball_state(self, data):
@@ -793,3 +855,39 @@ class GameConsumer(AsyncWebsocketConsumer):
             return False, "Tournament not found."
         except get_user_model().DoesNotExist:
             return False, "User not found."
+
+    async def stop_game(self, data):
+        room_name = data['room_name']
+        await self.channel_layer.group_send(
+            room_name,
+            {
+                'type': 'game_stop',
+                'message': 'stop_game',
+            }
+        )
+
+    async def game_stop(self, event):
+        message = event['message']
+        await self.send(text_data=json.dumps({
+            'action': message
+        }))
+
+    async def surrendered(self, data):
+        username = self.scope['user'].username if self.scope['user'].is_authenticated else 'Unknown Player'
+        room_name = data['room_name']
+
+        await self.channel_layer.group_send(
+            room_name,
+            {
+                'type': 'broadcast_surrender',
+                'message': f'Player has surrendered',
+                'player': username
+            }
+        )
+
+    async def broadcast_surrender(self, event):
+        await self.send(text_data=json.dumps({
+            'action': 'surrendered',
+            'message': event['message'],
+            'player': event['player']
+        }))

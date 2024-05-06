@@ -2,39 +2,35 @@ To do updated
 
 - game name dans les settings (thomas)
 
-- vérifier injections sql (marco ?) check avec HAJAR SQL injections/XSS.
-
-- form validation (date pas dans le futur, username, add max length, not empty ect
-
-
 - gestion d'utilisateur KO 1
-- avatar (marco)$
+    - avatar (marco)$
                     - status en ligne OK
                     - ajouter amis OK
                     - afficher stats et historique des joueurs sur le profil OK
-
-- auth a distance (Marco) KO 1
-
 
 - personnalisation du jeu KO 0.5 (thomas)
     - activer ou non les bonus dans les settings
     - gérer les bonus dans les modes distants
 
 
-NICOLAS
-
-- add TLS (nicolas)
-
-- vérifier que l'utilisateur est bien connecté avant d'utiliser toutes les API (if request.user.is_authenticated) (nicolas)
-
-- joueurs a distance KO (nicolas) 1
-    - gérer déconection de manière simple (nicolas)
-    - pause/play (regarder si necessaire)
-    - supprimer room a la fin d'une partie (nicolas)
-    - finir détails tournoi (nicolas)
-
 FINI
 
+                    - form validation (date pas dans le futur, username, add max length, not empty ect
+
+                    - joueurs a distance KO (nicolas) 1
+                        - gérer déconection de manière simple (nicolas)
+                        - supprimer room a la fin d'une partie (nicolas)
+                        - finir détails tournoi (nicolas)
+
+                    - auth a distance (Marco) OK 1
+
+                    - vérifier injections sql/XSS. Django s'en occuppe de base OK
+
+                    - add TLS (nicolas) = SSL ===> OK
+
+                    - vérifier que l'utilisateur est bien connecté avant d'utiliser toutes les API (if request.user.is_authenticated) (nicolas)
+                      @login required everywhere needed OK
+                    
                     - IA OK 1 (nicolas) (marche environ, améliorer si le temps le permet)
 
                     - tableau de bord utilisateurs + stats (nicolas) OK 0.5
