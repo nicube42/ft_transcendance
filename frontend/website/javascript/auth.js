@@ -116,7 +116,7 @@ const auth = {
         formData.append('username', document.getElementById('username').value);
         formData.append('password', document.getElementById('password').value);
         formData.append('fullname', document.getElementById('fullname').value);
-        formData.append('picture', document.getElementById('picture').files[0]);
+        formData.append('profile_pic', document.getElementById('picture').files[0]);
 
         let username = formData.get("username");
         let password = formData.get("password");
@@ -128,7 +128,6 @@ const auth = {
             alert('Password must be between 4 and 20 characters.');
             return;
         }
-
         fetch('/api/register/', {
             method: 'POST',
             headers: {
