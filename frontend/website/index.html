@@ -81,8 +81,8 @@
             <div id="score" class="text-center">
                 <h4>Score</h4>
                 <p id="winning_score">Winning Score: 5</p>
-                <p id="player1_score">Player 1: 0</p>
-                <p id="player2_score">Player 2: 0</p>
+                <p id="player1_name">Player 1: 0</p>
+                <p id="player2_name">Player 2: 0</p>
             </div>
         </div>
 
@@ -105,8 +105,8 @@
                 <div class="col-md-6">
                     <h3>Invite Players</h3>
                     <div id="invitePlayersForm" class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Enter username to invite" id="inviteUsername">
-                        <button class="btn btn-outline-success btn-sm" type="button" id="invitePlayerTournamentBtn">Invite</button>
+                        <input type="text" class="form-control" style="height:60px;" placeholder="Enter username to invite" id="inviteUsername">
+                        <button class="btn btn-outline-success btn-sm" style="height:60px; width:80px;" type="button" id="invitePlayerTournamentBtn">Invite</button>
                     </div>
                     <div id="invitedPlayersList" class="list-group">
                         <!-- Invited players will be listed here -->
@@ -193,8 +193,8 @@
         <div id="friends" class="container mt-5 d-none">
             <h1 class="text-center">Friends</h1>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Search for new friends" id="searchFriendsInput">
-                <button class="btn btn-outline-success" type="button" id="searchFriendsBtn">Add</button>
+                <input type="text" class="form-control" style="height:60px;" placeholder="Search for new friends" id="searchFriendsInput">
+                <button class="btn btn-outline-success" style="height:60px; width:80px;" type="button" id="searchFriendsBtn">Add</button>
             </div>
             <div id="friendsList" class="list-group">
                 <!-- Dynamically populated list of friends will go here -->
@@ -270,29 +270,6 @@
             </div>
         </div>
 
-        <div id="profilePage" class="d-none container mt-5">
-            <div class="card bg-success">
-                <div class="card-body">
-                    <h1 class="card-title text-center">User Profile</h1>
-                    <div class="text-center mb-4">
-                        <img id="profilePic" src="" alt="Profile Picture" class="img-thumbnail" style="width: 150px; height: 150px;"/>
-                    </div>
-                    <form id="profilePicForm" action="/update-profile-pic/" method="POST" enctype="multipart/form-data" class="text-center">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="profile_pic" class="form-label">Update Profile Picture</label>
-                            <input type="file" class="form-control" id="profile_pic" name="profile_pic">
-                        </div>
-                        <div class="mb-3">
-                            <label for="input-username" class="form-label">New Username (optional)</label>
-                            <input type="text" class="form-control" id="input-username" name="username" placeholder="Enter new username">
-                        </div>
-                        <button type="submit" class="btn btn-success fs-2">Update</button>
-                    </form>                    
-                </div>
-            </div>
-        </div>  
-
         <div id="profilePageNoChange" class="d-none container mt-5">
             <div class="card bg-success">
                 <div class="card-body">
@@ -304,9 +281,11 @@
                         <li class="list-group-item"><span id="usernameProfileNoChange"></span></li>
                         <li class="list-group-item"><span id="fullnameProfileNoChange"></span></li>
                     </ul>
+                    <button id="editProfileButton" style="height: 80px; width: 60;" class="btn btn-success fs-2">Edit Profile</button>
+                    
                 </div>
             </div>
-        </div>        
+        </div>   
 
         <div id="endgameStats" class="d-none container mt-5">
             <div class="row justify-content-center">
@@ -317,8 +296,9 @@
                         </div>
                         <div class="card-body text-center">
                             <h3 class="card-text">Final Scores</h3>
-                            <p class="h4">Player 1: <span id="player1_endgame">0</span></p>
-                            <p class="h4">Player 2: <span id="player2_endgame">0</span></p>
+                            <p class="h4" id="endGameUsername1">Player 1: <span id="player1_endgame">0</span></p>
+                            <p class="h4">VS</p>
+                            <p class="h4" id="endGameUsername2">Player 2: <span id="player2_endgame">0</span></p>
                             <p class="h4">Winner: <span id="winner_endgame"></span></p>
                             <p id="gameDuration">Duration: </p>
                             <p id="totalBalls">Total balls served: </p>
@@ -353,16 +333,16 @@
                         <!-- The user list will be dynamically populated here by the JavaScript function -->
                     </div>
                     <div class="text-center mt-4">
-                        <button id="playDistantBtn" class="btn btn-outline-success fs-2 btn-sm">Play</button>
-                        <button id="quitRoomBtn" class="btn btn-outline-success fs-2 btn-sm">Quit room</button>
                         <form id="invitePlayerForm" class="d-flex justify-content-center align-items-center">
                             <div class="mb-3">
-                                <label for="usernameInput" class="form-label">Username</label>
+                                <label for="usernameInput" class="form-label">Invite players</label>
                                 <input type="text" class="form-control" id="usernameInput" name="username" placeholder="Enter username">
+                                <button type="button" id="inviteRoomBtn" style="height: 80px; width: 60;" class="btn btn-outline-success fs-2 btn-sm">Invite a player</button>
                             </div>
-                            <button type="button" id="inviteRoomBtn" class="btn btn-outline-success fs-2 btn-sm">Invite a player</button>
                         </form>
                     </div>
+                    <button id="playDistantBtn" style="height: 80px; width: 60;" class="btn btn-outline-success fs-2 btn-sm">Play</button>
+                    <button id="quitRoomBtn" style="height: 80px; width: 60;" class="btn btn-outline-success fs-2 btn-sm">Quit room</button>
                 </div>
             </div>
         </div>
@@ -377,7 +357,7 @@
         <div class="modal-header">
           <h5 class="modal-title" id="loginErrorModalLabel">Login Error</h5>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" id="loginErrorBody">
           Incorrect username or password. Please try again.
         </div>
         <div class="modal-footer">
@@ -392,10 +372,10 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="registerErrorModalLabel">Register Error</h5>
+          <h5 class="modal-title" id="registerErrorModalLabel">Error</h5>
         </div>
-        <div class="modal-body">
-          Username already in use. Please try again.
+        <div class="modal-body" id="registerErrorBody">
+            Please try again.
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-success fs-2" data-bs-dismiss="modal">Close</button>

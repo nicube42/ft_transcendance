@@ -25,10 +25,18 @@ window.addEventListener('load', function() {
         gameSocket.leaveRoom(gameSocket.currentRoom);
         gameSocket.deleteRoom(gameSocket.currentRoom);
         localStorage.removeItem('navigateToHome');
+    
     }
 });
 
-const ui = {
+window.addEventListener('DOMContentLoaded', function() {
+    if (window.location.href === 'https://localhost:4242/profilePageNoChange') {
+        userInfoDisplayer.betterUI();
+    }
+});
+
+const ui = 
+{
     connected: false,
     toggleSectionVisibility: function(sectionId, isVisible) {
         const section = document.getElementById(sectionId);
@@ -42,10 +50,17 @@ const ui = {
         sections.forEach(sec => {
             this.toggleSectionVisibility(sec, sec === sectionId);
         });
-        gameSocket.init();
+        gameSocket.init()
+        ;
 
+        if (game.isPlaying && sectionId !== 'play' && game.gameMode === 'distant'){
+            gameSocket.surrenderGame(gameSocket.currentRoom);
+        }
         if (sectionId === 'homepage') {
             auth.updateUserTournamentStatus('false');
+        }
+        if (sectionId === 'play') {
+            settings.populateSettings();
         }
     
         if (!isPopState) {
@@ -86,7 +101,6 @@ const ui = {
     },
 
     handleDeleteRoom: async function(roomName) {
-        console.log(`Deleting room: ${roomName}`);
         gameSocket.deleteRoom(roomName);
         gameSocket.listRooms();
     },
@@ -105,13 +119,18 @@ const ui = {
             settings.populateSettings();
             this.showOnlyOneSection('play');
         },
-        async 'playDistantBtn' () {
+        async 'playDistantBtn' () 
+        {
             game.setGameMode('distant');
-            //settings.populateSettings();
-            setTimeout(() => {
-                gameSocket.sendGameStart();
-                console.log('Game started');
-            }, 5000);
+            fetch(`/api/room/${gameSocket.currentRoom}/user-count/`)
+                .then(response => response.json())
+                .then(countData => {
+                    if (countData.user_count === 2) {
+                        gameSocket.sendGameStart();
+                    } else {
+                        alert(`The room is not full.`);
+                    }
+                });
         },
         async 'SINGLEPLAYER'() {
             game.setGameMode('singlePlayer');
@@ -134,9 +153,7 @@ const ui = {
             this.showOnlyOneSection('settings');
         },
         async 'saveSettings'() {
-            console.log('FETCH save settings ');
             await settings.saveSettings();
-            //await settings.populateSettings();
             this.showOnlyOneSection('homepage');
         },
         async 'previousSettings'() {
@@ -159,20 +176,15 @@ const ui = {
         },
         async 'navLogin42'() {
             window.location.href = 'https://localhost:4242/api/authorize/';
-            console.log('test1');
         },
         async 'navRegister'() {
             this.showOnlyOneSection('register');
         },
         async 'navProfile'() {
-            this.showOnlyOneSection('profilePage');
-            try {
-                const data = await auth.retrieveInfos();
-                userInfoDisplayer.updateUI(data);
-            } catch (error) {
-                console.error('Failed to fetch or display user info:', error);
-            }
+            userInfoDisplayer.betterUI();
+            this.showOnlyOneSection('profilePageNoChange');
         },
+        
         async 'navLogout'() {
             await auth.logout();
         },
@@ -211,7 +223,6 @@ const ui = {
         },
         async 'quitRoomBtn'() {
             if (gameSocket.currentRoom) {
-                console.log(`Leaving room: ${gameSocket.currentRoom}`);
                 gameSocket.leaveRoom(gameSocket.currentRoom);
                 setTimeout(() => {
                     gameSocket.listUsersInRoom(gameSocket.currentRoom);
@@ -222,7 +233,6 @@ const ui = {
             }
         },
         async 'nextStageBtn'() {
-            //this.showOnlyOneSection('tournamentStage');
             tournament.createTournament();
         },
         async 'invitePlayerTournamentBtn'() {
@@ -235,8 +245,10 @@ const ui = {
         async 'STATISTICS'() {
             this.showOnlyOneSection('playerStats');
             GameStats.init();
+            location.reload();
         },
-        async 'lang_en'() {
+        async 'lang_en'() 
+        {
             this.handleLanguageChange('en');
         },
         async 'lang_fr'() {
@@ -245,92 +257,36 @@ const ui = {
         async 'lang_es'() {
             this.handleLanguageChange('es');
         },
-        // async 'updateUsername'() {
-        //     const username = document.querySelector('#input-username').value;
-        //     fetch('/api/check_user/', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             'X-CSRFToken': auth.getCSRFToken('csrftoken'),
-        //         },
-        //         body: JSON.stringify({ username: username })
-        //     })
-        //     .then(response => {
-        //         if (!response.ok) {
-        //             throw new Error('Network response was not ok');
-        //         }
-        //         return response.json();
-        //     })
-        //     .then(data => {
-        //         if (data.exists) {
-        //             alert("User exists");
-        //             return;
-        //         }
-        //         else
-        //         {
-        //             if (username !== '') {
-        //                 console.log("username updated", username);
-        //                 userInfoDisplayer.renameUser(username);
-        //             }
-        //         }
-        //     })
-        //     .catch(error => console.error('Error:', error));
-        //     // fetch('api/change_profile_pic/', {
-        //     // method: 'POST',
-        //     //     headers: {
-        //     //         'Content-Type': 'application/json',
-        //     //         'X-CSRFToken': auth.getCSRFToken('csrftoken'),
-        //     //     },
-        //     //     body: JSON.stringify({ username: username })
-        //     // })
-        //     // .then(response => {
-
-        //     // })
-        // }
     },
 
     init: function() {
-        console.log('test6');
-        console.log('window.location.url:', window.location.href);
         this.attachEventListeners();
         if (window.location.pathname === '/callback/') {
             auth.callback();
-            console.log('callback exception1 called');
             return;
         }
         this.checkAuthenticationAndInitializePage();
 
-        console.log('test7');
-        console.log('window.location.pathname:', window.location.pathname);
-        // if path is /callback, call the callback function
-
         window.addEventListener('popstate', function(event) {
-            console.log('popstate called1');
             if (event.state && event.state.section) {
-
-                console.log('popstate called', event.state.section, event.state);
 
                 ui.showOnlyOneSection(event.state.section, true);
                 if (event.state.section === 'callback') {
                     ui.actionHandlers['callback']();
-                    console.log('callback exception called');
                 }
             } else {
                 ui.showOnlyOneSection('firstPage', true);
             }
         });
-        console.log('after the popstate', window.location.pathname);
 
         this.loadTournamentData();
     },
 
     handleLanguageChange: async function(newLang) {
-        console.log(`Changing language to: ${newLang}`);
         changeLanguage(newLang);
     },
 
     loadTournamentData: function() {
-        console.log('loading tournament data');
         const tournamentId = localStorage.getItem('tournamentId');
         const maxPlayers = localStorage.getItem('maxPlayers');
         const currentParticipants = localStorage.getItem('currentParticipants');
@@ -350,7 +306,6 @@ const ui = {
     },
 
     checkAuthenticationAndInitializePage: function() {
-        console.log('checkAuthenticationAndInitializePage called');
         auth.checkAuthentication().then((authStatus) => {
             if (authStatus) {
                 this.connected = true;

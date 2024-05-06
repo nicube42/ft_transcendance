@@ -13,22 +13,17 @@ var gameSocket = {
         const backendHost = window.location.host;
         this.socket = new WebSocket(`${wsScheme}${backendHost}/ws/game/`);
         this.socket.addEventListener('open', (event) => {
-            console.log("Connected to WebSocket");
             this.listRooms();
         });
         this.socket.addEventListener('close', (event) => {
-            console.log("Disconnected from WebSocket, attempting to reconnect...");
             setTimeout(() => this.init(), 5000);
         });
 
         this.socket.addEventListener('message', (event) => {
             const data = JSON.parse(event.data);
-            console.log("Received message from server:", data);
-        
 
             if (data.action === 'update_ball_state') {
                 if (game.playerRole === 'right') {
-                    console.log("Received ball state:", data);
                     game.ballPosX = data.ball_state.ballPosX;
                     game.ballPosY = data.ball_state.ballPosY;
                     game.ballSpeedX = data.ball_state.ballSpeedX;
@@ -37,19 +32,15 @@ var gameSocket = {
             }
 
             if (data.action === 'list_users') { 
-                console.log("List of users in room:", data.users);
                 this.updateUserList(data.users, data.room_name);
             } else if (data.action === 'list_rooms') {
                 this.updateRoomList(data.rooms);
             } else if (data.action === 'start_game') {
-                console.log("Game is starting!");
                 this.stopPeriodicUpdates();
                 game.setGameMode('distant');
                 ui.showOnlyOneSection('play');
             } else if (data.action === 'stop_game') {
-                console.log("Game is stopping!");
                 if (gameSocket.currentRoom) {
-                    console.log("Leaving room:", gameSocket.currentRoom);
                     gameSocket.leaveRoom(gameSocket.currentRoom);
                     gameSocket.deleteRoom(gameSocket.currentRoom);
                     gameSocket.currentRoom = null;
@@ -81,20 +72,15 @@ var gameSocket = {
                     data.role === 'left'? game.leftPaddleY = data.leftPaddle : game.rightPaddleY = data.rightPaddle;
                 }
             }else if (data.action === 'update_bonus') {
-                console.log('game bonuses from right', game.bonusGreen, game.bonusRed);
-                console.log(data);
                 if (game.playerRole === 'right') {
-                    console.log('update_bonus');
                     game.bonusGreen = data.bonusGreen;
                     game.bonusRed = data.bonusRed;
                 }
             } else if (data.action === 'assign_role') {
-                game.playerRole = data.role; // 'left' or 'right'
-                console.log(`Assigned role: ${data.role}`);
+                game.playerRole = data.role;
             } else if (data.error && data.action === 'delete_room') {
                 console.error(data.error);
             } else if (data.action === 'receive_invite') {
-                console.log(data.message);
                 this.showInvitePopup(data.room_name, data.from_user, 'room');
             } else if(data.action === 'receive_tournament_invite') {
                 this.showInvitePopup(data.tournament_id, data.from_user, 'tournament');
@@ -104,7 +90,6 @@ var gameSocket = {
                 tournament.updateParticipantCount(data.participant_count, data.max_players, data.participants);
             } else if (data.action === 'user_status') {
                 const statusIndicator = document.getElementById(`status-${data.username}`);
-                console.log(`Updating status for ${data.username} to ${data.status}`);
                 if (statusIndicator) {
                     statusIndicator.style.color = data.status === 'online' ? 'green' : 'red';
                 }
@@ -119,7 +104,6 @@ var gameSocket = {
                     return ;
                 this.in_game = data.in_game;
                 const statusIndicator = document.getElementById(`status-${data.username}`);
-                console.log(`Updating status for ${data.username} to ${data.in_game}`);
                 if (statusIndicator) {
                     statusIndicator.style.color = 'orange';
                 }
@@ -127,19 +111,24 @@ var gameSocket = {
                 auth.retrieveInfos().then(userInfo => {
                     if (data.player === userInfo.username)
                     {
-                        if (game.playerRole === 'left')
+                        if (game.playerRole !== 'left')
                             stats.displayEndGameStatsSurrender(0, 1);
                         else
                             stats.displayEndGameStatsSurrender(1, 0);
                     }
                     else
                     {
-                        if (game.playerRole === 'left')
+                        if (game.playerRole !== 'left')
                             stats.displayEndGameStatsSurrender(1, 0);
                         else
                             stats.displayEndGameStatsSurrender(0, 1);
                     }
                 });
+            } else if (data.action === 'retrieve_settings'){
+                console.log('pos before:', game.ballPosX, game.ballPosY);
+                game.updateGameSettings(data.settings);
+                console.log('pos after:', game.ballPosX, game.ballPosY);
+
             }
         });
     
@@ -148,48 +137,12 @@ var gameSocket = {
         });
     },
 
-    // showInvitePopup: function(roomName, fromUser) {
-    //     const popupDiv = document.createElement('div');
-    //     popupDiv.id = 'invitePopup';
-    //     popupDiv.style.position = 'fixed';
-    //     popupDiv.style.left = '50%';
-    //     popupDiv.style.top = '50%';
-    //     popupDiv.style.transform = 'translate(-50%, -50%)';
-    //     popupDiv.style.backgroundColor = 'white';
-    //     popupDiv.style.padding = '20px';
-    //     popupDiv.style.zIndex = '1000';
-    //     popupDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-        
-    //     const message = document.createElement('p');
-    //     message.textContent = `You have been invited to join the room '${roomName}' by ${fromUser}. Do you accept?`;
-    //     popupDiv.appendChild(message);
-        
-    //     const acceptButton = document.createElement('button');
-    //     acceptButton.textContent = 'Accept';
-    //     acceptButton.onclick = () => {
-    //         this.joinRoom(roomName);
-    //         document.body.removeChild(popupDiv);
-    //     };
-    //     popupDiv.appendChild(acceptButton);
-    
-    //     const refuseButton = document.createElement('button');
-    //     refuseButton.textContent = 'Refuse';
-    //     refuseButton.style.marginLeft = '10px';
-    //     refuseButton.onclick = () => {
-    //         document.body.removeChild(popupDiv);
-    //     };
-    //     popupDiv.appendChild(refuseButton);
-        
-    //     document.body.appendChild(popupDiv);
-    // },
-
     showInvitePopup: function(inviteId, fromUser, inviteType) {
         const inviteModal = new bootstrap.Modal(document.getElementById('invitePopupModal'));
         const inviteMessage = document.getElementById('inviteMessage');
         const acceptButton = document.getElementById('acceptInvite');
         const refuseButton = document.getElementById('refuseInvite');
     
-        // Set the invitation message based on the type
         if (inviteType === 'tournament') {
             inviteMessage.textContent = `You have been invited to join the tournament by ${fromUser}. Do you accept?`;
             acceptButton.onclick = () => {
@@ -208,7 +161,6 @@ var gameSocket = {
             inviteModal.hide();
         };
     
-        // Show the modal
         inviteModal.show();
     },      
 
@@ -292,6 +244,7 @@ var gameSocket = {
     leaveRoom: function(roomName) {
         this.sendMessage({'action': 'leaveRoom', 'room_name': roomName});
         this.stopPeriodicUpdates();
+        ui.showOnlyOneSection('multiplayer');
     },
 
     deleteRoom: function(roomName) {
@@ -358,7 +311,6 @@ var gameSocket = {
             return;
         }
         usersListDiv.innerHTML = '';
-        console.log('Updating user list for room:', roomName, 'with users:', users);
         
         users.forEach((username) => {
             const userElement = document.createElement('a');
@@ -405,7 +357,6 @@ var gameSocket = {
             };
             this.socket.send(JSON.stringify(message));
         } else {
-            console.log("WebSocket is not open. Waiting before retrying...");
             setTimeout(() => this.sendBallState(), 1000);
         }
     },   
@@ -458,7 +409,6 @@ var gameSocket = {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(message));
         } else {
-            console.log("WebSocket is not open. Retrying to send message...");
             this.waitForSocketReady(() => {
                 this.socket.send(JSON.stringify(message));
             });
@@ -476,14 +426,12 @@ var gameSocket = {
             }
     
             if (this.socket.readyState === WebSocket.OPEN) {
-                console.log("WebSocket is now open.");
                 callback();
             } else {
                 if (attemptsLeft <= 0) {
                     console.error("Failed to send message: WebSocket is not open and max attempts reached.");
                 } else {
                     attemptsLeft--;
-                    console.log("Waiting for WebSocket to be open...", attemptsLeft, "attempts left.");
                     setTimeout(checkSocket, interval);
                 }
             }
@@ -589,7 +537,13 @@ var gameSocket = {
         };
         this.sendMessage(surrenderData);
         console.log('Surrender message sent for room:', roomName);
+    },
+
+    retrieveGameSettings: function(roomName) {
+        this.sendMessage({action: 'retrieve_settings',
+                            room_name: roomName});
     }
+
 };
 
 window.addEventListener('beforeunload', function() {

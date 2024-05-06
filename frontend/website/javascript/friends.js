@@ -13,16 +13,33 @@ var friendsPage = {
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.error) {
                 alert(data.error);
             } else {
+                auth.retrieveInfos().then(userInfo => {
+                    if (userInfo.username === username) {
+                        document.getElementById('editProfileButton').classList.remove('d-none');
+                    } else {
+                        document.getElementById('editProfileButton').classList.add('d-none');
+                    }
+                });
                 document.getElementById('friends').classList.add('d-none');
                 document.getElementById('profilePageNoChange').classList.remove('d-none');
                 document.getElementById('usernameProfileNoChange').textContent = `Username: ${data.username}`;
                 document.getElementById('fullnameProfileNoChange').textContent = `Full Name: ${data.fullname}`;
-                document.getElementById('profilePicNoChange').src = data.profile_pic_url;
+                if (data.profile_pic_url) {
+                    document.getElementById('profilePicNoChange').src = data.profile_pic_url;
+                }
+                else {
+                    document.getElementById('profilePicNoChange').src = '/media/pictures/default.jpg';
+                }
                 document.getElementById('csrfTokenProfilePic').value = this.getCSRFToken();
             }
         })
@@ -31,10 +48,15 @@ var friendsPage = {
 
     fetchStatsForUser: function(username) {
         fetch(`/api/player_stats/${username}/`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.error) {
-                console.error('Error fetching player stats:', data.error);
+                throw new Error('Error fetching player stats:', data.error);
             } else {
                 document.getElementById('friends').classList.add('d-none');
                 document.getElementById('gamesPlayed').textContent = data.gamesPlayed;
@@ -50,7 +72,12 @@ var friendsPage = {
 
     fetchRecentGames: function(username) {
         fetch(`/api/recent_games/${username}/`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+            }
+            return response.json();
+        })
         .then(data => {
             const gamesList = document.getElementById('gamesList');
             gamesList.innerHTML = '';
@@ -66,7 +93,13 @@ var friendsPage = {
 
     fetchWinRateData: function(username) {
         fetch(`/api/win_rate_over_time/${username}/`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.dates.length > 0) {
                 GameStats.drawLineChart(data);
@@ -78,7 +111,6 @@ var friendsPage = {
     },
 
     goToStats: function(username) {
-        console.log("Viewing stats for", username);
         this.fetchStatsForUser(username);
         document.getElementById('playerStats').classList.remove('d-none');
     },
@@ -86,7 +118,7 @@ var friendsPage = {
     addFriend: function(username) {
         const csrfToken = this.getCSRFToken();
         if (!csrfToken) {
-            console.error('CSRF token is not available.');
+            throw new Error('CSRF token is not available.');
             return;
         }
     
@@ -100,19 +132,38 @@ var friendsPage = {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(response.error);
             }
             return response.json();
         })
         .then(data => {
             if (data.exists) {
-                console.log("User exists, adding as friend");
                 this.performAddFriend(username);
             } else {
                 alert("User does not exist");
             }
         })
         .catch(error => console.error('Error:', error));
+    },
+
+    deleteFriend: function(username) {
+        fetch('/api/delete_friend/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': this.getCSRFToken()
+            },
+            body: JSON.stringify({ friend_username: username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                this.listFriends();
+            } else if (data.error) {
+                console.error('Error deleting friend:', data.error);
+            }
+        })
+        .catch(error => console.error('Error processing delete:', error));
     },
 
     performAddFriend: function(username) {
@@ -125,9 +176,13 @@ var friendsPage = {
             },
             body: JSON.stringify({ friend_username: username })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+            }
+            return response.json();
+        })
         .then(data => {
-            console.log(data.message);
             this.listFriends();
         })
         .catch(error => console.error('Error adding friend:', error));
@@ -140,15 +195,21 @@ var friendsPage = {
                 'Content-Type': 'application/json'
             },
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.error);
+            }
+            return response.json();
+        })
         .then(data => {
             const friendsList = document.getElementById('friendsList');
             friendsList.innerHTML = '';
             data.friends.forEach(friend => {
                 const item = document.createElement('li');
                 item.innerHTML = `<span class="status-indicator" id="status-${friend.username}">●</span> ${friend.username} (${friend.fullname})
-                                    <button class="btn btn-outline-success" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.showUserProfile('${friend.username}')">View Profile</button>
-                                    <button class="btn btn-outline-success" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.goToStats('${friend.username}')">View Stats</button>`;
+                                  <button class="btn btn-outline-success" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.showUserProfile('${friend.username}')">View Profile</button>
+                                  <button class="btn btn-outline-success" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.goToStats('${friend.username}')">View Stats</button>
+                                  <button class="btn btn-outline-danger" style="width:80px; height:50px; font-size: 0.8rem;" onclick="friendsPage.deleteFriend('${friend.username}')">✖</button>`;
                 friendsList.appendChild(item);
     
                 setTimeout(() => {
@@ -158,7 +219,7 @@ var friendsPage = {
             });
         })
         .catch(error => console.error('Error listing friends:', error));
-    },    
+    },       
 
     searchFriends: function() {
         var searchQuery = document.getElementById('searchFriendsInput').value;

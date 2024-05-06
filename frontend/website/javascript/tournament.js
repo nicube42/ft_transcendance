@@ -14,7 +14,6 @@ const tournament = {
         this.tournamentId = data.tournamentId;
         this.maxPlayers = data.maxPlayers;
         ui.showOnlyOneSection('tournamentStage', false, {tournamentId: this.tournamentId});
-        console.log('Tournament created with ID:', this.tournamentId);
         gameSocket.sendMessage({
             action: 'update_participants',
             tournament_id: this.tournamentId
@@ -36,8 +35,6 @@ const tournament = {
         localStorage.setItem('participants', JSON.stringify(this.participants));
         localStorage.setItem('maxPlayers', maxPlayers);
         this.checkIfEndOfTournament();
-        console.log('initialNumPlayers:', this.initialNumPlayers);
-        console.log('current round', this.currentRound);
         if (this.currentParticipants === this.maxPlayers && this.participants.length % 2 === 0 && this.currentRound === 1 && this.matchTreeGenerated === false) {
             this.matchTreeGenerated = true;
             this.generateMatchTree();
@@ -95,32 +92,6 @@ const tournament = {
         });
     },
 
-    // showInvitePopup: function(tournamentId, fromUser) {
-    //     const popupDiv = document.createElement('div');
-    //     popupDiv.id = 'invitePopup';
-        
-    //     const message = document.createElement('p');
-    //     message.textContent = `You have been invited to join the tournament by ${fromUser}. Do you accept?`;
-    //     popupDiv.appendChild(message);
-        
-    //     const acceptButton = document.createElement('button');
-    //     acceptButton.textContent = 'Accept';
-    //     acceptButton.onclick = () => {
-    //         this.acceptTournamentInvite(tournamentId);
-    //         document.body.removeChild(popupDiv);
-    //     };
-    //     popupDiv.appendChild(acceptButton);
-    
-    //     const refuseButton = document.createElement('button');
-    //     refuseButton.textContent = 'Refuse';
-    //     refuseButton.onclick = () => {
-    //         document.body.removeChild(popupDiv);
-    //     };
-    //     popupDiv.appendChild(refuseButton);
-        
-    //     document.body.appendChild(popupDiv);
-    // }, 
-
     acceptTournamentInvite: function(tournamentId) {
         gameSocket.sendMessage({
             action: 'accept_tournament_invite',
@@ -142,7 +113,6 @@ const tournament = {
     },
 
     generateMatchTree: function() {
-        console.log('Preparing matches for round:', this.currentRound);
     
         const proceedWithMatchGeneration = () => {
             let round = this.currentRound;
@@ -150,7 +120,6 @@ const tournament = {
             let playersInThisRound = [...this.participants];
             
             if (playersInThisRound.length < 2) {
-                console.log('Not enough players to continue the tournament. Ending.');
                 return;
             }
     
@@ -174,18 +143,14 @@ const tournament = {
     
             this.matches.push(...roundMatches);
             this.displayMatchTree();
-            console.log('Matches for round', this.currentRound, 'generated and displayed.');
         };
     
         const checkParticipants = () => {
-            console.log('Checking participants...' + this.participants.length + ' ' + this.last_round_participants / 2)
             if (this.participants.length > this.last_round_participants / 2 && this.round > 1) {
-                console.log(`Participants count is ${this.participants.length}. Waiting to reduce to half of last round's count (${this.last_round_participants / 2}).`);
                 setTimeout(checkParticipants, 5000);
             } else if (this.participants.length % 2 === 0){
                 proceedWithMatchGeneration();
             } else {
-                console.log('Waiting for more participants to join...');
                 setTimeout(checkParticipants, 5000);
             }
         };
@@ -206,7 +171,6 @@ const tournament = {
         localStorage.setItem('maxPlayers', this.maxPlayers);
         localStorage.setItem('participants', JSON.stringify(this.participants));
         localStorage.setItem('currentParticipants', this.currentParticipants);
-        console.log('Match tree generated and displayed.');
     },
 
     startFirstRoundMatches: function() {
@@ -238,11 +202,9 @@ const tournament = {
         let nextRoundMatches = this.matches.filter(match => match.round === nextRound && !match.winner);
     
         if (nextRoundMatches.length === 0) {
-            console.log('No matches to start for round', nextRound);
             return;
         }
     
-        console.log(`Starting matches for round ${nextRound}`);
     
         nextRoundMatches.forEach(match => {
             gameSocket.init();
@@ -275,12 +237,10 @@ const tournament = {
         let playersInThisRound = this.matches.filter(match => match.winner).map(match => match.winner);
         if (this.currentRound === 1) {
             this.startFirstRoundMatches();
-            console.log('First round matches started.');
         }
         else
         {
             this.startNextRoundMatches(this.currentRound, this.maxPlayers);
-            console.log('Next round matches started.');
         }
     },
 
@@ -309,7 +269,6 @@ const tournament = {
     },
 
     checkUserInTournament: function() {
-        console.log('Checking if user is in a tournament...');
         return fetch('/api/check_user_in_tournament/', {
             method: 'GET',
             headers: {
@@ -324,7 +283,6 @@ const tournament = {
             }
         })
         .then(data => {
-            console.log('Tournament status:', data.is_in_tournament ? 'In a tournament' : 'Not in a tournament');
             return data.is_in_tournament;
         })
         .catch(error => {
@@ -339,8 +297,6 @@ const tournament = {
             return;
         }
     
-        console.log(`Navigating to tournament stage with ID: ${this.tournamentId}`);
-    
         const url = new URL(window.location);
         url.pathname = '/tournamentStage';
         url.searchParams.set('tournamentId', this.tournamentId);
@@ -350,8 +306,6 @@ const tournament = {
     },
 
     deleteUserFromTournament: function(username) {
-        console.log(this.participants);
-        console.log(username);
         ui.loadTournamentData();
         const index = this.participants.indexOf(username);
         if (index === -1) {
@@ -387,6 +341,5 @@ const tournament = {
         });
 
         alert(`You lost the tournament`);
-        console.log(`User ${username} deleted from tournament`);
     },
 };

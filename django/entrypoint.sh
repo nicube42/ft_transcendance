@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Apply database migrations
 echo "Applying database migrations..."
 sleep 4
 python manage.py migrate
