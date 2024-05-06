@@ -56,8 +56,10 @@ const auth = {
                         location.reload();
                     })
                     .catch(error => {
+                        console.error('Error:', error);
                     });
             }, (error) => {
+                console.error('Error2:', error);
             });
         })
         .catch(error => {
@@ -70,6 +72,7 @@ const auth = {
         let attempts = 0;
         
         const checkAuth = () => {
+            if (sessionStorage.getItem('isLoggedIn') === 'false'){return;}
             fetch('/api/check_auth_status/', {
                 method: 'GET',
                 credentials: 'include'
@@ -240,20 +243,27 @@ const auth = {
     },
 
     retrieveInfos: function() {
-        return fetch('/api/user-info/', {
-            method: 'GET',
-            credentials: 'include'
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(response.error);
+        return new Promise((resolve, reject) => {
+            if (sessionStorage.getItem('isLoggedIn') === 'false') {
+                resolve(false);
+                return;
             }
-            return response.json();
-        })
-        .then(data => {
-            return data;
-        })
-        .catch(error => {
+            fetch('/api/user-info/', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.error);
+                }
+                return response.json();
+            })
+            .then(data => {
+                resolve(data);
+            })
+            .catch(error => {
+                reject(error);
+            });
         });
     },
     
@@ -261,27 +271,33 @@ const auth = {
         this.checkAuthentication();
     },
     checkAuthentication: function() {
-        return fetch('/api/check_auth_status/', {
-            method: 'GET',
-            credentials: 'include'
-        })
-        .then(response => {
-            if (response.status === 401 || response.status === 403) {
-                return false;
-            } else if (!response.ok) {
-                throw new Error('Server error or network issue.');
+        return new Promise((resolve, reject) => {
+            if (sessionStorage.getItem('isLoggedIn') === 'false') {
+                resolve(false);
+                return;
             }
-            return response.json();
-        })
-        .then(data => {
-            if (data.is_authenticated) {
-                return true;
-            } else {
+            return fetch('/api/check_auth_status/', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.status === 401 || response.status === 403) {
+                    return false;
+                } else if (!response.ok) {
+                    throw new Error('Server error or network issue.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.is_authenticated) {
+                    return true;
+                } else {
+                    return false;
+                }
+            })
+            .catch(error => {
                 return false;
-            }
-        })
-        .catch(error => {
-            return false;
+            });
         });
     },
     checkIfUserLoggedIn: async function(username) {

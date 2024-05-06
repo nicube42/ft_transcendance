@@ -1,5 +1,6 @@
 const settings = {
     populateSettings: async function() {
+        if (sessionStorage.getItem('isLoggedIn') === 'false'){return;}
         await fetch('/api/settings/retrieve')
             .then(response => response.json())
             .then(data => {
