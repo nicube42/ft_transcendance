@@ -1,7 +1,5 @@
 const navbarManager = {
     updateNavbar: function(authentication) {
-        console.log("updateNavbar called with authentication status:", authentication);
-
         const dropdownMenu = document.querySelector('.navbar .account-dropdown .dropdown-menu');
         const loginLink = dropdownMenu.querySelector('#navLogin');
         const login42Link = dropdownMenu.querySelector('#navLogin42');

@@ -1,34 +1,31 @@
 const websocket = {
-    aiSocket: null, // Initialize as null to handle reconnection logic
+    aiSocket: null,
 
     initialize: function() {
-        // Close existing WebSocket connection if one exists and is open
+        const wsScheme = window.location.protocol === "https:" ? "wss://" : "ws://";
+        const backendHost = window.location.hostname;
+        const url = `${wsScheme}${backendHost}:5678/ws/ai/`;
+
         if (this.aiSocket && this.aiSocket.readyState === WebSocket.OPEN) {
             this.aiSocket.close();
         }
 
-        // Create a new WebSocket connection
-        this.aiSocket = new WebSocket("ws://localhost:5678/");
+        this.aiSocket = new WebSocket(url);
 
         this.aiSocket.onopen = () => {
             console.log("Connected to AI server");
         };
 
         this.aiSocket.onclose = (event) => {
-            console.log("WebSocket closed. Attempting to reconnect...");
-            // Use setTimeout to delay reconnection attempt
-            setTimeout(() => this.initialize(), 3000); // Attempt to reconnect after 3 seconds
+            setTimeout(() => this.initialize(), 3000);
         };
 
         this.aiSocket.onerror = (error) => {
-            console.log("WebSocket error:", error);
-            // Optionally handle errors by closing socket to trigger reconnection in onclose handler
             this.aiSocket.close();
         };
 
         this.aiSocket.onmessage = (event) => {
             const aiAction = event.data;
-            console.log("AI Action:", aiAction);
             if (this.onAIAction) this.onAIAction(aiAction);
         };
     },
@@ -56,12 +53,9 @@ const websocket = {
     closeConnection: function() {
         if (this.aiSocket && this.aiSocket.readyState === WebSocket.OPEN) {
             this.aiSocket.close();
-            console.log("Connection manually closed");
         } else {
             console.log("WebSocket was not open or already closing.");
         }
     }
 };
-
-// Initialize WebSocket connection
 websocket.initialize();

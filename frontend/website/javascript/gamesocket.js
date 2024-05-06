@@ -13,22 +13,17 @@ var gameSocket = {
         const backendHost = window.location.host;
         this.socket = new WebSocket(`${wsScheme}${backendHost}/ws/game/`);
         this.socket.addEventListener('open', (event) => {
-            console.log("Connected to WebSocket");
             this.listRooms();
         });
         this.socket.addEventListener('close', (event) => {
-            console.log("Disconnected from WebSocket, attempting to reconnect...");
             setTimeout(() => this.init(), 5000);
         });
 
         this.socket.addEventListener('message', (event) => {
             const data = JSON.parse(event.data);
-            console.log("Received message from server:", data);
-        
 
             if (data.action === 'update_ball_state') {
                 if (game.playerRole === 'right') {
-                    console.log("Received ball state:", data);
                     game.ballPosX = data.ball_state.ballPosX;
                     game.ballPosY = data.ball_state.ballPosY;
                     game.ballSpeedX = data.ball_state.ballSpeedX;
@@ -37,19 +32,15 @@ var gameSocket = {
             }
 
             if (data.action === 'list_users') { 
-                console.log("List of users in room:", data.users);
                 this.updateUserList(data.users, data.room_name);
             } else if (data.action === 'list_rooms') {
                 this.updateRoomList(data.rooms);
             } else if (data.action === 'start_game') {
-                console.log("Game is starting!");
                 this.stopPeriodicUpdates();
                 game.setGameMode('distant');
                 ui.showOnlyOneSection('play');
             } else if (data.action === 'stop_game') {
-                console.log("Game is stopping!");
                 if (gameSocket.currentRoom) {
-                    console.log("Leaving room:", gameSocket.currentRoom);
                     gameSocket.leaveRoom(gameSocket.currentRoom);
                     gameSocket.deleteRoom(gameSocket.currentRoom);
                     gameSocket.currentRoom = null;
@@ -81,20 +72,15 @@ var gameSocket = {
                     data.role === 'left'? game.leftPaddleY = data.leftPaddle : game.rightPaddleY = data.rightPaddle;
                 }
             }else if (data.action === 'update_bonus') {
-                console.log('game bonuses from right', game.bonusGreen, game.bonusRed);
-                console.log(data);
                 if (game.playerRole === 'right') {
-                    console.log('update_bonus');
                     game.bonusGreen = data.bonusGreen;
                     game.bonusRed = data.bonusRed;
                 }
             } else if (data.action === 'assign_role') {
                 game.playerRole = data.role; // 'left' or 'right'
-                console.log(`Assigned role: ${data.role}`);
             } else if (data.error && data.action === 'delete_room') {
                 console.error(data.error);
             } else if (data.action === 'receive_invite') {
-                console.log(data.message);
                 this.showInvitePopup(data.room_name, data.from_user, 'room');
             } else if(data.action === 'receive_tournament_invite') {
                 this.showInvitePopup(data.tournament_id, data.from_user, 'tournament');
@@ -104,7 +90,6 @@ var gameSocket = {
                 tournament.updateParticipantCount(data.participant_count, data.max_players, data.participants);
             } else if (data.action === 'user_status') {
                 const statusIndicator = document.getElementById(`status-${data.username}`);
-                console.log(`Updating status for ${data.username} to ${data.status}`);
                 if (statusIndicator) {
                     statusIndicator.style.color = data.status === 'online' ? 'green' : 'red';
                 }
@@ -119,7 +104,6 @@ var gameSocket = {
                     return ;
                 this.in_game = data.in_game;
                 const statusIndicator = document.getElementById(`status-${data.username}`);
-                console.log(`Updating status for ${data.username} to ${data.in_game}`);
                 if (statusIndicator) {
                     statusIndicator.style.color = 'orange';
                 }
@@ -329,7 +313,6 @@ var gameSocket = {
             return;
         }
         usersListDiv.innerHTML = '';
-        console.log('Updating user list for room:', roomName, 'with users:', users);
         
         users.forEach((username) => {
             const userElement = document.createElement('a');
@@ -376,7 +359,6 @@ var gameSocket = {
             };
             this.socket.send(JSON.stringify(message));
         } else {
-            console.log("WebSocket is not open. Waiting before retrying...");
             setTimeout(() => this.sendBallState(), 1000);
         }
     },   
@@ -429,7 +411,6 @@ var gameSocket = {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(message));
         } else {
-            console.log("WebSocket is not open. Retrying to send message...");
             this.waitForSocketReady(() => {
                 this.socket.send(JSON.stringify(message));
             });
@@ -447,14 +428,12 @@ var gameSocket = {
             }
     
             if (this.socket.readyState === WebSocket.OPEN) {
-                console.log("WebSocket is now open.");
                 callback();
             } else {
                 if (attemptsLeft <= 0) {
                     console.error("Failed to send message: WebSocket is not open and max attempts reached.");
                 } else {
                     attemptsLeft--;
-                    console.log("Waiting for WebSocket to be open...", attemptsLeft, "attempts left.");
                     setTimeout(checkSocket, interval);
                 }
             }

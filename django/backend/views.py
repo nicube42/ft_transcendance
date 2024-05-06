@@ -451,15 +451,15 @@ def game_record(request):
             end_time = parser.parse(data['end_time'])
 
             user = get_user_model().objects.get(username=player1_username)
-
-            Game.objects.create(
-                player1=user,
-                player2=player2_name,
-                player1_score=data['player1_score'],
-                player2_score=data['player2_score'],
-                start_time=start_time,
-                end_time=end_time,
-            )
+            if request.user.username == player1_username:
+                Game.objects.create(
+                    player1=user,
+                    player2=player2_name,
+                    player1_score=data['player1_score'],
+                    player2_score=data['player2_score'],
+                    start_time=start_time,
+                    end_time=end_time,
+                )
             return JsonResponse({'status': 'success'}, status=201)
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -504,7 +504,7 @@ from .models import Game
 @login_required
 def recent_games(request):
     current_user = request.user
-    games = Game.objects.filter(Q(player1=current_user) | Q(player2=current_user.username)).order_by('-start_time')[:5]
+    games = Game.objects.filter(player1=current_user).order_by('-start_time')[:5]
     games_data = [{
         'player1': game.player1.username,
         'player2': game.player2,
@@ -515,7 +515,6 @@ def recent_games(request):
         'end_time': game.end_time.strftime('%Y-%m-%d %H:%M:%S'),
         'created_at': game.created_at.strftime('%Y-%m-%d %H:%M:%S')
     } for game in games]
-
     return JsonResponse(games_data, safe=False)
 
 
@@ -859,3 +858,27 @@ def change_profile_pic(request):
         return JsonResponse({'message': 'Profile picture updated successfully'}, status=200)
     else:
         return JsonResponse({'error': form.errors}, status=400)
+    
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Room, CustomUser
+
+@login_required
+def list_other_players_in_room(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User is not authenticated'}, status=401)
+
+    user_rooms = Room.objects.filter(users__id=request.user.id)
+
+    if not user_rooms.exists():
+        return JsonResponse({'error': 'No other players in room'}, status=200)
+
+    room = user_rooms.first()
+    
+    other_users = room.users.exclude(id__in=[request.user.id])
+
+    other_usernames = [user.username for user in other_users]
+
+    other_username = other_usernames[0] if other_usernames else None
+
+    return JsonResponse({'room': room.name, 'other_player': other_username}, status=200)

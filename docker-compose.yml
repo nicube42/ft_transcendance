@@ -60,8 +60,6 @@ services:
     build:
       context: .
       dockerfile: ai/Dockerfile
-    volumes:
-      - ./ai:/app
     depends_on:
       - db
     environment:

@@ -3,6 +3,8 @@ import websockets
 import json
 import numpy as np
 import time
+import ssl
+import os
 
 connected = set()
 
@@ -106,7 +108,20 @@ async def ai_server(websocket, path):
         connected.remove(websocket)
         print("Connection handler ended.")
 
-start_server = websockets.serve(ai_server, "0.0.0.0", 5678)
+# Load SSL configuration
+ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+cert_path = os.getenv('SSL_CERT_PATH', '/app/ssl/domain.crt')
+key_path = os.getenv('SSL_KEY_PATH', '/app/ssl/domain.key')
 
-asyncio.get_event_loop().run_until_complete(start_server)
+try:
+    ssl_context.load_cert_chain(cert_path, key_path)
+except FileNotFoundError as e:
+    logging.critical("SSL files not found. Server is shutting down.", exc_info=True)
+    raise SystemExit(e)
+
+# Start the WebSocket server
+server = websockets.serve(ai_server, "0.0.0.0", 5678, ssl=ssl_context)
+
+asyncio.get_event_loop().run_until_complete(server)
 asyncio.get_event_loop().run_forever()
+

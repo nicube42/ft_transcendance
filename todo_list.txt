@@ -1,13 +1,17 @@
 To do updated
 
+<<<<<<< HEAD
 - game name dans les settings (thomas)
 
 
+=======
+>>>>>>> origin/ndiamant
 - personnalisation du jeu KO 0.5 (thomas)
     - activer ou non les bonus dans les settings
     - gérer les bonus dans les modes distants
 
 
+<<<<<<< HEAD
 -
 
 
@@ -21,6 +25,8 @@ To do updated
 
 
 
+=======
+>>>>>>> origin/ndiamant
 LAST CHECKLIST
 
 - no .env
