@@ -112,10 +112,24 @@ const game = {
         this.ballSpeedY = settings.ballSpeed / 2;
         this.paddleSpeed = settings.paddleSpeed;
         this.winningScore = settings.winningScore;
-        this.player1_name = settings.player1Name;
-        this.player2_name = settings.player2Name;
+        if (this.gameMode === 'distant') {
+            auth.retrieveInfos().then(userInfo => {
+                auth.get_opponent_name().then(opponentName => {
+                    if (this.playerRole === 'left'){
+                        this.player1_name = userInfo.username;
+                        this.player2_name = opponentName.other_player;
+                    }
+                    else {
+                        this.player1_name = opponentName.other_player;
+                        this.player2_name = userInfo.username;
+                    }
+                });
+            });
+        } else {
+            this.player1_name = settings.player1Name; 
+            this.player2_name = settings.player2Name;
+        }
         this.withBonus = settings.bonus;
-        console.log('withBonus', this.withBonus);
     },
 
     resetVars: function() {
@@ -123,7 +137,7 @@ const game = {
         this.ballSpeedY = this.settings.ballSpeed / 2;
         this.paddleSpeed = this.settings.paddleSpeed;
         this.winningScore = this.settings.winningScore;
-
+        
         this.ballPosX = this.canvas.width / 2;
         this.ballPosY = this.canvas.height / 2;
         this.leftPaddleY = (this.canvas.height - this.paddleHeight) / 2;
@@ -132,8 +146,23 @@ const game = {
         this.player2Score = 0;
         this.scoreMessage = '';
         this.messageDisplayCounter = 0;
-        this.player1_name = this.settings.player1Name;
-        this.player2_name = this.settings.player2Name;
+        if (this.gameMode === 'distant') {
+            auth.retrieveInfos().then(userInfo => {
+                auth.get_opponent_name().then(opponentName => {
+                    if (this.playerRole === 'left'){
+                        this.player1_name = userInfo.username;
+                        this.player2_name = opponentName.other_player;
+                    }
+                    else {
+                        this.player1_name = opponentName.other_player;
+                        this.player2_name = userInfo.username;
+                    }
+                });
+            });
+        } else {
+            this.player1_name = this.settings.player1Name;
+            this.player2_name = this.settings.player2Name;
+        }
         this.aiPaddleDirection = 1;
         this.leftPaddleMovingUp = false;
         this.leftPaddleMovingDown = false;
@@ -141,8 +170,6 @@ const game = {
         this.rightPaddleMovingDown = false;
         this.paddleMoving = false;
         this.restart_ai = true;
-        // stats.endTime = null;
-
     },
 
     handleKeyDown: function (e) {
@@ -277,7 +304,6 @@ const game = {
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
-            console.log('Game paused');
             auth.updateUserGameStatus('false');;
             this.resetVars();
             this.stopControlAndDisconnect();
@@ -289,7 +315,6 @@ const game = {
             this.resetVars();
             this.drawPong();
             auth.updateUserGameStatus('true');
-            console.log('Game resumed');
             if (this.gameMode === 'singlePlayer')
             {
                 this.processAIActions = true;
@@ -343,7 +368,6 @@ const game = {
             this.bonusRed = { ...this.bonusRed, ...randomCoordinates, active: true };
         }
         if (this.gameMode === 'distant'){
-            console.log('send game bonus');
             gameSocket.sendBonusState(this.bonusGreen, this.bonusRed);
         }
     
@@ -365,7 +389,6 @@ const game = {
             let newAngle = currentAngle + refraction_coefficient / 2; // change le coef pr que l'angle soit + +
             this.ballSpeedX = -originalSpeed * Math.cos(newAngle);
             this.ballSpeedY = originalSpeed * Math.sin(newAngle);
-            console.log(Math.sqrt(this.ballSpeedX * this.ballPosX + this.ballSpeedY * this.ballPosY));
         }
         else {
             tmpX = this.ballPosX + this.ballSpeedX * delta;
@@ -414,13 +437,11 @@ const game = {
     },
 
     drawPong: function() {
-        console.log('BONUS IS', this.withBonus);
-
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		// Réinitialise la couleur de la balle si aucun bonus n'est touché
-		if (!this.bonusTouched) {
-			this.ball_color = 'white';
-		}
+        // Réinitialise la couleur de la balle si aucun bonus n'est touché
+        if (!this.bonusTouched) {
+            this.ball_color = 'white';
+        }
         if ((this.player1Score >= this.winningScore || this.player2Score >= this.winningScore)) {
             stats.recordEndTime();
             stats.displayEndGameStats();
@@ -437,10 +458,8 @@ const game = {
             if (this.gameMode === 'distant' && this.ballPosX < this.canvas.width - 10 && this.ballPosX > 10)
             {
                 gameSocket.sendBallState();
-                console.log("bong");
             }
-
-
+    
             // Score update logic
             if (this.ballPosX <= 0 || this.ballPosX >= this.canvas.width) {
                 if (this.ballPosX <= 0) {
@@ -457,9 +476,9 @@ const game = {
         }
         else
             this.messageDisplayCounter--;
-
+    
         this.drawBall();
-
+    
         // bonus logic
         if (this.withBonus) {
             this.attemptBonusGeneration();
@@ -474,24 +493,23 @@ const game = {
         this.checkBonusCollision();
         //this.displayPoints();
         this.movePaddles();
-
-
+    
         this.ctx.fillStyle = 'white';
-
+    
         // Draw paddles
         this.ctx.fillRect(0, this.leftPaddleY, this.paddleWidth, this.paddleHeight);
         this.ctx.fillRect(this.canvas.width - this.paddleWidth, this.rightPaddleY, this.paddleWidth, this.paddleHeight);
-
+    
         if (this.player1Score >= this.winningScore)
         {
             this.scoreMessage = this.player1_name + ' Wins!';
         }
-
+    
         if (this.player2Score >= this.winningScore)
         {
             this.scoreMessage = this.player2_name + ' Wins!';
         }
-
+    
         if (this.messageDisplayCounter > 0)
         {
             this.ctx.font = '30px Arial';
@@ -504,14 +522,19 @@ const game = {
         document.getElementById('player1_score').textContent = this.player1_name + `: ${this.player1Score}`;
         document.getElementById('player2_score').textContent = this.player2_name + `: ${this.player2Score}`;
         document.getElementById('winning_score').textContent = "Winning score" + `: ${this.winningScore}`;
-
+    
         this.frame++;
         if (this.frame >= Number.MAX_SAFE_INTEGER) {
             this.frame = 0; // Reset frame counter to avoid overflow
         }
         this.ballDirectionChanged = false;
-        this.animationFrameId = requestAnimationFrame(this.drawPong.bind(this));
-    },
+    
+        // Manage frame rate
+        var self = this;
+        setTimeout(function() {
+            self.animationFrameId = requestAnimationFrame(self.drawPong.bind(self));
+        }, 1000 / 60); // 16.67 milliseconds for 60 FPS
+    },    
 
     drawBall: function() {
         this.ctx.fillStyle = this.ball_color;
@@ -542,41 +565,6 @@ const game = {
             this.ballSpeedX = - Math.abs(this.ballSpeedX);
         }
 	},
-	
-
-    // controlRightPaddleWithAI: function(predictedPosY) {
-    //     const direction = this.rightPaddleY + this.paddleHeight / 2 < predictedPosY ? 'DOWN' : 'UP';
-    
-    //     // Calculate the desired end position for the paddle
-    //     const framesPerSecond = 60;
-    //     const intervalTime = 1000 / framesPerSecond;
-    //     let hasReachedDestination = false;
-    
-    //     if (this.aiPaddleMovementInterval) {
-    //         clearInterval(this.aiPaddleMovementInterval);
-    //     }
-    
-    //     this.aiPaddleMovementInterval = setInterval(() => {
-    //         if (direction === 'UP' && this.rightPaddleY > 0) {
-    //             this.rightPaddleY -= this.paddleSpeed;
-    //             if (this.rightPaddleY + this.paddleHeight / 2 <= predictedPosY) {
-    //                 hasReachedDestination = true;
-    //             }
-    //         } else if (direction === 'DOWN' && this.rightPaddleY < this.canvas.height - this.paddleHeight) {
-    //             this.rightPaddleY += this.paddleSpeed;
-    //             if (this.rightPaddleY + this.paddleHeight / 2 >= predictedPosY) {
-    //                 hasReachedDestination = true;
-    //             }
-    //         }
-    
-    //         if (hasReachedDestination) {
-    //             clearInterval(this.aiPaddleMovementInterval);
-    //             this.aiPaddleMovementInterval = null;
-    //             console.log('Paddle reached the predicted position:', predictedPosY);
-    //         }
-    //     }, intervalTime);
-    // },    
-    
 
     controlRightPaddleWithAI: function() {
         const movePaddle = (aiAction) => {
@@ -611,9 +599,7 @@ const game = {
             if (this.processAIActions && websocket.aiSocket.readyState === WebSocket.OPEN && this.gameMode === 'singlePlayer') {
                 websocket.requestAIAction();
                 this.update_ai = false;
-                console.log('test');
                 websocket.onAIAction = (response) => {
-                    console.log('Received AI action:', response);
                     const data = JSON.parse(response);
                     const aiAction = data.action;
                     const predictedPos = data.predicted_pos_y;
@@ -626,7 +612,6 @@ const game = {
         
                     // Continue to request AI actions based on a flag
                     if (this.processAIActions) {
-                        console.log('Requesting AI action again');
                         this.update_ai = true;
                         setTimeout(requestAIActionContinuously, 1000);
                     }
@@ -694,5 +679,4 @@ const game = {
 			}, 10000); // 10 seconds
 		}
 	},	
-
 };

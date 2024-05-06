@@ -1,12 +1,8 @@
 const settings = {
     populateSettings: async function() {
-        console.log('in populate settings');
-
-        console.log('in populate settings');
         await fetch('/api/settings/retrieve')
             .then(response => response.json())
             .then(data => {
-                console.log('settings data', data);
                 document.getElementById('player1').value = data.player1;
                 if (data.player1 === null)
                     document.getElementById('player1').value = 'One';
@@ -22,7 +18,6 @@ const settings = {
                 document.getElementById('winningScore').value = data.winningScore;
                 if (data.winningScore === null)
                     document.getElementById('winningScore').value = 5;
-                console.log('Settings retrieved successfully', data.bonus);
                 document.getElementById('Bonus').checked = data.bonus;
                 if (data.bonus === null)
                     document.getElementById('Bonus').checked = true;
@@ -31,7 +26,6 @@ const settings = {
             .catch(error => console.error('Error fetching settings:', error));
     },
     saveSettings: async function() {
-        console.log('in save settings');
         if (ui.connected === false) {
             return;
         }
@@ -45,7 +39,6 @@ const settings = {
             winningScore: parseInt(document.getElementById('winningScore').value, 10),
             bonus: document.getElementById('Bonus').checked,
         };
-        console.log('data in SaveSettings', data);
         await fetch('/api/settings', {
             method: 'POST',
             headers: {
@@ -58,7 +51,6 @@ const settings = {
             if (!response.ok) {
                 throw new Error('Failed to save settings');
             }
-            console.log('Settings saved successfully');
         })
         .catch(error => {
             console.error('Error saving settings:', error);

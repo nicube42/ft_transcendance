@@ -21,13 +21,11 @@ const auth = {
             return response.json();
         })
         .then(data => {
-            console.log('Login success:', data);
             sessionStorage.setItem('isLoggedIn', 'true');
             ui.connected = true;
             this.waitForAuthToBeRecognized(() => {
                 auth.retrieveInfos()
                     .then(data => {
-                        console.log('User info retrieved successfully:', data);
                         userInfoDisplayer.updateUI(data);
                         settings.saveSettings();
                         settings.populateSettings();
@@ -83,7 +81,6 @@ const auth = {
     },
     
     logout: function() {
-        console.log('Logging out...');
         const csrfToken = getCookie('csrftoken');
         fetch('/api/logout/', {
             method: 'POST',
@@ -100,7 +97,6 @@ const auth = {
             return response.json();
         })
         .then(data => {
-            console.log('Logout success:', data);
             sessionStorage.removeItem('isLoggedIn');
             ui.showOnlyOneSection('loginContainer');
             navbarManager.updateNavbar(false);
@@ -110,7 +106,6 @@ const auth = {
     },
 
     register: function() {
-        console.log('Registering...');
         const csrfToken = getCookie('csrftoken');
 
         const formData = new FormData();
@@ -145,7 +140,6 @@ const auth = {
             return response.json();
         })
         .then(data => {
-            console.log('Registration success:', data);
             ui.showOnlyOneSection('loginContainer');
         })
         .catch(error => {
@@ -157,9 +151,7 @@ const auth = {
 
     callback: function() {
         const url = new URL(window.location.href);
-        console.log('url:', url.href);
         ui.showOnlyOneSection('callback');
-        console.log('callback exception2 called');
         const code = url.searchParams.get("code");
         if (code === null) {
             console.error("No code in URL");
@@ -180,13 +172,11 @@ const auth = {
             return response.json();
         })
         .then(data => {
-            console.log('Login success:', data);
             sessionStorage.setItem('isLoggedIn', 'true');
             ui.connected = true;
             auth.waitForAuthToBeRecognized(() => {
                 auth.retrieveInfos()
                     .then(data => {
-                        console.log('User info retrieved successfully:', data);
                         userInfoDisplayer.updateUI(data);
                         settings.saveSettings();
                         settings.populateSettings();
@@ -200,11 +190,9 @@ const auth = {
                 console.error('Auth recognition error:', error);
             });
         })
-        console.log('callback exception3 called');
     },
 
     retrieveInfos: function() {
-        console.log('Retrieving user info...');
         return fetch('/api/user-info/', {
             method: 'GET',
             credentials: 'include'
@@ -217,9 +205,7 @@ const auth = {
         })
         .then(data => {
             if (data.error) {
-                console.error('Error fetching user info:', data.error);
             } else {
-                console.log('User info retrieved:', data);
             }
             return data;
         })
@@ -233,7 +219,6 @@ const auth = {
         this.checkAuthentication();
     },
     checkAuthentication: function() {
-        console.log('Checking authentication...');
         return fetch('/api/check_auth_status/', {
             method: 'GET',
             credentials: 'include'
@@ -248,7 +233,6 @@ const auth = {
         })
         .then(data => {
             if (data.is_authenticated) {
-                console.log("User is authenticated.");
                 return true;
             } else {
                 return false;
@@ -260,7 +244,8 @@ const auth = {
         });
     },
     checkIfUserLoggedIn: async function(username) {
-        console.log('Checking if user is logged in:', username);
+        if (game.gameMode !== 'distant') 
+            return null;
         try {
             const response = await fetch(`/api/is-user-logged-in/?username=${encodeURIComponent(username)}`, {
                 method: 'GET',
@@ -271,11 +256,9 @@ const auth = {
             }
             const data = await response.json();
             if (data.is_logged_in) {
-                console.log(`User ${username} is currently logged in.`);
                 alert(`User ${username} has been invited.`);
                 return username;
             } else {
-                console.log(`User ${username} is not logged in.`);
                 alert(`User ${username} is not logged in.`);
                 return null;
             }
@@ -285,7 +268,6 @@ const auth = {
         }
     },
     updateUserGameStatus: function(isInGame) {
-        console.log('Attempting to update game status to:', isInGame);
         fetch('/api/update_game_status/', {
             method: 'POST',
             headers: {
@@ -312,7 +294,6 @@ const auth = {
     },
 
     updateUserTournamentStatus: function(isInTournament) {
-        console.log('Attempting to update tournament status to:', isInTournament);
         fetch('/api/update_tournament_status/', {
             method: 'POST',
             headers: {
@@ -353,6 +334,22 @@ const auth = {
         return cookieValue;
     },
 
+    get_opponent_name: function() {
+        return fetch('/api/list_other_players_in_room/', {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+            throw error;
+        });
+    },
 };
 
 function getCookie(name) {

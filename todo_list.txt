@@ -1,49 +1,13 @@
 To do updated
 
-- game name dans les settings (thomas)
+- end of game names more or less
+- auth error for names
+- error name first game
 
-- gestion d'utilisateur KO 1
-    - avatar (marco)$
-                    - status en ligne OK
-                    - ajouter amis OK
-                    - afficher stats et historique des joueurs sur le profil OK
 
 - personnalisation du jeu KO 0.5 (thomas)
     - activer ou non les bonus dans les settings
     - gérer les bonus dans les modes distants
-
-
-FINI
-
-                    - form validation (date pas dans le futur, username, add max length, not empty ect
-
-                    - joueurs a distance KO (nicolas) 1
-                        - gérer déconection de manière simple (nicolas)
-                        - supprimer room a la fin d'une partie (nicolas)
-                        - finir détails tournoi (nicolas)
-
-                    - auth a distance (Marco) OK 1
-
-                    - vérifier injections sql/XSS. Django s'en occuppe de base OK
-
-                    - add TLS (nicolas) = SSL ===> OK
-
-                    - vérifier que l'utilisateur est bien connecté avant d'utiliser toutes les API (if request.user.is_authenticated) (nicolas)
-                      @login required everywhere needed OK
-                    
-                    - IA OK 1 (nicolas) (marche environ, améliorer si le temps le permet)
-
-                    - tableau de bord utilisateurs + stats (nicolas) OK 0.5
-
-                    - microservices en back 1 OK
-
-                    - support plusieurs navigateurs 0.5 OK
-
-                    - framework en back OK 1
-
-                    - framework en front OK 0.5
-
-                    - base de donnée en back OK 0.5
 
 
 LAST CHECKLIST

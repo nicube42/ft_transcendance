@@ -6,7 +6,6 @@ const GameStats = {
                 if (data.error) {
                     console.error('Error fetching player stats:', data.error);
                 } else {
-                    console.log('Received data:', data);
                     document.getElementById('gamesPlayed').textContent = data.gamesPlayed;
                     document.getElementById('totalWins').textContent = data.totalWins;
                     document.getElementById('totalLosses').textContent = data.totalLosses;
