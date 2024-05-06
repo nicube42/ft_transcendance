@@ -94,7 +94,8 @@ def strip_accents(s):
     """Remove accentuated characters from a string and return a clean string."""
     return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
-@csrf_protect
+# @csrf_protect
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
         form = CustomUserForm(request.POST, request.FILES)
@@ -131,7 +132,7 @@ def register(request):
                 normalized_filename = strip_accents(file.name)
                 safe_filename = get_valid_filename(normalized_filename)
                 file_name = default_storage.save(safe_filename, ContentFile(file.read()))
-                user.profile_pic_url = request.build_absolute_uri("https://localhost:4242/media/pictures/" + file_name)
+                user.profile_pic_url = request.build_absolute_uri("https://c3r5s2:4242/media/pictures/" + file_name)
 
             user.save()
             return JsonResponse({'message': 'User created successfully'}, status=201)

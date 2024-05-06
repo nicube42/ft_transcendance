@@ -30,7 +30,7 @@ window.addEventListener('load', function() {
 });
 
 window.addEventListener('DOMContentLoaded', function() {
-    if (window.location.href === 'https://localhost:4242/profilePageNoChange') {
+    if (window.location.href === 'https://c3r5s2:4242/profilePageNoChange') {
         userInfoDisplayer.betterUI();
     }
 });
@@ -175,7 +175,7 @@ const ui =
             this.showOnlyOneSection('loginContainer');
         },
         async 'navLogin42'() {
-            window.location.href = 'https://localhost:4242/api/authorize/';
+            window.location.href = 'https://c3r5s2:4242/api/authorize/';
         },
         async 'navRegister'() {
             this.showOnlyOneSection('register');

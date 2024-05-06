@@ -90,7 +90,7 @@ CHANNEL_LAYERS = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    'https://localhost:4242',
+    'https://c3r5s2:4242',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -117,4 +117,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Collected static files
 STATICFILES_DIRS = [] 
 
 MEDIA_ROOT = '/code/media'
-MEDIA_URL = 'https://localhost:4242/media/'
+MEDIA_URL = 'https://c3r5s2:4242/media/'
+
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = None
+CSRF_COOKIE_HTTPONLY = False
