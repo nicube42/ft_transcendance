@@ -72,7 +72,7 @@ const auth = {
         let attempts = 0;
         
         const checkAuth = () => {
-            if (sessionStorage.getItem('isLoggedIn') === 'false'){return;}
+            if (!sessionStorage.getItem('isLoggedIn')){return;}
             fetch('/api/check_auth_status/', {
                 method: 'GET',
                 credentials: 'include'
@@ -244,8 +244,8 @@ const auth = {
 
     retrieveInfos: function() {
         return new Promise((resolve, reject) => {
-            if (sessionStorage.getItem('isLoggedIn') === 'false') {
-                resolve(false);
+            if (!sessionStorage.getItem('isLoggedIn')) {
+                resolve();
                 return;
             }
             fetch('/api/user-info/', {
@@ -262,7 +262,6 @@ const auth = {
                 resolve(data);
             })
             .catch(error => {
-                reject(error);
             });
         });
     },
@@ -271,33 +270,27 @@ const auth = {
         this.checkAuthentication();
     },
     checkAuthentication: function() {
-        return new Promise((resolve, reject) => {
-            if (sessionStorage.getItem('isLoggedIn') === 'false') {
-                resolve(false);
-                return;
-            }
-            return fetch('/api/check_auth_status/', {
-                method: 'GET',
-                credentials: 'include'
-            })
-            .then(response => {
-                if (response.status === 401 || response.status === 403) {
-                    return false;
-                } else if (!response.ok) {
-                    throw new Error('Server error or network issue.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.is_authenticated) {
-                    return true;
-                } else {
-                    return false;
-                }
-            })
-            .catch(error => {
+        return fetch('/api/check_auth_status/', {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(response => {
+            if (response.status === 401 || response.status === 403) {
                 return false;
-            });
+            } else if (!response.ok) {
+                throw new Error('Server error or network issue.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.is_authenticated) {
+                return true;
+            } else {
+                return false;
+            }
+        })
+        .catch(error => {
+            return false;
         });
     },
     checkIfUserLoggedIn: async function(username) {
@@ -323,6 +316,7 @@ const auth = {
         }
     },
     updateUserGameStatus: function(isInGame) {
+        if (!sessionStorage.getItem('isLoggedIn')){return;}
         fetch('/api/update_game_status/', {
             method: 'POST',
             headers: {

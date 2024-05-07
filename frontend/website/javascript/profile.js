@@ -77,7 +77,7 @@ const userInfoDisplayer = {
     },
 
     fetchAndUpdateUserProfile: function() {
-        if (sessionStorage.getItem('isLoggedIn') === 'false'){return;}
+        if (!sessionStorage.getItem('isLoggedIn')){return;}
         fetch('/api/user-info/', {
             credentials: 'include',
         })

@@ -1,6 +1,6 @@
 const GameStats = {
     fetchPlayerStats: function() {
-        if (sessionStorage.getItem('isLoggedIn') === 'false'){return;}
+        if (!sessionStorage.getItem('isLoggedIn')){return;}
         fetch('/api/player/stats/')
             .then(response => response.json())
             .then(data => {
@@ -17,7 +17,7 @@ const GameStats = {
     },    
 
     fetchRecentGames: function() {
-        if (sessionStorage.getItem('isLoggedIn') === 'false'){return;}
+        if (!sessionStorage.getItem('isLoggedIn')){return;}
         fetch('/api/recent_games/')
             .then(response => response.json())
             .then(games => {
@@ -63,7 +63,7 @@ const GameStats = {
     },       
     
     fetchWinRateData: function() {
-        if (sessionStorage.getItem('isLoggedIn') === 'false'){return;}
+        if (!sessionStorage.getItem('isLoggedIn')){return;}
         fetch('/api/winrate_over_time/')
             .then(response => response.json())
             .then(data => {

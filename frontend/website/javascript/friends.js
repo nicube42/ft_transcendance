@@ -71,7 +71,7 @@ var friendsPage = {
     },
 
     fetchRecentGames: function(username) {
-        if (sessionStorage.getItem('isLoggedIn') === 'false'){return;}
+        if (!sessionStorage.getItem('isLoggedIn')){return;}
         fetch(`/api/recent_games/${username}/`)
         .then(response => {
             if (!response.ok) {
@@ -187,7 +187,7 @@ var friendsPage = {
     },
 
     listFriends: function() {
-        if (sessionStorage.getItem('isLoggedIn') === 'false'){return;}
+        if (!sessionStorage.getItem('isLoggedIn')){return;}
         fetch('/api/list_friends/', {
             method: 'GET',
             headers: {
