@@ -233,6 +233,10 @@ canvas {
     src: url('fonts/SpaceMission.otf') format('opentype');
 }
 
+input[type='password'] {
+    font-family: 'monospace';
+}
+
 input[type='range'] {
     overflow: hidden;
     width: 80%;
