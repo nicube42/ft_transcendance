@@ -1,4 +1,5 @@
 window.addEventListener('beforeunload', function(event) {
+    if (!sessionStorage.getItem('isLoggedIn')){return;}
     fetch('/api/check-if-user-in-any-room/')
     .then(response => {
         if (response.ok) {
@@ -317,6 +318,7 @@ const ui =
                 this.showOnlyOneSection(path, true);
             } else {
                 this.connected = false;
+                sessionStorage.removeItem('isLoggedIn');
                 navbarManager.updateNavbar(this.connected);
                 this.showOnlyOneSection('firstPage', true);
             }
