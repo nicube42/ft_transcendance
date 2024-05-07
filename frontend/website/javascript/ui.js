@@ -292,6 +292,7 @@ const ui =
                 this.showOnlyOneSection(path, true);
             } else {
                 this.connected = false;
+                sessionStorage.removeItem('isLoggedIn');
                 navbarManager.updateNavbar(this.connected);
                 this.showOnlyOneSection('firstPage', true);
             }

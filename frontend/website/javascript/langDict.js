@@ -28,17 +28,17 @@ var langDict = {
         'cancelregister': 'test10',
         'winning_score': 'Winning score',
 
-
+        
         //tournois
         'nextStageBtn': 'Next',
-
+        
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Login',
         'register': 'Register',
         'password': 'Password',
-
+        
         // https://localhost:4242/register top
-        'registersubmitbutton': 'Login',
+        'registersubmitbutton': 'Login', 
         'cancelregisterbutton': 'Cancel',
         'registerheader' : 'Login',
         'registerusernamelabel': 'Username',
@@ -46,7 +46,7 @@ var langDict = {
         'registerpasswordlabel': 'Password',
         'biolabel': 'Bio',
 
-
+        
         // https://localhost:4242/homepage
         'single player': 'Single Player',
         'local multiplayer': 'Local Multiplayer',
@@ -54,7 +54,7 @@ var langDict = {
         'tournament': 'Tournament',
         'statistics': 'Statistics',
         'settings': 'Settings',
-
+        
         // https://localhost:4242/playerStats
         'player statistics': 'Player Statistics',
         'last games results': 'Last Games Results',
@@ -72,7 +72,7 @@ var langDict = {
         'gameslist': 'Last Games Results',
         'winratechart': 'Chart of Winrate Over Time',
 
-
+        
         // https://localhost:4242/settings
         'player 1': 'Player 1',
         'player 2': 'Player 2',
@@ -81,20 +81,20 @@ var langDict = {
         'winning score': 'Winning Score',
         'save': 'Save',
         'cancel': 'Cancel',
-
+        
         //https://localhost:4242/multiplayer
         'users connected to the room': 'Users Connected to the Room',
         'room name': 'Room Name',
         'invite a player': 'Invite a Player',
         'enter username': 'Enter Username',
         'rooms': 'Rooms',
-
+        
         //https://localhost:4242/tournament
         'tournamentheader': 'Tournament Setup',
         'match tree': 'Match Tree',
         'tournament_matches_display': 'Tournament matches will be displayed here once setup is complete.',
         'enter username to': 'Enter Username to',
-
+        
         'navTournament': 'Tournament',
         'profile': 'Profile',
         'set': 'Settings',
@@ -120,7 +120,7 @@ var langDict = {
 
 
     },
-
+    
     'fr': {
         //navbar
         'navbardropdown' : 'Compte',
@@ -147,16 +147,16 @@ var langDict = {
         'player2_name': 'Joueur 2',
         'cancelregister': 'test10',
         'winning_score': 'Score gagnant',
-
+        
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Connexion',
         'register': 'Inscription',
         'password': 'Mot de passe', //a double virer si conflit
-
-
-
+        
+        
+        
         // https://localhost:4242/register
-        'registersubmitbutton': 'S\'enregistrer',
+        'registersubmitbutton': 'S\'enregistrer', 
         'cancelregisterbutton': 'retour',
         'registerheader': 'Inscription', //a double virer si conflit
         'registerusernamelabel': 'Nom d’utilisateur',
@@ -165,7 +165,7 @@ var langDict = {
         'biolabel': 'Biographie',
 
 
-
+        
         // https://localhost:4242/homepage
         'single player': 'Joueur seul',
         'local multiplayer': 'Multijoueur local',
@@ -173,7 +173,7 @@ var langDict = {
         'tournament': 'Tournoi',
         'statistics': 'Statistiques',
         'settings': 'Paramètres',
-
+        
         // https://localhost:4242/playerStats
         'player statistics': 'Statistiques du joueur',
         'last games results': 'Résultats des derniers jeux',
@@ -187,13 +187,13 @@ var langDict = {
         'total losses': 'Total des défaites',
         'total score': 'Score total',
         'chart of winrate over time': 'Graphique des taux de victoire dans le temps',
-
+       
         'playerdetails': 'Détails du joueur',
         'gameslist': 'Résultats des derniers jeux',
         'winratechart': 'Graphique des taux de victoire dans le temps',
 
-
-
+        
+        
         // https://localhost:4242/settings
         'player 1': 'Joueur 1',
         'player 2': 'Joueur 2',
@@ -202,15 +202,15 @@ var langDict = {
         'winning score': 'Score gagnant',
         'save': 'Sauvegarder',
         'cancel': 'Annuler',
-
+        
         //https://localhost:4242/multiplayer
-
+        
         'users connected to the room': 'Utilisateurs connectés',
         'room name': 'Nom de la salle',
         'invite a player': 'inviter un joueur',
         'enter username': 'Entrer utilisateur',
         'rooms': 'Salles',
-
+        
         //https://localhost:4242/tournament
         'tournamentheader': 'Configuration du Tournoi',
         'match tree': 'Prochains matchs',
@@ -224,7 +224,7 @@ var langDict = {
         'nextStageBtn': 'Suivant',
         'usernamelabel': 'Nom dutilisateur',
 
-
+        
         //https://localhost:4242/loginContainer top
         'loginForm':'S\'enregistre',
         'canceloginbutton': 'Sortir',
@@ -242,10 +242,10 @@ var langDict = {
         "lastgamesresultsheader": "Liste des derniers résultats des jeux",
         "winratechartheader": "Graphique du taux de victoire"
 
-
+    
 
     },
-
+    
     'es': {
         //navbar
         'navbardropdown' : 'accountos',

@@ -446,10 +446,6 @@ def check_user(request):
         return JsonResponse({'error': 'User not authenticated'}, status=401)
     data = json.loads(request.body)
     username = data.get('username')
-    if not username:
-        return JsonResponse({'error': 'Username is required'}, status=400)
-    if len(username) < 4 or len(username) > 20:
-        return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
     exists = get_user_model().objects.filter(username=username).exists()
     return JsonResponse({'exists': exists})
 
