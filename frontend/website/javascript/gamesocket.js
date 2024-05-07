@@ -41,6 +41,7 @@ var gameSocket = {
             } else if (data.action === 'start_game') {
                 this.stopPeriodicUpdates();
                 game.setGameMode('distant');
+                this.currentRoom = data.room_name;
                 ui.showOnlyOneSection('play');
             } else if (data.action === 'stop_game') {
                 if (gameSocket.currentRoom) {
@@ -49,7 +50,6 @@ var gameSocket = {
                     gameSocket.currentRoom = null;
                 }
                 ui.showOnlyOneSection('homepage');
-                alert('Game cancelled');
             } else if (data.action === 'paddle_move') {
                 let paddleAdjustment = data.direction === 'up' ? -game.paddleSpeed : game.paddleSpeed;
                 if(data.role === game.playerRole) {
@@ -105,20 +105,21 @@ var gameSocket = {
                     statusIndicator.style.color = 'orange';
                 }
             } else if (data.action === 'surrendered') {
+                console.log ("surrendered");
                 auth.retrieveInfos().then(userInfo => {
                     if (data.player === userInfo.username)
                     {
                         if (game.playerRole !== 'left')
-                            stats.displayEndGameStatsSurrender(0, 1);
-                        else
                             stats.displayEndGameStatsSurrender(1, 0);
+                        else
+                            stats.displayEndGameStatsSurrender(0, 1);
                     }
                     else
                     {
                         if (game.playerRole !== 'left')
-                            stats.displayEndGameStatsSurrender(1, 0);
-                        else
                             stats.displayEndGameStatsSurrender(0, 1);
+                        else
+                            stats.displayEndGameStatsSurrender(1, 0);
                     }
                 });
             } else if (data.action === 'retrieve_settings'){

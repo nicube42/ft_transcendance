@@ -167,6 +167,38 @@ button:hover {
     font-family: 'VeniteAdoremus', sans-serif;
 }
 
+#WonTournamentModal .modal-content {
+    background-color: black;
+    border: 2px solid #198754;
+    color: white;
+}
+
+#WonTournamentModal .btn-outline-success {
+    border-color: #198754;
+    color: #198754;
+}
+
+#WonTournamentModal .btn-outline-success:hover {
+    background-color: #299a65;
+    color: black;
+}
+
+#LostTournamentModal .modal-content {
+    background-color: black;
+    border: 2px solid #198754;
+    color: white;
+}
+
+#LostTournamentModal .btn-outline-success {
+    border-color: #198754;
+    color: #198754;
+}
+
+#LostTournamentModal .btn-outline-success:hover {
+    background-color: #299a65;
+    color: black;
+}
+
 .section {
     margin: 20px;
     font-size: 50px;

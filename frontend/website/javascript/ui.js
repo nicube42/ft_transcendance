@@ -1,36 +1,11 @@
 window.addEventListener('beforeunload', function(event) {
-    fetch('/api/check-if-user-in-any-room/')
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            return response.text().then(text => { throw new Error(text || 'Problem checking room status'); });
-        }
-    })
-    .then(data => {
-        if (gameSocket.currentRoom && game.gameMode === 'distant' && data.status === 'User is in a room') {
-            gameSocket.surrenderGame(gameSocket.currentRoom);
-            gameSocket.sendGameStop(gameSocket.currentRoom);
-            localStorage.setItem('navigateToHome', 'true');
-        }
-    });
-});
-
-window.addEventListener('load', function() {
-    if (localStorage.getItem('navigateToHome') === 'true') {
-        if (game.playerRole === 'left')
-            stats.displayEndGameStatsSurrender(1, 0);
-        else
-            stats.displayEndGameStatsSurrender(0, 1);
-        gameSocket.leaveRoom(gameSocket.currentRoom);
-        gameSocket.deleteRoom(gameSocket.currentRoom);
-        localStorage.removeItem('navigateToHome');
-    
+    if (gameSocket.currentRoom && game.gameMode === 'distant' && game.isPlaying) {
+        gameSocket.surrenderGame(gameSocket.currentRoom);
     }
 });
 
 window.addEventListener('DOMContentLoaded', function() {
-    if (window.location.href === 'https://c3r5s2:4242/profilePageNoChange') {
+    if (window.location.href === 'https://c3r4s4:4242/profilePageNoChange') {
         userInfoDisplayer.betterUI();
     }
 });
@@ -179,7 +154,7 @@ const ui =
             this.showOnlyOneSection('loginContainer');
         },
         async 'navLogin42'() {
-            window.location.href = 'https://c3r5s2:4242/api/authorize/';
+            window.location.href = 'https://c3r4s4:4242/api/authorize/';
         },
         async 'navRegister'() {
             this.showOnlyOneSection('register');
