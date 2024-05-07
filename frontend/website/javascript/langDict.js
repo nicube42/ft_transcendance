@@ -39,9 +39,9 @@ var langDict = {
 
         'titlehomepage': 'Pong',
         'player1_name': 'Player 1',
-        'player1_name': 'Player 2',
+        'player2_name': 'Player 2',
         'usernameLabel': 'Username',
-        'cancelregister': 'test10',
+        'cancelregister': 'Cancel',
         'winning_score': 'Winning score',
 
 
@@ -50,13 +50,11 @@ var langDict = {
 
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Login',
-        'register': 'Register',
         'password': 'Password',
 
         // https://localhost:4242/register top
         'registersubmitbutton': 'Login',
         'cancelregisterbutton': 'Cancel',
-        'registerheader' : 'Login',
         'registerusernamelabel': 'Username',
         'fullnamelabel': 'Full Name',
         'registerpasswordlabel': 'Password',
@@ -139,8 +137,6 @@ var langDict = {
         "lastgamesresultsheader": "List of last games results: ",
         "winratechartheader": "Win rate chart",
 
-        'registerheader': 'login',
-        'passwordlabel': 'passeword',
         'cancelloginbutton': 'Cancel',
         'loginheader': 'Login',
 
@@ -196,7 +192,6 @@ var langDict = {
 
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Connexion',
-        'register': 'Inscription',
         'password': 'Mot de passe', //a double virer si conflit
 
 
@@ -204,7 +199,6 @@ var langDict = {
         // https://localhost:4242/register
         'registersubmitbutton': 'S\'enregistrer',
         'cancelregisterbutton': 'retour',
-        'registerheader': 'Inscription', //a double virer si conflit
         'registerusernamelabel': 'Nom d’utilisateur',
         'registerpasswordlabel': 'Mot de passe',
         'fullnamelabel': 'Nom complet',
@@ -343,25 +337,22 @@ var langDict = {
 
         'titlehomepage': 'Pong',
         'player1_name': 'Playcito 1',
-        'player1_name': 'Playcito 2',
+        'player2_name': 'Playcito 2',
         'usernameLabel': 'Utilisado',
         'cancelregister': 'Cancelado',
         'winning_score': 'Scorado gagnacito',
 
 
         'login_initial': 'Iniciar sesio35n',
-        'register_initial': 'Registrarse',
 
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Iniciar sesion',
-        'register': 'Registrarse',
         'password': 'Contraseña',
 
         // https://localhost:4242/register
         'registersubmitbutton': 'Loginada',
         'cancelregisterbutton': 'Annulada',
         'registerusernamelabel' : 'usernamado',
-        'registerheader' : 'loginada',
         'registerusernameabel': 'Nomados Usuario',
         'registerpasswordlabel': 'Contraseña',
         'fullnamelabel': 'Nombre completo',
