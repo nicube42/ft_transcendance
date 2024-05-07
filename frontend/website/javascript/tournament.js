@@ -257,9 +257,13 @@ const tournament = {
     },
 
     finalizeTournament: function(winner) {
-        alert('Tournament Winner: ' + winner);
+        game.isPlaying = false;
+        const inviteModal = new bootstrap.Modal(document.getElementById('WonTournamentModal'));
+        document.getElementById('WonTournamentBody').textContent = `${winner} won the tournament!`;
         this.resetTournament();
+        inviteModal.show();
     },
+    
 
     resetTournament: function() {
         this.tournamentId = null;
@@ -298,7 +302,8 @@ const tournament = {
         url.pathname = '/tournamentStage';
         url.searchParams.set('tournamentId', this.tournamentId);
         history.pushState({ path: url.toString() }, '', url.toString());
-    
+
+        game.isPlaying = false;
         ui.showOnlyOneSection('tournamentStage', false, { tournamentId: this.tournamentId });
     },
 
@@ -335,7 +340,8 @@ const tournament = {
             currentParticipants: this.currentParticipants,
             maxPlayers: this.maxPlayers
         });
-
-        alert(`You lost the tournament`);
+        const inviteModal = new bootstrap.Modal(document.getElementById('LostTournamentModal'));
+        document.getElementById('LostTournamentBody').textContent = `You lost the tournament!`;
+        inviteModal.show();
     },
 };

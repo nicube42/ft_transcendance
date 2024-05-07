@@ -8,48 +8,33 @@ import os
 
 connected = set()
 
-def predict_ball_position_at_right_paddle(ball_pos_x, ball_pos_y, ball_speed_x, ball_speed_y, paddle_left_y, paddle_right_y, paddle_height, canvas_width, canvas_height, ball_radius, update_ai):
-    """
-    Predict the ball's y position when it reaches the right edge of the screen, considering collisions with the top,
-    bottom walls, and paddles.
-    """
-    time_step = 0.01
-    start_time = time.time()
+def impact_pos_y(ball_pos_x, ball_pos_y, ball_speed_x, ball_speed_y, paddle_left_y, paddle_right_y, paddle_height, canvas_width, canvas_height, ball_radius, update_ai):
 
-    while ball_pos_x + ball_radius < canvas_width:
-        if ball_speed_x == 0:
-            return
-        next_ball_pos_x = ball_pos_x + ball_speed_x * time_step
-        next_ball_pos_y = ball_pos_y + ball_speed_y * time_step
+    # time_step = 0.01
+    # start_time = time.time()
 
-        if next_ball_pos_y - ball_radius <= 0 or next_ball_pos_y + ball_radius >= canvas_height:
-            ball_speed_y *= -1
-            next_ball_pos_y = ball_pos_y
-
-        if 0 < ball_pos_x < 10 + ball_radius and paddle_left_y <= ball_pos_y <= paddle_left_y + paddle_height:
-            ball_speed_x *= -1
-            next_ball_pos_x = ball_pos_x
-
-        if canvas_width - 10 - ball_radius < ball_pos_x < canvas_width and paddle_right_y <= ball_pos_y <= paddle_right_y + paddle_height:
-            ball_speed_x *= -1
-            next_ball_pos_x = ball_pos_x
-
-        ball_pos_x = next_ball_pos_x
-        ball_pos_y = next_ball_pos_y
-
-        if time.time() - start_time > 1:
-            print("Breaking after 1 seconds")
-            ball_pos_y = -1
-            break
-
-        if ball_pos_x + ball_radius >= canvas_width:
-            break
-
-        if ball_pos_x + ball_radius < 0:
-            break
+    if ball_speed_x <= 0:
+        return canvas_height / 2
     
-    return ball_pos_y
+    frames_before_impact = ((canvas_width - 10) - (ball_pos_x + ball_radius)) / ball_speed_x
+    nextframe = 1
 
+    while nextframe < int(frames_before_impact):
+        # if time.time() - start_time > 1:
+            # break
+        if  ball_pos_y + ball_radius + ball_speed_y > canvas_height or ball_pos_y - ball_radius + ball_speed_y  < 0:
+            
+            if ball_speed_y < 0:
+                deltaFrame = -(ball_pos_y - ball_radius)/ball_speed_y 
+            else:
+                 deltaFrame = (canvas_height - (ball_pos_y + ball_radius))/ball_speed_y
+
+            ball_pos_y += deltaFrame * ball_speed_y + (1 - deltaFrame) * ball_speed_y
+            ball_speed_y *= -1
+        else :
+            ball_pos_y += ball_speed_y
+        nextframe += 1
+    return ball_pos_y
 
 async def ai_server(websocket, path):
     global connected
@@ -71,7 +56,7 @@ async def ai_server(websocket, path):
                 update_ai = data['update_ai']
 
                 if update_ai is True:
-                    future_ball_pos_y = predict_ball_position_at_right_paddle(ball_pos_x, ball_pos_y, ball_speed_x, ball_speed_y, paddle_left_y, paddle_y, paddle_height, canvas_width, canvas_height, 10, update_ai)
+                    future_ball_pos_y = impact_pos_y(ball_pos_x, ball_pos_y, ball_speed_x, ball_speed_y, paddle_left_y, paddle_y, paddle_height, canvas_width, canvas_height, 10, update_ai)
 
                 print(f"Predicted ball position: {future_ball_pos_y}")
 

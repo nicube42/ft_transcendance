@@ -587,14 +587,17 @@ class GameConsumer(AsyncWebsocketConsumer):
             room_name,
             {
                 'type': 'game_start',
+                'room_name': room_name,
                 'message': 'start_game',
             }
         )
 
 
     async def game_start(self, event):
+        room_name = event['room_name']
         await self.send_message_safe(json.dumps({
             'action': 'start_game',
+            'room_name': room_name,
         }))
 
     async def send_message_safe(self, message):

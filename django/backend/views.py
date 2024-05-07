@@ -137,7 +137,7 @@ def register(request):
                 normalized_filename = strip_accents(file.name)
                 safe_filename = get_valid_filename(normalized_filename)
                 file_name = default_storage.save(safe_filename, ContentFile(file.read()))
-                user.profile_pic_url = request.build_absolute_uri("https://c3r5s2:4242/media/pictures/" + file_name)
+                user.profile_pic_url = request.build_absolute_uri("https://c3r4s4:4242/media/pictures/" + file_name)
 
             user.save()
             return JsonResponse({'message': 'User created successfully'}, status=201)
@@ -745,3 +745,4 @@ def list_other_players_in_room(request):
     other_username = other_usernames[0] if other_usernames else None
 
     return JsonResponse({'room': room.name, 'other_player': other_username}, status=200)
+

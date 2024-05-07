@@ -41,6 +41,7 @@ var gameSocket = {
             } else if (data.action === 'start_game') {
                 this.stopPeriodicUpdates();
                 game.setGameMode('distant');
+                this.currentRoom = data.room_name;
                 ui.showOnlyOneSection('play');
             } else if (data.action === 'stop_game') {
                 if (gameSocket.currentRoom) {
@@ -49,7 +50,6 @@ var gameSocket = {
                     gameSocket.currentRoom = null;
                 }
                 ui.showOnlyOneSection('homepage');
-                alert('Game cancelled');
             } else if (data.action === 'paddle_move') {
                 let paddleAdjustment = data.direction === 'up' ? -game.paddleSpeed : game.paddleSpeed;
                 if(data.role === game.playerRole) {
@@ -105,20 +105,21 @@ var gameSocket = {
                     statusIndicator.style.color = 'orange';
                 }
             } else if (data.action === 'surrendered') {
+                console.log ("surrendered");
                 auth.retrieveInfos().then(userInfo => {
                     if (data.player === userInfo.username)
                     {
                         if (game.playerRole !== 'left')
-                            stats.displayEndGameStatsSurrender(0, 1);
-                        else
                             stats.displayEndGameStatsSurrender(1, 0);
+                        else
+                            stats.displayEndGameStatsSurrender(0, 1);
                     }
                     else
                     {
                         if (game.playerRole !== 'left')
-                            stats.displayEndGameStatsSurrender(1, 0);
-                        else
                             stats.displayEndGameStatsSurrender(0, 1);
+                        else
+                            stats.displayEndGameStatsSurrender(1, 0);
                     }
                 });
             } else if (data.action === 'retrieve_settings'){
@@ -250,10 +251,9 @@ var gameSocket = {
         this.sendMessage({'action': 'list_users_in_room', 'room_name': roomName});
     },    
 
-    updateRoomList: function(rooms) {
-
-        if (!rooms){
-            return ;
+    updateRoomList: async function(rooms) {
+        if (!rooms) {
+            return;
         }
         const roomListDiv = document.getElementById('roomList');
         if (!roomListDiv) {
@@ -261,38 +261,47 @@ var gameSocket = {
         }
         roomListDiv.innerHTML = '';
     
-        rooms.forEach((room) => {
-            const roomElement = document.createElement('div');
-            roomElement.className = 'room-item';
-            roomElement.style.display = 'flex';
-            roomElement.style.justifyContent = 'space-between';
-            roomElement.style.alignItems = 'center';
+        for (const room of rooms) {
+            try {
+                const response = await fetch(`/api/room/${room.name}/user-count/`);
+                const data = await response.json();
     
-            const roomName = document.createElement('span');
-            roomName.textContent = room.name;
-            roomName.style.color = 'white';
-            roomElement.appendChild(roomName);
+                if (response.ok && data.user_count < 2) {
+                    const roomElement = document.createElement('div');
+                    roomElement.className = 'room-item';
+                    roomElement.style.display = 'flex';
+                    roomElement.style.justifyContent = 'space-between';
+                    roomElement.style.alignItems = 'center';
     
-
-            if (room.is_admin) {
-                const deleteButton = document.createElement('button');
-                deleteButton.type = 'button';
-                deleteButton.className = 'btn-close btn-close-white';
-                deleteButton.setAttribute('aria-label', 'Close');
-                deleteButton.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    this.deleteRoom(room.name);
-                });
-                roomElement.appendChild(deleteButton);
+                    const roomName = document.createElement('span');
+                    roomName.textContent = room.name;
+                    roomName.style.color = 'white';
+                    roomElement.appendChild(roomName);
+    
+                    if (room.is_admin) {
+                        const deleteButton = document.createElement('button');
+                        deleteButton.type = 'button';
+                        deleteButton.className = 'btn-close btn-close-white';
+                        deleteButton.setAttribute('aria-label', 'Close');
+                        deleteButton.addEventListener('click', (event) => {
+                            event.stopPropagation();
+                            this.deleteRoom(room.name);
+                        });
+                        roomElement.appendChild(deleteButton);
+                    }
+    
+                    roomElement.addEventListener('click', () => {
+                        this.joinRoom(room.name);
+                    });
+    
+                    roomListDiv.appendChild(roomElement);
+                }
+            } catch (error) {
+                console.error('Error fetching user count:', error);
             }
+        }
+    },
     
-            roomElement.addEventListener('click', () => {
-                this.joinRoom(room.name);
-            });
-    
-            roomListDiv.appendChild(roomElement);
-        });
-    },      
 
     updateUserList: function(users, roomName) {
         const usersListDiv = document.getElementById('roomUsersList');

@@ -18,10 +18,14 @@ const game = {
     playerRole: null,
     ctx: null,
     ballPosX: 0,
+    previousBallPosX: 0,
     ballPosY: 0,
+    previousBallPosY: 0,
     ballRadius: 10,
     ballSpeedX: 5,
+    previousSpeedX: 5,
     ballSpeedY: 5,
+    previousSpeedY: 5,
     paddleSpeed: 15,
     paddleHeight: 100,
     paddleWidth: 10,
@@ -287,24 +291,39 @@ const game = {
     },
 
     pause: function() {
+        this.isPlaying = false;
+        console.log('PAUSE GAME');
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
             auth.updateUserGameStatus('false');
-            this.isPlaying = false;
             this.resetVars();
             this.stopControlAndDisconnect();
+            console.log({'ball stats': {'speed': this.ballSpeed, 'speedX': this.ballSpeedX, 'sppedY': this.ballSpeedY, 'posX': this.ballPosX, 'posY': this.ballPosY}} );
         }
     },
     
     resume: function() {
+        this.isPlaying = true;
+        console.log('RESUME GAME');
+        this.resetVars();
+        if (this.gameMode === 'singlePlayer')
+        {
+            console.log('single player');
+            this.processAIActions = true;
+            this.controlRightPaddleWithAI();
+        }
+        else
+        {
+            this.stopControlAndDisconnect();
+        }
         if (!this.animationFrameId) {
-            this.resetVars();
+            
             this.drawPong();
-            this.isPlaying = true;
             auth.updateUserGameStatus('true');
             if (this.gameMode === 'singlePlayer')
             {
+                console.log('single player');
                 this.processAIActions = true;
                 this.controlRightPaddleWithAI();
             }
@@ -312,6 +331,7 @@ const game = {
             {
                 this.stopControlAndDisconnect();
             }
+            console.log({'ball stats': {'speed': this.ballSpeed, 'speedX': this.ballSpeedX, 'sppedY': this.ballSpeedY, 'posX': this.ballPosX, 'posY': this.ballPosY}} );
         }
     },
     
@@ -427,6 +447,7 @@ const game = {
     },
 
     drawPong: function() {
+        this.checkAndCorrectCheating();
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (!this.bonusTouched) {
             this.ball_color = 'white';
@@ -650,5 +671,52 @@ const game = {
 				that.attemptBonusGeneration();
 			}, 10000);
 		}
-	},	
+	},
+
+    thresholds: {
+        maxPosChange: 20,
+        maxSpeedChange: 40
+    },
+
+    checkAndCorrectCheating: function() {
+        if (this.playerRole === 'right')
+            return;
+        if (this.previousBallPosX === 0 || this.previousBallPosY === 0)
+        {
+            this.previousBallPosX = this.ballPosX;
+            this.previousBallPosY = this.ballPosY;
+            this.previousSpeedX = this.ballSpeedX;
+            this.previousSpeedY = this.ballSpeedY;
+            return;
+        }
+        if (Math.abs(this.ballPosX - this.previousBallPosX) > this.thresholds.maxPosChange) {
+            if (this.ballPosX !== this.canvas.width / 2){
+                this.ballPosX = this.previousBallPosX;
+            }
+        }
+        if (Math.abs(this.ballSpeedX - this.previousSpeedX) > this.thresholds.maxSpeedChange) {
+            if (this.ballSpeedX !== this.settings.ballSpeed / 2)
+            {
+                this.ballSpeedX = this.previousSpeedX;
+            }
+        }
+    
+        if (Math.abs(this.ballPosY - this.previousBallPosY) > this.thresholds.maxPosChange) {
+            if (this.ballPosY !== this.canvas.height / 2){
+                this.ballPosY = this.previousBallPosY;
+            }
+        }
+        if (Math.abs(this.ballSpeedY - this.previousSpeedY) > this.thresholds.maxSpeedChange) {
+            if (this.ballSpeedY !== this.settings.ballSpeed / 2)
+            {
+                this.ballSpeedY = this.previousSpeedY;
+            }
+        }
+    
+        this.previousBallPosX = this.ballPosX;
+        this.previousBallPosY = this.ballPosY;
+        this.previousSpeedX = this.ballSpeedX;
+        this.previousSpeedY = this.ballSpeedY;
+    },
+        
 };
