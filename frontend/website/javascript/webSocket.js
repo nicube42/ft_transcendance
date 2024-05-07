@@ -31,6 +31,7 @@ const websocket = {
 
     requestAIAction: function() {
         if (this.aiSocket.readyState === WebSocket.OPEN) {
+            console.log('send info to ia');
             const message = JSON.stringify({
                 ball_pos_x: game.ballPosX,
                 ball_pos_y: game.ballPosY,
