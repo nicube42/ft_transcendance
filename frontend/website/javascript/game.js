@@ -292,23 +292,38 @@ const game = {
 
     pause: function() {
         this.isPlaying = false;
+        console.log('PAUSE GAME');
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
             auth.updateUserGameStatus('false');
             this.resetVars();
             this.stopControlAndDisconnect();
+            console.log({'ball stats': {'speed': this.ballSpeed, 'speedX': this.ballSpeedX, 'sppedY': this.ballSpeedY, 'posX': this.ballPosX, 'posY': this.ballPosY}} );
         }
     },
     
     resume: function() {
         this.isPlaying = true;
+        console.log('RESUME GAME');
+        this.resetVars();
+        if (this.gameMode === 'singlePlayer')
+        {
+            console.log('single player');
+            this.processAIActions = true;
+            this.controlRightPaddleWithAI();
+        }
+        else
+        {
+            this.stopControlAndDisconnect();
+        }
         if (!this.animationFrameId) {
-            this.resetVars();
+            
             this.drawPong();
             auth.updateUserGameStatus('true');
             if (this.gameMode === 'singlePlayer')
             {
+                console.log('single player');
                 this.processAIActions = true;
                 this.controlRightPaddleWithAI();
             }
@@ -316,6 +331,7 @@ const game = {
             {
                 this.stopControlAndDisconnect();
             }
+            console.log({'ball stats': {'speed': this.ballSpeed, 'speedX': this.ballSpeedX, 'sppedY': this.ballSpeedY, 'posX': this.ballPosX, 'posY': this.ballPosY}} );
         }
     },
     
