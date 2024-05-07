@@ -34,7 +34,7 @@
 
                     <div class="nav-item dropdown account-dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img id="profilePicNav" src="/media/pictures/default.jpg" alt="Profile Nav" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;"/>
+                            <img id="profilePicNav" src="" alt="Profile Nav" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;"/>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="#" id="navRegister" style="color: #000000;">Register</a></li>
@@ -80,7 +80,8 @@
             </div>
             <div id="score" class="text-center">
                 <h4 id="scoreLabel">Score</h4>
-                <p id="winning_score">Winning Score: 5</p>
+                <p id="winning_score"> 5</p>
+                <!-- <p class="h4" id="winning_scoreLabel">>Winning Score: <span id="winning_score">5</span></p> -->
                 <p id="player1_name">Player 1: 0</p>
                 <p id="player2_name">Player 2: 0</p>
             </div>
@@ -136,10 +137,10 @@
                 <div class="col-md-6">
                     <h3 id="playerDetailsHeader">Player Details</h3>
                     <div id="playerDetails" class="list-group">
-                        <p class="list-group-item" id="gamesPlayedLabel">Games Played: <span id="gamesPlayed"></span></p>
-                        <p class="list-group-item" id="totalWinsLabel">Total Wins: <span id="totalWins"></span></p>
-                        <p class="list-group-item" id="totalLossesLabel">Total Losses: <span id="totalLosses"></span></p>
-                        <p class="list-group-item" id="totalScoreLabel">Total Score: <span id="totalScore"></span></p>
+                        <p class="list-group-item"> <span id="gamesPlayedLabel">Games Played: </span><span id="gamesPlayed"></span></p>
+                        <p class="list-group-item"> <span id="totalWinsLabel">Total Wins: </span><span id="totalWins"></span></p>
+                        <p class="list-group-item"> <span id="totalLossesLabel">Total Losses: </span><span id="totalLosses"></span></p>
+                        <p class="list-group-item"> <span id="totalScoreLabel">Total Score: </span><span id="totalScore"></span></p>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -297,8 +298,8 @@
                             <p class="h4">VS</p>
                             <p class="h4" id="endGameUsername2">Player 2: <span id="player2_endgame">0</span></p>
                             <p class="h4">Winner: <span id="winner_endgame"></span></p>
-                            <p id="gameDuration">Duration: </p>
-                            <p id="totalBalls">Total balls served: </p>
+                            <p class="h4" id="gameDurationLabel">>Duration: <span id="gameDuration">0</span></p>
+                            <p class="h4" id="gameBallsLabel">Total balls served: <span id="id="totalBalls">>0</span></p> <p 
                         </div>
                         <div class="card-footer text-muted text-center">
                             <button id="playAgain" type="button" class="btn btn-outline-success fs-2 btn-sm btn-play-again">Play Again</button>
@@ -332,7 +333,7 @@
                     <div class="text-center mt-4">
                         <form id="invitePlayerForm" class="d-flex justify-content-center align-items-center">
                             <div class="mb-3">
-                                <label for="usernameInput" class="form-label">Invite players</label>
+                                <label for="usernameInput" class="form-label" id="invitePlayersLabel">Invite players</label>
                                 <input type="text" class="form-control" id="usernameInput" name="username" placeholder="Enter username">
                                 <button type="button" id="inviteRoomBtn" style="height: 80px; width: 60;" class="btn btn-outline-success fs-2 btn-sm">Invite a player</button>
                             </div>
