@@ -176,6 +176,7 @@ const stats = {
                             alert('There was an error checking your room status. Please try again.');
                         });
                 }
+                game.gameMode = 'multiplayer';
             }).catch(error => {
             });
         }, 1000);
@@ -353,6 +354,7 @@ const stats = {
                             alert('There was an error checking your room status. Please try again.');
                         });
                 }
+                game.gameMode = 'multiplayer';
             }).catch(error => {
             });
         }, 1000);

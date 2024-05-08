@@ -29,9 +29,9 @@ const ui =
             gameSocket.init();
         }
 
-        if (game.isPlaying && sectionId !== 'play' && game.gameMode === 'distant'){
-            gameSocket.surrenderGame(gameSocket.currentRoom);
-        }
+        // if (game.isPlaying && sectionId !== 'play' && game.gameMode === 'distant'){
+        //     gameSocket.surrenderGame(gameSocket.currentRoom);
+        // }
         if (sectionId === 'homepage') {
             auth.updateUserTournamentStatus('false');
         }
@@ -71,7 +71,9 @@ const ui =
             }
             if (this.actionHandlers[target.id]) {
                 e.preventDefault();
-                this.actionHandlers[target.id].call(this, e).catch();
+                if (!this.isSectionVisible('play')){
+                    this.actionHandlers[target.id].call(this, e).catch();
+                }
             }
         });
     },

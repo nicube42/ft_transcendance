@@ -349,7 +349,7 @@ var gameSocket = {
             };
             this.socket.send(JSON.stringify(message));
         } else {
-            setTimeout(() => this.sendBallState(), 1000);
+            setTimeout(() => this.sendBallState(), 10);
         }
     },   
     sendPaddlePos: function(role, leftPaddleY, rightPaddleY) {

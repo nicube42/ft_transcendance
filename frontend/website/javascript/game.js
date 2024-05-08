@@ -79,7 +79,8 @@ const game = {
         if (this.canvas.getContext) {
             this.ctx = this.canvas.getContext('2d');
             this.resetVars();
-            this.drawPong();
+            this.animationFrameId = requestAnimationFrame(this.drawPong.bind(this));
+            game.isPlaying = true;
             window.removeEventListener('keydown', this.handleKeyDown.bind(this));
             window.removeEventListener('keyup', this.handleKeyUp.bind(this));
             window.addEventListener('keydown', this.handleKeyDown.bind(this));
@@ -137,6 +138,79 @@ const game = {
     },
     
 
+    // resetVars: function() {
+    //     console.log('RESET VARS');
+    //     this.ballSpeedX = this.settings.ballSpeed / 2;
+    //     this.ballSpeedY = this.settings.ballSpeed / 2;
+    //     this.paddleSpeed = this.settings.paddleSpeed;
+    //     this.winningScore = this.settings.winningScore;
+    //     this.ballSpeedMax = this.ballSpeedX * 1.4;
+    //     this.ballPosX = this.canvas.width / 2;
+    //     this.ballPosY = this.canvas.height / 2;
+    //     this.leftPaddleY = (this.canvas.height - this.paddleHeight) / 2;
+    //     this.rightPaddleY = (this.canvas.height - this.paddleHeight) / 2;
+    //     this.player1Score = 0;
+    //     this.player2Score = 0;
+    //     this.scoreMessage = '';
+    //     this.messageDisplayCounter = 0;
+    //     this.ball_color = 'white';
+    //     this.bonusTouched = false;
+    //     this.leftPaddleMovingUp = false;
+    //     this.leftPaddleMovingDown = false;
+    //     this.rightPaddleMovingUp = false;
+    //     this.rightPaddleMovingDown = false;
+    //     this.paddleMoving = false;
+    //     this.predictedPos = null;
+    //     this.update_ai = true;
+    //     this.processAIActions = false;
+    //     this.frame = 0;
+    //     this.aiPaddleDirection = 1;
+    
+    //     // Reset bonuses
+    //     this.bonusGreen = {
+    //         x: 100,
+    //         y: 100,
+    //         baseRadius: 10,
+    //         radius: 10,
+    //         color: 'green',
+    //         active: false
+    //     };
+    
+    //     this.bonusRed = {
+    //         x: 200,
+    //         y: 200,
+    //         baseRadius: 10,
+    //         radius: 10,
+    //         color: 'red',
+    //         active: false
+    //     };
+    
+    //     if (this.aiActionInterval) {
+    //         clearInterval(this.aiActionInterval);
+    //         this.aiActionInterval = null;
+    //     }
+    
+    //     if (this.aiPaddleMovementInterval) {
+    //         clearInterval(this.aiPaddleMovementInterval);
+    //         this.aiPaddleMovementInterval = null;
+    //     }
+    
+    //     if (this.nextBonusTimeout) {
+    //         clearTimeout(this.nextBonusTimeout);
+    //         this.nextBonusTimeout = null;
+    //     }
+    
+    //     if (this.gameMode === 'distant') {
+    //         this.fetchPlayerNames();
+    //     } else {
+    //         auth.retrieveInfos().then(userInfo => {
+    //             if (!userInfo) return;
+    //             this.player1_name = userInfo.username;
+    //         });
+    //         this.player2_name = "opponent";
+    //     }
+    // },
+    
     resetVars: function() {
         this.ballSpeedX = this.settings.ballSpeed / 2;
         this.ballSpeedY = this.settings.ballSpeed / 2;
@@ -168,6 +242,8 @@ const game = {
         this.rightPaddleMovingDown = false;
         this.paddleMoving = false;
         this.restart_ai = true;
+        this.isPlaying = false;
+        this.animationFrameId = null;
     },
 
     handleKeyDown: function (e) {
@@ -294,7 +370,10 @@ const game = {
         this.isPlaying = false;
         console.log('PAUSE GAME');
         if (this.animationFrameId) {
-            cancelAnimationFrame(this.animationFrameId);
+            if (this.isPlaying) {
+                cancelAnimationFrame(this.animationFrameId);
+                this.isPlaying = false;
+            }
             this.animationFrameId = null;
             auth.updateUserGameStatus('false');
             this.resetVars();
@@ -306,7 +385,6 @@ const game = {
     resume: function() {
         this.isPlaying = true;
         console.log('RESUME GAME');
-        this.resetVars();
         if (this.gameMode === 'singlePlayer')
         {
             console.log('single player');
@@ -317,9 +395,12 @@ const game = {
         {
             this.stopControlAndDisconnect();
         }
-        if (!this.animationFrameId) {
-            
-            this.drawPong();
+        if (!this.animationFrameId) {            
+            this.resetVars();
+            if (!this.isPlaying) {
+                this.isPlaying = true;
+                this.animationFrameId = requestAnimationFrame(this.drawPong.bind(this));
+            }
             auth.updateUserGameStatus('true');
             if (this.gameMode === 'singlePlayer')
             {
@@ -407,11 +488,14 @@ const game = {
             tmpX = this.ballPosX + this.ballSpeedX * delta;
             tmpY = obstacle;
             this.ballSpeedY *= -1;
+            console.log('this.ballSpeedY', this.ballSpeedY, 'delta', delta);
         }
         this.ballPosX = tmpX + this.ballSpeedX * (1 - delta);
         this.ballPosY = tmpY + this.ballSpeedY * (1 - delta);
-
-
+        if (this.gameMode === 'distant' && this.ballPosX < this.canvas.width - 10 && this.ballPosX > 10 && game.playerRole === 'left')
+        {
+            gameSocket.sendBallState();
+        }
     },
 
     checkColisions: function () {
@@ -422,18 +506,25 @@ const game = {
         let deltaFrame = Infinity;
 
         if (nextFrameBallX - this.ballRadius < this.paddleWidth && nextFrameBallY > this.leftPaddleY && nextFrameBallY < this.leftPaddleY + this.paddleHeight){
+            console.log('LEFT PADDLE');
             deltaFrame = Math.abs((this.paddleWidth - (this.ballPosX - this.ballRadius))/this.ballSpeedX);
             this.updateBallPos(deltaFrame, this.paddleWidth + this.ballRadius, true, this.leftPaddleY + this.paddleHeight / 2);
         }
         else if (nextFrameBallX + this.ballRadius > this.canvas.width - this.paddleWidth && nextFrameBallY > this.rightPaddleY && nextFrameBallY < this.rightPaddleY + this.paddleHeight){
+            console.log('RIGHT PADDLE');
             deltaFrame = Math.abs((this.canvas.width - this.paddleWidth - (this.ballPosX + this.ballRadius)) / this.ballSpeedX);
             this.updateBallPos(deltaFrame, this.canvas.width - this.paddleWidth - this.ballRadius, true,this.rightPaddleY + this.paddleHeight / 2);
         }
         else if (nextFrameBallY - this.ballRadius < 0){
+            console.log('UP WALL');
+            console.log('nextFrameBallY', nextFrameBallY, 'this.ballRadius', this.ballRadius, 'this.canvas.height', this.canvas.height);
             deltaFrame = Math.abs((0 - (this.ballPosY - this.ballRadius)) / this.ballSpeedY);
+            console.log('this.ballPosY', this.ballPosY, 'this.ballSpeedY', this.ballSpeedY, 'deltaFrame', deltaFrame);
             this.updateBallPos(deltaFrame, this.ballRadius, false, null);
         }
         else if (nextFrameBallY + this.ballRadius > this.canvas.height){
+            console.log('DOWN WALL');
+            console.log(this.leftPaddleY);
             deltaFrame = Math.abs((this.canvas.height - (this.ballPosY + this.ballRadius)) / this.ballSpeedY);
             this.updateBallPos(deltaFrame, this.canvas.height - this.ballRadius, false, null);
         }
@@ -446,8 +537,24 @@ const game = {
 		}
     },
 
-    drawPong: function() {
+    drawPong: function(timestamp) {
+        if (this.animationFrameId === null)
+        {
+            console.log('ANIMATION FRAME ID NULL');
+            this.ballPosX = this.canvas.width / 2;
+            this.ballPosY = this.canvas.height / 2;
+            console.log('this.ballPosX', this.ballPosX, 'this.ballPosY', this.ballPosY, 'canvas.width', this.canvas.width, 'canvas.height', this.canvas.height);
+            if (this.gameMode === 'distant' && game.playerRole === 'left')
+            {
+                gameSocket.sendBallState();
+            }
+        }
         this.checkAndCorrectCheating();
+        if (!this.lastRender) {
+            this.lastRender = timestamp;
+        }
+        const delta = timestamp - this.lastRender;
+    
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (!this.bonusTouched) {
             this.ball_color = 'white';
@@ -465,13 +572,13 @@ const game = {
                 gameSocket.sendPaddlePos(this.playerRole, this.leftPaddleY, this.rightPaddleY);
             }
             if (game.mode !== 'distant' || game.playerRole === 'left') {
-                this.checkColisions();
-
+                
             }
-            if (this.gameMode === 'distant' && this.ballPosX < this.canvas.width - 10 && this.ballPosX > 10)
-            {
-                gameSocket.sendBallState();
-            }
+            this.checkColisions();
+            // if (this.gameMode === 'distant' && this.ballPosX < this.canvas.width - 10 && this.ballPosX > 10)
+            // {
+            //     gameSocket.sendBallState();
+            // }
     
             if (this.ballPosX <= 0 || this.ballPosX >= this.canvas.width) {
                 if (this.ballPosX <= 0) {
@@ -530,17 +637,96 @@ const game = {
         document.getElementById('player2_name').textContent = this.player2_name + `: ${this.player2Score}`;
         document.getElementById('winning_score').textContent = `${this.winningScore}`;
     
-        this.frame++;
-        if (this.frame >= Number.MAX_SAFE_INTEGER) {
-            this.frame = 0;
-        }
-        this.ballDirectionChanged = false;
+        // this.frame++;
+        // if (this.frame >= Number.MAX_SAFE_INTEGER) {
+        //     this.frame = 0;
+        // }
+        // this.ballDirectionChanged = false;
     
-        var self = this;
-        setTimeout(function() {
-            self.animationFrameId = requestAnimationFrame(self.drawPong.bind(self));
-        }, 1000 / 60);
+        // var self = this;
+        // setTimeout(function() {
+        //     self.animationFrameId = requestAnimationFrame(self.drawPong.bind(self));
+        // }, 1000 / 60);
+
+        this.lastRender = timestamp;
+        // if (this.isPlaying) {
+            this.animationFrameId = requestAnimationFrame(this.drawPong.bind(this));
+        // }
     },    
+
+    // drawPong: function(timestamp) {
+    //     if (!this.lastRender) {
+    //         this.lastRender = timestamp;
+    //     }
+    //     const delta = timestamp - this.lastRender;
+    
+    //     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    //     if (this.player1Score >= this.winningScore || this.player2Score >= this.winningScore) {
+    //         stats.recordEndTime();
+    //         stats.displayEndGameStats();
+    //         this.resetVars();
+    //         return;
+    //     }
+    
+    //     this.movePaddles();
+    //     this.checkBonusCollision();
+    //     if (game.gameMode !== 'distant' || game.playerRole === 'left'){
+    //         this.checkColisions();
+    //         if (game.gameMode === 'distant'){
+    //             gameSocket.sendBallState();
+    //         }   
+    //     }
+    //     this.drawBall();
+    
+    //     if (this.withBonus) {
+    //         this.attemptBonusGeneration();
+    //         if (this.bonusGreen.active) {
+    //             this.drawBonus(this.bonusGreen);
+    //         }
+    //         if (this.bonusRed.active) {
+    //             this.drawBonus(this.bonusRed);
+    //         }
+    //     }
+    
+    //     this.ctx.fillStyle = 'white';
+    //     this.ctx.fillRect(0, this.leftPaddleY, this.paddleWidth, this.paddleHeight);
+    //     this.ctx.fillRect(this.canvas.width - this.paddleWidth, this.rightPaddleY, this.paddleWidth, this.paddleHeight);
+    
+    //     if (this.messageDisplayCounter > 0) {
+    //         this.ctx.font = '30px Arial';
+    //         this.ctx.fillStyle = 'white';
+    //         this.ctx.textAlign = 'center';
+    //         this.ctx.fillText(this.scoreMessage, this.canvas.width / 2, this.canvas.height / 2);
+    //         this.messageDisplayCounter--;
+    //     } else {
+    //         if (this.ballPosX <= 0 || this.ballPosX >= this.canvas.width) {
+    //             const scorer = this.ballPosX <= 0 ? 'player2' : 'player1';
+    //             this.updateScore(scorer);
+    //         }
+    //     }
+    
+    //     document.getElementById('player1_name').textContent = this.player1_name + `: ${this.player1Score}`;
+    //     document.getElementById('player2_name').textContent = this.player2_name + `: ${this.player2Score}`;
+    //     document.getElementById('winning_score').textContent = `${this.winningScore}`;
+    
+    //     this.lastRender = timestamp;
+    //     // if (this.isPlaying) {
+    //         this.animationFrameId = requestAnimationFrame(this.drawPong.bind(this));
+    //     // }
+    // },
+    
+    // updateScore: function(scorer) {
+    //     if (scorer === 'player1') {
+    //         this.player1Score++;
+    //         this.scoreMessage = this.player1_name + ' Scored!';
+    //     } else {
+    //         this.player2Score++;
+    //         this.scoreMessage = this.player2_name + ' Scored!';
+    //     }
+    //     this.resetBall(scorer === 'player1' ? 'left' : 'right');
+    //     this.messageDisplayCounter = 180;
+    // },    
 
     drawBall: function() {
         this.ctx.fillStyle = this.ball_color;
