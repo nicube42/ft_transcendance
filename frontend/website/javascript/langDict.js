@@ -1,14 +1,16 @@
 var langDict = {
     'en': {
+        'userlogheader' : 'User Profile',
+        'loginbutton':'Login',
+        'picturelabel' :'Profile Picture',
         'navbardropdownlanguage' : 'Language',
-        'winning_scorelabel' : 'Winning :',
         'endgameusername2' : 'Opponent',
-        'gamedurationlabel' : '>Duration',
+        'gamedurationlabel' : 'Duration',
         'totalballslabel' : 'Total balls served : ',
         'playagain' : 'Play again',
-        'returnhome' : 'Return to home',
-        'createroombtn' : 'Create Room',
-
+        'returnhome' : 'Return to home', 
+        'createroombtn' : 'Create Room', 
+        
         // https://localhost:4242/rooms
         'roomnameheading' : 'Users in : ',
         'inviteroombtn' : 'Invite a player',
@@ -24,11 +26,12 @@ var langDict = {
         'logout': 'Logout',
         'register': 'Register',
         'friends': 'Friends',
+        'friendsheader': 'Friends',
         'navTournament': 'Tournament',
         'navStatistics': 'Statistics',
         'login_initial': 'Login',
-        'titleProfile': 'Enrgistement',
-
+        'titleProfile': 'Enrgistement',   
+        
         //teste login container
         'joinRoomBtn': 'Join room',
         'homepacreateRoomBtnge': 'Create room',
@@ -36,13 +39,13 @@ var langDict = {
         'roomsheader': 'Rooms',
         'roomList': 'Rooms list',
         'cancelRegister': 'test6',
-
+        
         'titlehomepage': 'Pong',
         'player1_name': 'Player 1',
-        'player2_name': 'Player 2',
+        'player1_name': 'Player 2',
         'usernameLabel': 'Username',
         'cancelregister': 'Cancel',
-        'winning_score': 'Winning score',
+        'winning_scorelabel': 'Winning score: ',
 
 
         //tournois
@@ -50,12 +53,17 @@ var langDict = {
 
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Login',
+        'register': 'Register',
         'password': 'Password',
 
         // https://localhost:4242/register top
         'registersubmitbutton': 'Login',
+        'registersubmit': 'Login',
         'cancelregisterbutton': 'Cancel',
+        'registerheader' : 'Login',
         'registerusernamelabel': 'Username',
+        'usernameprofilenochangelabel' : 'Username: ',
+        'fullnameprofilenochangelabel' : 'Full Name: ',
         'fullnamelabel': 'Full Name',
         'registerpasswordlabel': 'Password',
         'biolabel': 'Bio',
@@ -70,7 +78,7 @@ var langDict = {
         'settings': 'Settings',
 
         // https://localhost:4242/playerStats
-        'player statistics': 'Player Statistics',
+        'playerstatisticsheader': 'Player Statistics',
         'last games results': 'Last Games Results',
         'player vs player': 'Player vs Player',
         'score': 'Score',
@@ -85,6 +93,7 @@ var langDict = {
         'playerdetails': 'Player Details',
         'gameslist': 'Last Games Results',
         'winratechart': 'Chart of Winrate Over Time',
+        'editprofilebutton' : 'Edit profil',
 
 
         // https://localhost:4242/settings
@@ -109,7 +118,7 @@ var langDict = {
         //https://localhost:4242/tournament
         'tournamentsetupheader': 'Tournament Setup',
         'matchtreeheader': 'Match Tree',
-        'inviteplayertournamentbtn':'invite',
+        'inviteplayertournamentbtn':'invite', 
         'tournamenttreeplaceholder': 'Tournament matches will be displayed here once setup is complete.',
         'inviteusername': 'Enter Username to',
         'nextstagebtn': 'Next',
@@ -117,7 +126,7 @@ var langDict = {
         'numplayerslabel' : 'Number of players',
         'inviteplayersheader' : 'Invite players',
         'starttournamentbtn' : 'start tournament',
-        'participantcount': 'Participants : ',
+        'participantcountlabel': 'Participants: ',
 
         'tournamentheader': 'Tournament',
         'profile': 'Profile',
@@ -137,6 +146,8 @@ var langDict = {
         "lastgamesresultsheader": "List of last games results: ",
         "winratechartheader": "Win rate chart",
 
+        'registerheader': 'login',
+        'passwordlabel': 'passeword',
         'cancelloginbutton': 'Cancel',
         'loginheader': 'Login',
 
@@ -144,25 +155,27 @@ var langDict = {
     },
 
     'fr': {
+        'userlogheader' : 'Profil de l\'utilisateur',
+        'picturelabel' :'Photo profil',
         'navbardropdownlanguage' : 'Langue',
-        "winning_scorelabel": "Score gagnant :",
+        "winning_scorelabel": "Score gagnant: ",
         "endgameusername2": "Adversaire",
         "gamedurationlabel": "Durée",
         "totalballslabel": "Total des balles servies :",
         "playagain": "Jouer à nouveau",
         "returnhome": "Retourner à l'accueil",
         'inviteplayerslabel' : 'inviter un joueur',
-
+        
         //https://localhost:4242/rooms
         "roomnameheading": "Utilisateurs dans :",
         "inviteroombtn": "Inviter un joueur",
         "usernameinput": "Inviter des joueurs",
         "quitroombtn": "Quitter la salle",
         "playdistantbtn": "jouer",
-        'createroombtn' : 'Cree une salle',
+        'createroombtn' : 'Cree une salle', 
 
 
-
+        
 
         //navbar
         'navbardropdown' : 'Compte',
@@ -172,6 +185,7 @@ var langDict = {
         'logout': 'Déconnexion',
         'register': 'Inscription', //a double virer si conflit
         'friends': 'Amis',
+        'friendsheader': 'Ami',
         'navTournament': 'Tournois',
         'navStatistics': 'Statistique',
         'login_initial': 'Connexion',
@@ -188,17 +202,21 @@ var langDict = {
         'player1_name': 'Joueur 1',
         'player2_name': 'Joueur 2',
         'cancelregister': 'Retour',
-        'winning_score': 'Score gagnant',
 
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Connexion',
+        'register': 'Inscription',
         'password': 'Mot de passe', //a double virer si conflit
 
 
 
         // https://localhost:4242/register
         'registersubmitbutton': 'S\'enregistrer',
+        'registersubmit': 'S\'enregistrer',
         'cancelregisterbutton': 'retour',
+        'registerheader': 'Inscription', //a double virer si conflit
+        'usernameprofilenochangelabel' : 'Nom d’utilisateur: ',
+        'fullnameprofilenochangelabel' : 'Nom complet: ',
         'registerusernamelabel': 'Nom d’utilisateur',
         'registerpasswordlabel': 'Mot de passe',
         'fullnamelabel': 'Nom complet',
@@ -215,7 +233,7 @@ var langDict = {
         'settings': 'Paramètres',
 
         // https://localhost:4242/playerStats
-        'player statistics': 'Statistiques du joueur',
+        'playerstatisticsheader': 'Statistiques du joueur',
         'last games results': 'Résultats des derniers jeux',
         'player vs player': 'Joueur contre Joueur',
         'score': 'Score',
@@ -231,6 +249,7 @@ var langDict = {
         'playerdetails': 'Détails du joueur',
         'gameslist': 'Résultats des derniers jeux',
         'winratechart': 'Graphique des taux de victoire dans le temps',
+        'editprofilebutton' : 'Editer le profil',
 
 
 
@@ -262,9 +281,9 @@ var langDict = {
         'nextstagebtn': 'suivant',
         'previous_tournament' : 'Precedent',
         'numplayerslabel' : 'Nombres de joueurs',
-        'inviteplayertournamentbtn':'Inviter',
+        'inviteplayertournamentbtn':'Inviter', 
         'inviteplayersheader' : 'Inviter joueurs',
-        'participantcount': 'Participants : ',
+        'participantcountlabel': 'Participants: ',
         'starttournamentbtn' : 'Commencer tournois',
         'tournamentheader': 'Tournoi',
         'profile': 'Profil',
@@ -276,7 +295,7 @@ var langDict = {
 
 
         //https://localhost:4242/loginContainer top
-        'loginForm':'S\'enregistre',
+        'loginbutton':'S\'enregistre',
         'canceloginbutton': 'Sortir',
         'registerheader': 'S\'enregistrer',
         'passwordlabel': 'Mot de passe',
@@ -297,8 +316,9 @@ var langDict = {
     },
 
     'es': {
+        'userlogheader' : 'Profilas dos l\'utilisado',
+        'picturelabel' :'Fotos profilas',
         'navbardropdownlanguage' : 'Lengua',
-        "winning_scorelabel": "Puntuación ganadora:",
         "endgameusername2": "Oponente",
         "gamedurationlabel": "Duración",
         "totalballslabel": "Total de bolas servidas:",
@@ -310,11 +330,11 @@ var langDict = {
         "inviteroombtn": "Invitar a un jugador",
         "inviteplayerslabel": "Invitar jugadores",
         "usernameinput": "Invitar a un jugador",
-        'createroombtn' : 'Creatado sallas',
-
+        'createroombtn' : 'Creatado sallas', 
+        
         "quitroombtn": "Salir de la sala",
         "playdistantbtn": "jugar",
-
+   
         //navbar
         'navbardropdown' : 'accountos',
         'home': 'Inicio',
@@ -323,6 +343,7 @@ var langDict = {
         'logout': 'Cerrar sesion',
         'register': 'Registrarse',
         'friends': 'Amigos',
+        'friendsheader': 'Amigos',
         'navTournament': 'Torneo',
         'navStatistics': 'Estadísticas',
         'titleProfile': 'Loginos',
@@ -337,27 +358,33 @@ var langDict = {
 
         'titlehomepage': 'Pong',
         'player1_name': 'Playcito 1',
-        'player2_name': 'Playcito 2',
+        'player1_name': 'Playcito 2',
         'usernameLabel': 'Utilisado',
         'cancelregister': 'Cancelado',
-        'winning_score': 'Scorado gagnacito',
+        'winning_scorelabel': 'Scorado gagnacito: ',
 
 
         'login_initial': 'Iniciar sesio35n',
-
+        'register_initial': 'Registrarse',
+    
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         'login': 'Iniciar sesion',
+        'register': 'Registrarse',
         'password': 'Contraseña',
-
+    
         // https://localhost:4242/register
-        'registersubmitbutton': 'Loginada',
+        'registersubmitbutton': 'Loginada', 
+        'registersubmit': 'Loginada', 
         'cancelregisterbutton': 'Annulada',
         'registerusernamelabel' : 'usernamado',
+        'usernameprofilenochangelabel' : 'Nomados Usuario: ',
+        'fullnameprofilenochangelabel' : 'Nombre completo: ',
+        'registerheader' : 'loginada',
         'registerusernameabel': 'Nomados Usuario',
         'registerpasswordlabel': 'Contraseña',
         'fullnamelabel': 'Nombre completo',
         'biolabel': 'Biografía',
-
+        
         // https://localhost:4242/homepage
         'single player': 'Un jugador',
         'local multiplayer': 'Multijugador local',
@@ -365,7 +392,7 @@ var langDict = {
         'tournament': 'Torneo',
         'statistics': 'Estadísticas',
         'settings': 'Configuraciones',
-
+        
         // https://localhost:4242/playerStats
         'player statistics': 'Estadísticas del jugador',
         'last games results': 'Resultados de los ultimos juegos',
@@ -379,30 +406,31 @@ var langDict = {
         'total losses': 'Total de derrotas',
         'total score': 'Puntuacion total',
         'chart of winrate over time': 'Gráfico de tasa de victorias a lo largo del tiempo',
-
+    
         //https://localhost:4242/setting
         'settingsheader': 'Paramotros',
         'player1': 'Unos',
         'player2': 'Duos',
+        "player1label": "Jugador 1",
         "player2label": "Jugador 2",
         "ballspeedlabel": "Velocidad del balón",
         "paddlespeedlabel": "Velocidad de la paleta",
         "winningscorelabel": "Puntuación para ganar",
         "savesettings": "Guardar",
         "previoussettings": "Anterior",
-
-
+      
+    
         //https://localhost:4242/multiplayer
         'users connected to the room': 'Usuarios conectados a la sala',
         'room name': 'Nombre de la sala',
         'invite a player': 'Invitar a un jugador',
         'enter username': 'Ingresar nombre de usuario',
         'rooms': 'Salas',
-
+    
         //https://localhost:4242/tournament
         'tournamentsetupheader': 'Configuración del torneo',
         'starttournamentbtn' : 'arbol de partidos',
-        'inviteplayertournamentbtn':'Invitas',
+        'inviteplayertournamentbtn':'Invitas', 
         'matchtreeheader': 'Tablosito partitas',
         'match tree': 'Árbol de partidos',
         'tournamenttreeplaceholder': 'Los partidos del torneo se mostrarán aquí una vez completada la configuración.',
@@ -411,7 +439,7 @@ var langDict = {
         'nextstagebtn': 'Nextados',
         'previous_tournament' : 'Casendos',
         'numplayerslabel' : 'Nombros dos participados',
-        'participantcount': 'Participados : ',
+        'participantcountlabel': 'Participados: ',
         'tournamentheader': 'Torneo',
         'profile': 'Perfil',
         'set': 'Configuraciones',
@@ -423,7 +451,8 @@ var langDict = {
         'registerheader': 'Enregistrada',
         'passwordlabel': 'Passewordado',
         'id_password': 'Passewordado',
-
+        'editprofilebutton' : 'Edito profilias',
+        
         'playerdetails': 'Detalles del jugador',
         'gameslist': 'Resultados de los últimos juegos',
         'winratechart': 'Gráfico de tasa de victorias a lo largo del tiempo',
@@ -432,7 +461,7 @@ var langDict = {
         "totalwinslabel": "Victorias totales: ",
         "totallosseslabel": "Derrotas totales: ",
         "totalscorelabel": "Puntuación total: ",
-        "playerdetailsheader": "Detalles del jugado: r",
+        "playerdetailsheader": "Detalles del jugado: ",
         "lastgamesresultsheader": "Lista de los últimos resultados de juegos: ",
         "winratechartheader": "Gráfico de tasa de victorias",
         

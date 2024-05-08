@@ -100,7 +100,7 @@ button:hover {
     font-family: 'VeniteAdoremus', sans-serif;
 }
 
-#participantCount {
+#participantCount #participantCountLabel{
     font-size: 15px;
     color: #ffffff;
     font-family: 'VeniteAdoremus', sans-serif;
@@ -275,7 +275,6 @@ input[type='password'] {
 input[type='range'] {
     overflow: hidden;
     width: 80%;
-    -webkit-appearance: none;
     background-color: transparent;
 }
 

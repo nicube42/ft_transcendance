@@ -32,8 +32,8 @@ var friendsPage = {
                 });
                 document.getElementById('friends').classList.add('d-none');
                 document.getElementById('profilePageNoChange').classList.remove('d-none');
-                document.getElementById('usernameProfileNoChange').textContent = `Username: ${data.username}`;
-                document.getElementById('fullnameProfileNoChange').textContent = `Full Name: ${data.fullname}`;
+                document.getElementById('usernameProfileNoChange').textContent = `${data.username}`;
+                document.getElementById('fullnameProfileNoChange').textContent = `${data.fullname}`;
                 if (data.profile_pic_url) {
                     document.getElementById('profilePicNoChange').src = data.profile_pic_url;
                 }

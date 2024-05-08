@@ -525,7 +525,7 @@ const game = {
     
         document.getElementById('player1_name').textContent = this.player1_name + `: ${this.player1Score}`;
         document.getElementById('player2_name').textContent = this.player2_name + `: ${this.player2Score}`;
-        document.getElementById('winning_score').textContent = "Winning score" + `: ${this.winningScore}`;
+        document.getElementById('winning_score').textContent = `${this.winningScore}`;
     
         this.frame++;
         if (this.frame >= Number.MAX_SAFE_INTEGER) {

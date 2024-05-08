@@ -19,11 +19,12 @@ function updateTexts() {
         'player1Label', 'player2Label', 'ballSpeedLabel', 'paddleSpeedLabel', 'winningScoreLabel', 'totalWinsLabel',
         'previousSettings', 'saveSettings', 'tournamentTreePlaceholder', 'tournamentSetupHeader', 'inviteUsername',
         'invitePlayersHeader', 'startTournamentBtn', 'invitePlayerTournamentBtn', 'matchTreeHeader', 'tournamentHeader', 
-        'participantCount', 'numPlayersLabel', 'previous_tournament', 'nextStageBtn','winning_scoreLabel', 'endGameUsername2',
+        'numPlayersLabel', 'previous_tournament', 'nextStageBtn','winning_scoreLabel', 'endGameUsername2',
         'returnHome', 'playAgain', 'totalBallsLabel', 'gameDurationLabel', 'createRoomBtn', 'roomsHeader', 'roomNameHeading',
          'inviteRoomBtn', 'usernameInput', 'quitRoomBtn', 'playDistantBtn', 'invitePlayersLabel', 'settingsHeader',
-         'navbarDropdownLanguage',
-    ];
+         'navbarDropdownLanguage', 'Profile Picture', 'registerSubmit', 'pictureLabel', 'friendsHeader', 'playerStatisticsHeader',
+         'editProfileButton', 'usernameProfileNoChangeLabel', 'fullnameProfileNoChangeLabel', 'userLogHeader', 'participantCountLabel',
+,    ];
 
     elementIds.forEach(id => {
         const element = document.getElementById(id);
