@@ -24,6 +24,7 @@ function updateTexts() {
          'inviteRoomBtn', 'usernameInput', 'quitRoomBtn', 'playDistantBtn', 'invitePlayersLabel', 'settingsHeader',
          'navbarDropdownLanguage', 'Profile Picture', 'registerSubmit', 'pictureLabel', 'friendsHeader', 'playerStatisticsHeader',
          'editProfileButton', 'usernameProfileNoChangeLabel', 'fullnameProfileNoChangeLabel', 'userLogHeader', 'participantCountLabel',
+        'refreshFriendsBtn', 'genericErrorModalLabel', 'genericSuccessModalLabel', 'genericErrorModalClose', 'genericSuccessModalClose',
 ,    ];
 
     elementIds.forEach(id => {

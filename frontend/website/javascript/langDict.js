@@ -1,5 +1,10 @@
 var langDict = {
     'en': {
+        'genericerrormodallabel': 'Error',
+        'genericsuccessmodallabel': 'Success',
+        'genericerrormodalclose': 'Close',
+        'genericsuccessmodalclose': 'Close',
+        'refreshfriendsbtn': 'Refresh Friends List',
         'userlogheader' : 'User Profile',
         'loginbutton':'Login',
         'picturelabel' :'Profile Picture',
@@ -155,6 +160,11 @@ var langDict = {
     },
 
     'fr': {
+        'genericerrormodallabel': 'Erreur',
+        'genericsuccessmodallabel': 'Succes',
+        'genericerrormodalclose': 'Fermer',
+        'genericsuccessmodalclose': 'Fermer',
+        'refreshfriendsbtn': 'Rafraîchir la liste d\'amis',
         'userlogheader' : 'Profil de l\'utilisateur',
         'picturelabel' :'Photo profil',
         'navbardropdownlanguage' : 'Langue',
@@ -316,6 +326,11 @@ var langDict = {
     },
 
     'es': {
+        'genericerrormodallabel': 'Exito',
+        'genericsuccessmodallabel': 'Exito',
+        'genericerrormodalclose': 'Cerrar',
+        'genericsuccessmodalclose': 'Cerrar',
+        'refreshfriendsbtn': 'Actualizar lista de amigos',
         'userlogheader' : 'Profilas dos l\'utilisado',
         'picturelabel' :'Fotos profilas',
         'navbardropdownlanguage' : 'Lengua',

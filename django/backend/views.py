@@ -226,7 +226,9 @@ def api_login(request):
                 return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
             if len(password) < 4 or len(password) > 20:
                 return JsonResponse({'error': 'Password must be between 4 and 20 characters'}, status=400)
-
+            #check if the user is already logged in another device
+            if LoggedInUser.objects.filter(user__username=username).exists():
+                return JsonResponse({'error':  username + ' is already logged in another device'}, status=400)
             user = authenticate(request, username=username, password=password)
             if user is None:
                 return JsonResponse({'error': 'Incorrect username or password. Please try again.'}, status=400)
@@ -507,6 +509,9 @@ def get_user_profile(request, username):
     try:
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'User not authenticated'}, status=401)
+        #check if username is friend with request.user
+        if not request.user.friends.filter(username=username).exists() and request.user.username != username:
+            return JsonResponse({'error': 'User is not your friend'}, status=403)
         user = CustomUser.objects.get(username=username)
         if not user:
             return JsonResponse({'error': 'User not found'}, status=404)
@@ -577,6 +582,9 @@ def win_rate_over_time_all(request, username):
 def player_stats_all(request, username):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'User not authenticated'}, status=401)
+    #check if the user is friend with the request.user or if the user is the request.user
+    if not request.user.friends.filter(username=username).exists() and request.user.username != username:
+        return JsonResponse({'error': 'User is not your friend'}, status=403)
     user = CustomUser.objects.get(username=username)
     if not user:
         return JsonResponse({'error': 'User not found'}, status=404)

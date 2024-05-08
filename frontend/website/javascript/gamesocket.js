@@ -211,7 +211,7 @@ var gameSocket = {
                     this.currentRoom = roomName;
                     this.updateUI();
                 } else if (data.status === 'User is in a room') {
-                    alert(`You are already in a room: ${data.rooms.join(', ')}. Please leave the current room before joining another.`);
+                    ui.showGenericErrorModal(`You are already in a room: ${data.rooms.join(', ')}. Please leave the current room before joining another.`);
                 } else {
                     return fetch(`/api/room/${roomName}/user-count/`)
                         .then(response => response.json())
@@ -221,13 +221,13 @@ var gameSocket = {
                                 this.currentRoom = roomName;
                                 this.updateUI();
                             } else {
-                                alert(`The room '${roomName}' is already full.`);
+                                ui.showGenericErrorModal(`The room '${roomName}' is already full.`);
                             }
                         });
                 }
             })
             .catch(error => {
-                alert('There was an error checking your room status. Please try again.');
+                ui.showGenericErrorModal('There was an error checking your room status. Please try again.');
             });
     },
     
@@ -452,7 +452,7 @@ var gameSocket = {
     createTournament: function() {
         const numPlayers = parseInt(document.getElementById('numplayers').value, 10);
         if (isNaN(numPlayers) || numPlayers % 2 !== 0) {
-            alert('Number of players must be an even number.');
+            ui.showGenericErrorModal('Number of players must be an even number.');
             return;
         }
     
@@ -465,13 +465,13 @@ var gameSocket = {
     invitePlayers: function() {
         const username = document.getElementById('usernameInput').value.trim();
         if (username === '') {
-            alert('Please enter a username to invite.');
+            ui.showGenericErrorModal('Please enter a username to invite.');
             return;
         }
         auth.retrieveInfos().then(userInfo => {
             const user = userInfo.username;
             if (username === user) {
-                alert('You cannot add yourself to the tournament.');
+                ui.showGenericErrorModal('You cannot add yourself to the tournament.');
                 return;
             }
             else

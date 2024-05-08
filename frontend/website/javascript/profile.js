@@ -27,7 +27,7 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
         }
 
         if (userData.exists) {
-            auth.registerErrorModal('Username already exists, choose a different one.');
+            ui.showGenericErrorModal('Username already exists, choose a different one.');
             return;
         }
         if (username !== '')
@@ -50,16 +50,16 @@ document.getElementById('profilePicForm').addEventListener('submit', async funct
         }
 
         if(updateData.message) {
-            auth.registerErrorModal('Profile picture updated successfully.');
+            ui.showGenericSuccessModal('Profile picture updated successfully.');
             document.getElementById('usernameProfile').textContent = username;
             const newPicURL = URL.createObjectURL(document.querySelector('#profile_pic').files[0]);
             document.getElementById('profilePic').src = newPicURL;
         } else {
-            alert('Error updating profile picture: ' + JSON.stringify(updateData.error));
+            ui.showGenericErrorModal(JSON.stringify(updateData.error));
         }
 
     } catch (error) {
-        auth.registerErrorModal(error);
+        ui.showGenericErrorModal(error);
     }
 });
 
@@ -120,7 +120,7 @@ const userInfoDisplayer = {
             this.updateProfilePicUI(data.profile_pic_url);
         })
         .catch(error => {
-            auth.registerErrorModal(error);
+            ui.showGenericErrorModal(error);
         });
     },
 

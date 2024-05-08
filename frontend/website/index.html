@@ -193,6 +193,7 @@
                 <input type="text" class="form-control" style="height:60px;" placeholder="Search for new friends" id="searchFriendsInput">
                 <button class="btn btn-outline-success" style="height:60px; width:80px;" type="button" id="searchFriendsBtn">Add</button>
             </div>
+            <button class="btn btn-outline-success" style="height:60px;" type="button" id="refreshFriendsBtn">Refresh Friends List</button>
             <div id="friendsList" class="list-group">
                 <!-- Dynamically populated list of friends will go here -->
             </div>
@@ -369,9 +370,43 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="registerErrorModalLabel">Error</h5>
+          <h5 class="modal-title" id="registerErrorModalLabel">Register Error</h5>
         </div>
         <div class="modal-body" id="registerErrorBody">
+            Please try again.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-success fs-2" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+      <!-- Generic Error Modal -->
+<div class="modal fade" id="genericErrorModal" tabindex="-1" aria-labelledby="genericErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="genericErrorModalLabel">Error</h5>
+        </div>
+        <div class="modal-body" id="genericErrorBody">
+            Please try again.
+        </div>
+        <div class="modal-footer">
+          <button id="genericErrorModalClose" type="button" class="btn btn-outline-success fs-2" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Generic Success Modal -->
+<div class="modal fade" id="genericSuccessModal" tabindex="-1" aria-labelledby="genericSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="genericSuccessModalLabel">Success</h5>
+        </div>
+        <div class="modal-body" id="genericSuccessBody">
             Please try again.
         </div>
         <div class="modal-footer">

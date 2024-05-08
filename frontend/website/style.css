@@ -168,6 +168,39 @@ button:hover {
     color: black;
 }
 
+#genericErrorModal .modal-content {
+    background-color: black;
+    border: 2px solid #198754;
+    color: white;
+}
+
+#genericErrorModal .btn-outline-success {
+    border-color: #198754;
+    color: #198754;
+}
+
+#genericErrorModal .btn-outline-success:hover {
+    background-color: #299a65;
+    color: black;
+}
+
+#genericSuccessModal .modal-content {
+    background-color: black;
+    border: 2px solid #198754;
+    color: white;
+}
+
+#genericSuccessModal .btn-outline-success {
+    border-color: #198754;
+    color: #198754;
+}
+
+#genericSuccessModal .btn-outline-success:hover {
+    background-color: #299a65;
+    color: black;
+}
+
+
 #invitePopupModal .modal-content {
     background-color: #27aa6a;
     color: black;

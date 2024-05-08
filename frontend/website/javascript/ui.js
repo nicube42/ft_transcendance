@@ -106,7 +106,7 @@ const ui =
                     if (countData.user_count === 2) {
                         gameSocket.sendGameStart();
                     } else {
-                        alert(`The room is not full.`);
+                        ui.showGenericErrorModal(`The room is not full.`);
                     }
                 });
         },
@@ -302,5 +302,19 @@ const ui =
         }).catch((error) => {
             this.showOnlyOneSection('firstPage', true);
         });
+    },
+
+    showGenericErrorModal: function(error) {
+        var modal = new bootstrap.Modal(document.getElementById('genericErrorModal'));
+        var modalBody = document.getElementById('genericErrorBody');
+        modalBody.innerHTML = error;
+        modal.show();
+    },
+
+    showGenericSuccessModal: function(error) {
+        var modal = new bootstrap.Modal(document.getElementById('genericErrorModal'));
+        var modalBody = document.getElementById('genericErrorBody');
+        modalBody.innerHTML = error;
+        modal.show();
     },
 };

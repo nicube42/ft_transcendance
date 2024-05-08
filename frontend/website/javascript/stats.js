@@ -173,7 +173,7 @@ const stats = {
                             }
                         })
                         .catch(error => {
-                            alert('There was an error checking your room status. Please try again.');
+                            ui.showGenericErrorModal('There was an error checking your room status. Please try again.');
                         });
                 }
                 game.gameMode = 'multiplayer';
@@ -351,7 +351,7 @@ const stats = {
                             }
                         })
                         .catch(error => {
-                            alert('There was an error checking your room status. Please try again.');
+                            ui.showGenericErrorModal('There was an error checking your room status. Please try again.');
                         });
                 }
                 game.gameMode = 'multiplayer';
