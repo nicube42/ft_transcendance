@@ -56,8 +56,10 @@ const auth = {
                         location.reload();
                     })
                     .catch(error => {
+                        console.error('Error:', error);
                     });
             }, (error) => {
+                console.error('Error2:', error);
             });
         })
         .catch(error => {
@@ -70,6 +72,7 @@ const auth = {
         let attempts = 0;
         
         const checkAuth = () => {
+            if (!sessionStorage.getItem('isLoggedIn')){return;}
             fetch('/api/check_auth_status/', {
                 method: 'GET',
                 credentials: 'include'
@@ -240,20 +243,26 @@ const auth = {
     },
 
     retrieveInfos: function() {
-        return fetch('/api/user-info/', {
-            method: 'GET',
-            credentials: 'include'
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(response.error);
+        return new Promise((resolve, reject) => {
+            if (!sessionStorage.getItem('isLoggedIn')) {
+                resolve();
+                return;
             }
-            return response.json();
-        })
-        .then(data => {
-            return data;
-        })
-        .catch(error => {
+            fetch('/api/user-info/', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.error);
+                }
+                return response.json();
+            })
+            .then(data => {
+                resolve(data);
+            })
+            .catch(error => {
+            });
         });
     },
     
@@ -307,6 +316,7 @@ const auth = {
         }
     },
     updateUserGameStatus: function(isInGame) {
+        if (!sessionStorage.getItem('isLoggedIn')){return;}
         fetch('/api/update_game_status/', {
             method: 'POST',
             headers: {

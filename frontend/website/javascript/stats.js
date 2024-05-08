@@ -83,17 +83,21 @@ const stats = {
                                 };
                             }
                         }
-                        fetch('/api/game_record/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': getCookie('csrftoken')
-                            },
-                            body: JSON.stringify(postData)
-                        })
-                        .then(response => response.json())
-                        .then(data => {})
-                        .catch(error => {});
+                        if (postData.player1 && postData.pl && postData.start_time && postData.end_time) {
+                            fetch('/api/game_record/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                },
+                                body: JSON.stringify(postData)
+                            })
+                            .then(response => response.json())
+                            .then(data => {})
+                            .catch(error => {});
+                        }
+                        else
+                            return;
                     } else {
                     }
                 });
@@ -104,6 +108,7 @@ const stats = {
                 const playAgainButton = document.getElementById('playAgain');
         
                 if (isInTournament) {
+                    game.isPlaying = false;
                     auth.retrieveInfos().then(userInfo => {
                         if (game.playerRole === 'right')
                         {
@@ -198,110 +203,138 @@ const stats = {
             document.getElementById('winner_endgame').textContent = (winner === 1) ? userInfo.username : "opponent";
         }
         return (0);
-    },    
-    
+    },
+
     displayEndGameStatsSurrender: function(player1Score, player2Score) {
         const duration = this.calculateGameDuration();
         const totalBalls = this.totalBallsServed;
-        const winner = player1Score > player2Score ? game.settings.player1Name : game.settings.player2Name;
-        var username = '';
+        if (player1Score > player2Score) {
+            winner = 1;
+        }
+        else {
+            winner = 2;
+        }
         document.getElementById('gameDuration').textContent = `Duration: ${duration.toFixed(2)} seconds`;
         document.getElementById('totalBalls').textContent = `Total balls served: ${totalBalls}`;
         ret = this.fetchGameResultDetails(game, winner);
         if (ret === 1)
             return;
-        if (this.endTime === null) {
-            this.recordEndTime();
-        }
-        auth.retrieveInfos().then(userInfo => {
-            username = userInfo.username;
-            var opponent;
-            auth.get_opponent_name().then(opponentName => {
-                opponent = opponentName.other_player;
-                if (userInfo && userInfo.username) {
+        setTimeout(() => {
+            if (this.endTime === null) {
+                this.recordEndTime();
+            }
+            auth.retrieveInfos().then(userInfo => {
+                username = userInfo.username;
+                var opponent;
+                auth.get_opponent_name().then(opponentName => {
+                    opponent = opponentName.other_player;
+                    if (userInfo && userInfo.username) {
                         var postData = {
                             player1: userInfo.username,
-                            player2: opponent,
+                            player2: "opponent",
                             player1_score: player1Score,
                             player2_score: player2Score,
                             start_time: stats.startTime.toISOString(),
                             end_time: stats.endTime.toISOString()
                         };
-                    if (game.gameMode === 'distant')
-                    {
+                        if (game.gameMode === 'distant')
+                        {
+                            if (game.playerRole === 'right')
+                            {
+                                postData = {
+                                    player1: userInfo.username,
+                                    player2: opponent,
+                                    player1_score: player2Score,
+                                    player2_score: player1Score,
+                                    start_time: stats.startTime.toISOString(),
+                                    end_time: stats.endTime.toISOString()
+                                };
+                            }
+                            else{
+                                postData = {
+                                    player1: userInfo.username,
+                                    player2: opponent,
+                                    player1_score: player1Score,
+                                    player2_score: player2Score,
+                                    start_time: stats.startTime.toISOString(),
+                                    end_time: stats.endTime.toISOString()
+                                };
+                            }
+                        }
+                        if (postData.player1 && postData.player2 && postData.start_time && postData.end_time) {
+                            fetch('/api/game_record/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                },
+                                body: JSON.stringify(postData)
+                            })
+                            .then(response => response.json())
+                            .then(data => {})
+                            .catch(error => {});
+                        }
+                        else
+                            return;
+                    } else {
+                    }
+                });
+            }).catch(error => {
+            });
+            tournament.checkUserInTournament().then(isInTournament => {
+                const returnHomeButton = document.getElementById('returnHome');
+                const playAgainButton = document.getElementById('playAgain');
+        
+                if (isInTournament) {
+                    auth.retrieveInfos().then(userInfo => {
                         if (game.playerRole === 'right')
                         {
-                            postData = {
-                                player1: userInfo.username,
-                                player2: opponent,
-                                player1_score: player2Score,
-                                player2_score: player1Score,
-                                start_time: stats.startTime.toISOString(),
-                                end_time: stats.endTime.toISOString()
-                            };
+                            if (player1Score > player2Score)
+                            {
+                                tournament.deleteUserFromTournament(userInfo.username);
+                                auth.updateUserTournamentStatus('false');
+                                ui.showOnlyOneSection('homepage');
+                                gameSocket.leaveRoom(gameSocket.currentRoom);
+                                gameSocket.deleteRoom(gameSocket.currentRoom);
+                                return;
+                            }
                         }
-                    }
-                    fetch('/api/game_record/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken')
-                        },
-                        body: JSON.stringify(postData)
-                    })
-                    .then(response => response.json())
-                    .catch(error => {});
+                        else
+                        {
+                            if (player1Score < player2Score)
+                            {
+                                tournament.deleteUserFromTournament(userInfo.username);
+                                auth.updateUserTournamentStatus('false');
+                                ui.showOnlyOneSection('homepage');
+                                gameSocket.leaveRoom(gameSocket.currentRoom);
+                                gameSocket.deleteRoom(gameSocket.currentRoom);
+                                return;
+                            }
+                        }
+                        gameSocket.leaveRoom(gameSocket.currentRoom);
+                        gameSocket.deleteRoom(gameSocket.currentRoom);
+                        tournament.currentRound += 1;
+                        localStorage.setItem('currentRound', this.currentRound);
+                        tournament.navigateToTournamentStage();
+                        setTimeout(() => {
+                            tournament.generateMatchTree();
+                        },2000);
+                    });
                 } else {
-                }
-            });
-        }).catch(error => {
-        });
-        tournament.checkUserInTournament().then(isInTournament => {
-            const returnHomeButton = document.getElementById('returnHome');
-            const playAgainButton = document.getElementById('playAgain');
-    
-            if (isInTournament) {
-                if (game.playerRole === 'right')
-                {
-                    if (player1Score > player2Score)
-                    {
-                        tournament.deleteUserFromTournament(username);
-                        auth.updateUserTournamentStatus('false');
-                        ui.showOnlyOneSection('homepage');
-                        return;
+                    if (game.gameMode !== 'distant') {
+                        document.getElementById('playAgain').classList.remove('d-none');
+                        playAgainButton.textContent = 'Play Again';
+                        playAgainButton.onclick = this.playAgain;
                     }
-                }
-                else
-                {
-                    if (player1Score < player2Score)
+                    else
                     {
-                        tournament.deleteUserFromTournament(username);
-                        auth.updateUserTournamentStatus('false');
-                        ui.showOnlyOneSection('homepage');
-                        return;
+                        document.getElementById('playAgain').classList.add('d-none');
                     }
+        
+                    returnHomeButton.textContent = 'Return to Home';
+                    returnHomeButton.onclick = this.returnToHome;
+                    ui.showOnlyOneSection('endgameStats');
                 }
-                tournament.currentRound += 1;
-                localStorage.setItem('currentRound', this.currentRound);
-                tournament.navigateToTournamentStage();
-                setTimeout(() => {
-                    tournament.generateMatchTree();
-                },2000);
-            } else {
-                if (game.gameMode !== 'distant') {
-                    document.getElementById('playAgain').classList.remove('d-none');
-                    playAgainButton.textContent = 'Play Again';
-                    playAgainButton.onclick = this.playAgain;
-                }
-                else
-                {
-                    document.getElementById('playAgain').classList.add('d-none');
-                }
-    
-                returnHomeButton.textContent = 'Return to Home';
-                returnHomeButton.onclick = this.returnToHome;
-                ui.showOnlyOneSection('endgameStats');
-            }
                 if (game.gameMode === 'distant') {
                     fetch('/api/check-if-user-in-any-room/')
                         .then(response => {
@@ -320,8 +353,9 @@ const stats = {
                             alert('There was an error checking your room status. Please try again.');
                         });
                 }
-        }).catch(error => {
-        });
+            }).catch(error => {
+            });
+        }, 1000);
     },
         
     returnToHome: function() {

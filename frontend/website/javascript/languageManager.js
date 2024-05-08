@@ -16,6 +16,13 @@ function updateTexts() {
         'gamesTotalScoreTitle', 'registerUsernameLabel', 'registerPasswordLabel', 'bioLabel', 'fullnameLabel',
         'navbarDropdown', 'registerSubmitButton', 'cancelRegisterButton', 'gamesPlayedLabel', 'gamesPlayedLabel', 
         'totalLossesLabel', 'totalScoreLabel', 'playerDetailsHeader', 'lastGamesResultsHeader', 'winRateChartHeader',
+        'player1Label', 'player2Label', 'ballSpeedLabel', 'paddleSpeedLabel', 'winningScoreLabel', 'totalWinsLabel',
+        'previousSettings', 'saveSettings', 'tournamentTreePlaceholder', 'tournamentSetupHeader', 'inviteUsername',
+        'invitePlayersHeader', 'startTournamentBtn', 'invitePlayerTournamentBtn', 'matchTreeHeader', 'tournamentHeader', 
+        'participantCount', 'numPlayersLabel', 'previous_tournament', 'nextStageBtn','winning_scoreLabel', 'endGameUsername2',
+        'returnHome', 'playAgain', 'totalBallsLabel', 'gameDurationLabel', 'createRoomBtn', 'roomsHeader', 'roomNameHeading',
+         'inviteRoomBtn', 'usernameInput', 'quitRoomBtn', 'playDistantBtn', 'invitePlayersLabel', 'settingsHeader',
+         'navbarDropdownLanguage',
     ];
 
     elementIds.forEach(id => {

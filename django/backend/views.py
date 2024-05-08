@@ -137,7 +137,7 @@ def register(request):
                 normalized_filename = strip_accents(file.name)
                 safe_filename = get_valid_filename(normalized_filename)
                 file_name = default_storage.save(safe_filename, ContentFile(file.read()))
-                user.profile_pic_url = request.build_absolute_uri("https://c3r5s2:4242/media/pictures/" + file_name)
+                user.profile_pic_url = request.build_absolute_uri("https://c3r4s4:4242/media/pictures/" + file_name)
 
             user.save()
             return JsonResponse({'message': 'User created successfully'}, status=201)
@@ -446,10 +446,6 @@ def check_user(request):
         return JsonResponse({'error': 'User not authenticated'}, status=401)
     data = json.loads(request.body)
     username = data.get('username')
-    if not username:
-        return JsonResponse({'error': 'Username is required'}, status=400)
-    if len(username) < 4 or len(username) > 20:
-        return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
     exists = get_user_model().objects.filter(username=username).exists()
     return JsonResponse({'exists': exists})
 
@@ -749,3 +745,4 @@ def list_other_players_in_room(request):
     other_username = other_usernames[0] if other_usernames else None
 
     return JsonResponse({'room': room.name, 'other_player': other_username}, status=200)
+
