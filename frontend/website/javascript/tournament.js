@@ -245,6 +245,9 @@ const tournament = {
 
     checkIfEndOfTournament: function() {
         auth.retrieveInfos().then(userInfo => {
+            if (!userInfo) {
+                return;
+            }
             const username = userInfo.username;
             if (this.maxPlayers === 1 && this.participants[0] === username) {
                 auth.retrieveInfos().then(userInfo => {
