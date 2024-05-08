@@ -316,7 +316,7 @@ var gameSocket = {
     
         const roomNameHeading = document.getElementById('roomNameHeading');
         if (roomNameHeading) {
-            roomNameHeading.textContent = `Users in ${roomName}:`;
+            roomNameHeading.textContent = `${roomName}:`;
         } else {
         }
     },

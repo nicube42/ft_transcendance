@@ -1,6 +1,7 @@
 var currentLang = 'en';
 function changeLanguage(lang) {
     currentLang = lang;
+    document.getElementsByTagName('html')[0].setAttribute('lang', lang);
     updateTexts();
 }
 
@@ -20,10 +21,12 @@ function updateTexts() {
         'previousSettings', 'saveSettings', 'tournamentTreePlaceholder', 'tournamentSetupHeader', 'inviteUsername',
         'invitePlayersHeader', 'startTournamentBtn', 'invitePlayerTournamentBtn', 'matchTreeHeader', 'tournamentHeader', 
         'numPlayersLabel', 'previous_tournament', 'nextStageBtn','winning_scoreLabel', 'endGameUsername2',
-        'returnHome', 'playAgain', 'totalBallsLabel', 'gameDurationLabel', 'createRoomBtn', 'roomsHeader', 'roomNameHeading',
+        'returnHome', 'playAgain', 'totalBallsLabel', 'gameDurationLabel', 'createRoomBtn', 'roomsHeader',
          'inviteRoomBtn', 'usernameInput', 'quitRoomBtn', 'playDistantBtn', 'invitePlayersLabel', 'settingsHeader',
          'navbarDropdownLanguage', 'Profile Picture', 'registerSubmit', 'pictureLabel', 'friendsHeader', 'playerStatisticsHeader',
          'editProfileButton', 'usernameProfileNoChangeLabel', 'fullnameProfileNoChangeLabel', 'userLogHeader', 'participantCountLabel',
+        'gameOverTitle', 'winner_endgameLabel', 'gameBallsLabel','finalScoreLabel' , 'roomUsersConnected',
+
 ,    ];
 
     elementIds.forEach(id => {

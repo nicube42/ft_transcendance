@@ -36,8 +36,8 @@ const stats = {
         else {
             winner = 2;
         }
-        document.getElementById('gameDuration').textContent = `Duration: ${duration.toFixed(2)} seconds`;
-        document.getElementById('totalBalls').textContent = `Total balls served: ${totalBalls}`;
+        document.getElementById('gameDuration').textContent = `${duration.toFixed(2)} seconds`;
+        document.getElementById('totalBalls').textContent = `${totalBalls}`;
         ret = this.fetchGameResultDetails(game, winner);
         if (ret === 1)
             return;
@@ -214,8 +214,8 @@ const stats = {
         else {
             winner = 2;
         }
-        document.getElementById('gameDuration').textContent = `Duration: ${duration.toFixed(2)} seconds`;
-        document.getElementById('totalBalls').textContent = `Total balls served: ${totalBalls}`;
+        document.getElementById('gameDuration').textContent = `${duration.toFixed(2)} seconds`;
+        document.getElementById('totalBalls').textContent = `${totalBalls}`;
         ret = this.fetchGameResultDetails(game, winner);
         if (ret === 1)
             return;
