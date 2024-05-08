@@ -71,6 +71,7 @@ var friendsPage = {
     },
 
     fetchRecentGames: function(username) {
+        console.log(username);
         if (!sessionStorage.getItem('isLoggedIn')){return;}
         fetch(`/api/recent_games/${username}/`)
         .then(response => {
@@ -80,12 +81,43 @@ var friendsPage = {
             return response.json();
         })
         .then(data => {
+            console.log(data);
             const gamesList = document.getElementById('gamesList');
             gamesList.innerHTML = '';
             data.forEach(game => {
-                let listItem = document.createElement('li');
-                listItem.className = 'list-group-item';
-                listItem.textContent = `${game.player1} vs ${game.player2} - Score: ${game.player1_score}-${game.player2_score}, Duration: ${game.duration}, Start: ${game.start_time}`;
+                // let listItem = document.createElement('li');
+                // listItem.className = 'list-group-item';
+                // listItem.textContent = `${game.player1} vs ${game.player2} - Score: ${game.player1_score}-${game.player2_score}, Duration: ${game.duration}, Start: ${game.start_time}`;
+                // gamesList.appendChild(listItem);
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item game-item';
+    
+                let gameInfoDiv = document.createElement('div');
+                gameInfoDiv.classList.add('game-info'); 
+    
+                let players = document.createElement('p');
+                players.className = 'game-players';
+                players.textContent = `${game.player1} vs ${game.player2}`;
+                gameInfoDiv.appendChild(players);
+    
+                let score = document.createElement('p');
+                score.className = 'game-score';
+                score.textContent = `Score: ${game.player1_score}-${game.player2_score}`;
+                gameInfoDiv.appendChild(score);
+    
+                let duration = document.createElement('p');
+                duration.className = 'game-duration';
+                duration.textContent = `Duration: ${game.duration.toFixed(2)} seconds`;
+                gameInfoDiv.appendChild(duration);
+    
+
+                let created = document.createElement('p');
+                created.className = 'game-created';
+                created.textContent = `Created: ${game.created_at}`;
+                gameInfoDiv.appendChild(created);
+    
+
+                listItem.appendChild(gameInfoDiv);
                 gamesList.appendChild(listItem);
             });
         })

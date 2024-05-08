@@ -528,7 +528,7 @@ def recent_games_all(request, username):
         user = CustomUser.objects.get(username=username)
         if not user:
             return JsonResponse({'error': 'User not found'}, status=404)
-        games = Game.objects.filter(Q(player1=user) | Q(player2=user.username)).order_by('-start_time')[:5]
+        games = Game.objects.filter(player1=user).order_by('-start_time')[:5]
         games_data = [{
             'player1': game.player1.username,
             'player2': game.player2,
