@@ -30,7 +30,7 @@ const tournament = {
         this.currentParticipants = currentParticipants;
         this.maxPlayers = maxPlayers;
         this.participants = Array.isArray(participants) ? participants : [participants];
-        document.getElementById('participantCount').textContent = `Participants: ${currentParticipants}/${maxPlayers}`;
+        document.getElementById('participantCount').textContent = `${currentParticipants}/${maxPlayers}`;
         localStorage.setItem('currentParticipants', currentParticipants);
         localStorage.setItem('participants', JSON.stringify(this.participants));
         localStorage.setItem('maxPlayers', maxPlayers);

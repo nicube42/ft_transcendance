@@ -80,10 +80,9 @@
             </div>
             <div id="score" class="text-center">
                 <h4 id="scoreLabel">Score</h4>
-                <p id="winning_score"> 5</p>
-                <!-- <p class="h4" id="winning_scoreLabel">>Winning Score: <span id="winning_score">5</span></p> -->
                 <p id="player1_name">Player 1: 0</p>
                 <p id="player2_name">Player 2: 0</p>
+                <p class="h4"></p> <span id="winning_scoreLabel">Winning Score: </span><span id="winning_score">5</span></p>
             </div>
         </div>
 
@@ -101,7 +100,7 @@
 
         <div id="tournamentStage" class="container mt-5 d-none">
             <h2 id="tournamentSetupHeader" class="text-center mb-4">Tournament Setup</h2>
-            <p id="participantCount" class="text-center">Participants: 0/0</p>
+            <p class="text-center"> <span id="participantCountLabel">Participants: </span><span id="participantCount">0/0</span></p>
             <div class="row">
                 <div class="col-md-6">
                     <h3 id="invitePlayersHeader">Invite Players</h3>
@@ -271,13 +270,13 @@
         <div id="profilePageNoChange" class="d-none container mt-5">
             <div class="card bg-success">
                 <div class="card-body">
-                    <h1 class="card-title text-center">User Profile</h1>
+                    <h1 class="card-title text-center" id="userLogHeader">User Profile</h1>
                     <div class="text-center mb-4">
                         <img id="profilePicNoChange" src="" alt="Profile Picture" class="img-thumbnail" style="width: 150px; height: 150px;"/>
                     </div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><span id="usernameProfileNoChange"></span></li>
-                        <li class="list-group-item"><span id="fullnameProfileNoChange"></span></li>
+                        <li class="list-group-item"><span id="usernameProfileNoChangeLabel">Username: </span><span id="usernameProfileNoChange"></span></li>
+                        <li class="list-group-item"><span id="fullnameProfileNoChangeLabel">Full Name: </span><span id="fullnameProfileNoChange"></span></li>
                     </ul>
                     <button id="editProfileButton" style="height: 80px; width: 60;" class="btn btn-success fs-2">Edit Profile</button>
                     
@@ -434,7 +433,7 @@
           </div>
         </div>
       </div>
-  
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <script>
