@@ -53,7 +53,7 @@ const auth = {
                         }
                         ui.showOnlyOneSection('homepage');
                         navbarManager.updateNavbar(true);
-                        location.reload();
+                        // location.reload();
                     })
                     .catch(error => {
                         console.error('Error:', error);

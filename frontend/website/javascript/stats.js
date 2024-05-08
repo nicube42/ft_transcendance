@@ -360,7 +360,7 @@ const stats = {
         
     returnToHome: function() {
         ui.showOnlyOneSection('homepage');
-        location.reload();
+        // location.reload();
     }
 };
 

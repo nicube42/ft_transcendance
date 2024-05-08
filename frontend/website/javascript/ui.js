@@ -5,7 +5,7 @@ window.addEventListener('beforeunload', function(event) {
 });
 
 window.addEventListener('DOMContentLoaded', function() {
-    if (window.location.href === 'https://c3r4s4:4242/profilePageNoChange') {
+    if (window.location.href === 'https://c3r2s4:4242/profilePageNoChange') {
         userInfoDisplayer.betterUI();
     }
 });
@@ -154,7 +154,7 @@ const ui =
             this.showOnlyOneSection('loginContainer');
         },
         async 'navLogin42'() {
-            window.location.href = 'https://c3r4s4:4242/api/authorize/';
+            window.location.href = 'https://c3r2s4:4242/api/authorize/';
         },
         async 'navRegister'() {
             this.showOnlyOneSection('register');
@@ -168,8 +168,9 @@ const ui =
             await auth.logout();
         },
         async 'navFriends'() {
-            this.showOnlyOneSection('friends');
             friendsPage.initialize();
+            this.showOnlyOneSection('friends');
+            // location.reload();
         },
         async 'login_initial'() {
             this.showOnlyOneSection('loginContainer');
@@ -223,7 +224,7 @@ const ui =
         async 'STATISTICS'() {
             this.showOnlyOneSection('playerStats');
             GameStats.init();
-            location.reload();
+            // location.reload();
         },
         async 'lang_en'() 
         {
