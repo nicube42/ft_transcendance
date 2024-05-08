@@ -268,14 +268,10 @@ var gameSocket = {
     
                 if (response.ok && data.user_count < 2) {
                     const roomElement = document.createElement('div');
-                    roomElement.className = 'room-item';
-                    roomElement.style.display = 'flex';
-                    roomElement.style.justifyContent = 'space-between';
-                    roomElement.style.alignItems = 'center';
+                    roomElement.className = 'room-item btn btn-outline-success fs-2 btn-sm';
     
                     const roomName = document.createElement('span');
                     roomName.textContent = room.name;
-                    roomName.style.color = 'white';
                     roomElement.appendChild(roomName);
     
                     if (room.is_admin) {

@@ -83,7 +83,7 @@ const stats = {
                                 };
                             }
                         }
-                        if (postData.player1 && postData.pl && postData.start_time && postData.end_time) {
+                        if (postData.player1 && postData.player2 && postData.start_time && postData.end_time) {
                             fetch('/api/game_record/', {
                                 method: 'POST',
                                 headers: {
