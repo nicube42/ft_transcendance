@@ -53,7 +53,7 @@ const auth = {
                         }
                         ui.showOnlyOneSection('homepage');
                         navbarManager.updateNavbar(true);
-                        location.reload();
+                        // location.reload();
                     })
                     .catch(error => {
                         console.error('Error:', error);
@@ -306,10 +306,10 @@ const auth = {
             }
             const data = await response.json();
             if (data.is_logged_in) {
-                alert(`User ${username} has been invited.`);
+                ui.showGenericSuccessModal(`User ${username} has been invited.`)
                 return username;
             } else {
-                alert(`User ${username} is not logged in.`);
+                ui.showGenericErrorModal(`User ${username} is not logged in.`);
                 return null;
             }
         } catch (error) {
@@ -429,7 +429,7 @@ document.getElementById('inviteRoomBtn').addEventListener('click', function() {
         auth.retrieveInfos().then(userInfo => {
             const user = userInfo.username;
             if (user === username) {
-                alert('You cannot add yourself to the room');
+                ui.showGenericErrorModal('You cannot add yourself to the room');
                 return;
             }
             else
@@ -441,7 +441,7 @@ document.getElementById('inviteRoomBtn').addEventListener('click', function() {
             }
         });
     } else {
-        alert('Please enter a username.');
+        ui.showGenericErrorModal('Please enter a username.');
     }
 });
 

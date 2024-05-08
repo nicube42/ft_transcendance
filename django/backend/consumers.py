@@ -546,7 +546,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def update_ball_state(self, data):
         room_name = data['room_name']
-        logging.info(f"Received data for ball state update: {data}")
 
         ballPosX = data.get('ballPosX')
         ballPosY = data.get('ballPosY')
@@ -554,7 +553,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         ballSpeedY = data.get('ballSpeedY')
 
         if ballPosX is None or ballPosY is None or ballSpeedX is None or ballSpeedY is None:
-            logging.error("Missing one or more required keys in the data for ball state update.")
             return
 
         ball_state = {

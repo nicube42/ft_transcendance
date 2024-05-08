@@ -9,104 +9,118 @@ var gameSocket = {
     in_game: false,
 
     init: function() {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            console.log("Socket is already open.");
+            return;
+        }
+
         const wsScheme = window.location.protocol === "https:" ? "wss://" : "ws://";
         const backendHost = window.location.host;
         this.socket = new WebSocket(`${wsScheme}${backendHost}/ws/game/`);
+        
         this.socket.addEventListener('open', (event) => {
+            console.log("WebSocket connection established.");
             this.listRooms();
         });
+        this.socket.addEventListener('message', this.handleMessage.bind(this));
         this.socket.addEventListener('close', (event) => {
+            console.log("WebSocket connection closed. Attempting to reconnect...");
             setTimeout(() => this.init(), 5000);
         });
+        this.socket.addEventListener('error', (event) => {
+            console.error("WebSocket encountered an error:", event);
+        });
+    },
 
-        this.socket.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
-
-            if (data.action === 'update_ball_state') {
-                if (game.playerRole === 'right') {
-                    game.ballPosX = data.ball_state.ballPosX;
-                    game.ballPosY = data.ball_state.ballPosY;
-                    game.ballSpeedX = data.ball_state.ballSpeedX;
-                    game.ballSpeedY = data.ball_state.ballSpeedY;
-                }
+    handleMessage: function(event) {
+        const data = JSON.parse(event.data);
+        if (data.action === 'update_ball_state') {
+            if (game.playerRole === 'right') {
+                game.ballPosX = data.ball_state.ballPosX;
+                game.ballPosY = data.ball_state.ballPosY;
+                game.ballSpeedX = data.ball_state.ballSpeedX;
+                game.ballSpeedY = data.ball_state.ballSpeedY;
             }
+        }
 
-            if (data.action === 'list_users') {
-                if (data.users.length === 1){
-                    game.playerRole = 'left';
-                }
-                this.updateUserList(data.users, data.room_name);
-            } else if (data.action === 'list_rooms') {
-                this.updateRoomList(data.rooms);
-            } else if (data.action === 'start_game') {
-                this.stopPeriodicUpdates();
-                game.setGameMode('distant');
-                this.currentRoom = data.room_name;
-                ui.showOnlyOneSection('play');
-            } else if (data.action === 'stop_game') {
-                if (gameSocket.currentRoom) {
-                    gameSocket.leaveRoom(gameSocket.currentRoom);
-                    gameSocket.deleteRoom(gameSocket.currentRoom);
-                    gameSocket.currentRoom = null;
-                }
-                ui.showOnlyOneSection('homepage');
-            } else if (data.action === 'paddle_move') {
-                let paddleAdjustment = data.direction === 'up' ? -game.paddleSpeed : game.paddleSpeed;
-                if(data.role === game.playerRole) {
-                } else {
-                    if (game.playerRole === 'left') {
-                        if (data.direction == 'up'){
-                            game.rightPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
-                        }
-                        else {
-                            game.rightPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
-                        }
-                    } else if (game.playerRole === 'right') {
-                        if (data.direction == 'up') {
-                            game.leftPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
-                        }
-                        else {
-                            game.leftPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
-                        }
+        if (data.action === 'list_users') {
+            if (data.users.length === 1){
+                game.playerRole = 'left';
+            }
+            this.updateUserList(data.users, data.room_name);
+        } else if (data.action === 'list_rooms') {
+            this.updateRoomList(data.rooms);
+        } else if (data.action === 'start_game') {
+            this.stopPeriodicUpdates();
+            game.setGameMode('distant');
+            this.currentRoom = data.room_name;
+            ui.showOnlyOneSection('play');
+        } else if (data.action === 'stop_game') {
+            if (gameSocket.currentRoom) {
+                gameSocket.leaveRoom(gameSocket.currentRoom);
+                gameSocket.deleteRoom(gameSocket.currentRoom);
+                gameSocket.currentRoom = null;
+            }
+            ui.showOnlyOneSection('homepage');
+        } else if (data.action === 'paddle_move') {
+            let paddleAdjustment = data.direction === 'up' ? -game.paddleSpeed : game.paddleSpeed;
+            if(data.role === game.playerRole) {
+            } else {
+                if (game.playerRole === 'left') {
+                    if (data.direction == 'up'){
+                        game.rightPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
+                    }
+                    else {
+                        game.rightPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
+                    }
+                } else if (game.playerRole === 'right') {
+                    if (data.direction == 'up') {
+                        game.leftPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
+                    }
+                    else {
+                        game.leftPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
                     }
                 }
-            } else if (data.action === 'update_paddle_pos'){
-                if (game.playerRole !== data.role){
-                    data.role === 'left'? game.leftPaddleY = data.leftPaddle : game.rightPaddleY = data.rightPaddle;
-                }
-            }else if (data.action === 'update_bonus') {
-                if (game.playerRole === 'right') {
-                    game.bonusGreen = data.bonusGreen;
-                    game.bonusRed = data.bonusRed;
-                }
-            } else if (data.action === 'assign_role') {
-                game.playerRole = data.role;
-            } else if (data.error && data.action === 'delete_room') {
-            } else if (data.action === 'receive_invite') {
-                this.showInvitePopup(data.room_name, data.from_user, 'room');
-            } else if(data.action === 'receive_tournament_invite') {
-                this.showInvitePopup(data.tournament_id, data.from_user, 'tournament');
-            } else if (data.action === 'tournament_created') {
-                tournament.handleTournamentCreated(data);
-            } else if (data.action === 'update_participant_count') {
-                tournament.updateParticipantCount(data.participant_count, data.max_players, data.participants);
-            } else if (data.action === 'user_status') {
-                const statusIndicator = document.getElementById(`status-${data.username}`);
-                if (statusIndicator) {
-                    statusIndicator.style.color = data.status === 'online' ? 'green' : 'red';
-                }
-            } else if (data.action === 'user_in_game') {
-            } else if (data.action === 'user_in_game_status') {
-                if (data.in_game == false)
-                    return ;
-                this.in_game = data.in_game;
-                const statusIndicator = document.getElementById(`status-${data.username}`);
-                if (statusIndicator) {
-                    statusIndicator.style.color = 'orange';
-                }
-            } else if (data.action === 'surrendered') {
-                console.log ("surrendered");
-                auth.retrieveInfos().then(userInfo => {
+            }
+        } else if (data.action === 'update_paddle_pos'){
+            if (game.playerRole !== data.role){
+                data.role === 'left'? game.leftPaddleY = data.leftPaddle : game.rightPaddleY = data.rightPaddle;
+            }
+        }else if (data.action === 'update_bonus') {
+            if (game.playerRole === 'right') {
+                game.bonusGreen = data.bonusGreen;
+                game.bonusRed = data.bonusRed;
+            }
+        } else if (data.action === 'assign_role') {
+            game.playerRole = data.role;
+        } else if (data.error && data.action === 'delete_room') {
+        } else if (data.action === 'receive_invite') {
+            this.showInvitePopup(data.room_name, data.from_user, 'room');
+        } else if(data.action === 'receive_tournament_invite') {
+            this.showInvitePopup(data.tournament_id, data.from_user, 'tournament');
+        } else if (data.action === 'tournament_created') {
+            tournament.handleTournamentCreated(data);
+        } else if (data.action === 'update_participant_count') {
+            tournament.updateParticipantCount(data.participant_count, data.max_players, data.participants);
+        } else if (data.action === 'user_status') {
+            const statusIndicator = document.getElementById(`status-${data.username}`);
+            if (statusIndicator) {
+                statusIndicator.style.color = data.status === 'online' ? 'green' : 'red';
+            }
+        } else if (data.action === 'user_in_game') {
+        } else if (data.action === 'user_in_game_status') {
+            if (data.in_game == false)
+                return ;
+            this.in_game = data.in_game;
+            const statusIndicator = document.getElementById(`status-${data.username}`);
+            if (statusIndicator) {
+                statusIndicator.style.color = 'orange';
+            }
+        } else if (data.action === 'surrendered') {
+            console.log ("surrendered");
+            auth.retrieveInfos().then(userInfo => {
+                if (game.isPlaying || data.player === userInfo.username)
+                {
                     if (data.player === userInfo.username)
                     {
                         if (game.playerRole !== 'left')
@@ -121,13 +135,12 @@ var gameSocket = {
                         else
                             stats.displayEndGameStatsSurrender(1, 0);
                     }
-                });
-            } else if (data.action === 'retrieve_settings'){
-                game.updateGameSettings(data.settings);
+                }
+            });
+        } else if (data.action === 'retrieve_settings'){
+            game.updateGameSettings(data.settings);
 
-            }
-        });
-    
+        }
     },
 
     showInvitePopup: function(inviteId, fromUser, inviteType) {
@@ -198,7 +211,7 @@ var gameSocket = {
                     this.currentRoom = roomName;
                     this.updateUI();
                 } else if (data.status === 'User is in a room') {
-                    alert(`You are already in a room: ${data.rooms.join(', ')}. Please leave the current room before joining another.`);
+                    ui.showGenericErrorModal(`You are already in a room: ${data.rooms.join(', ')}. Please leave the current room before joining another.`);
                 } else {
                     return fetch(`/api/room/${roomName}/user-count/`)
                         .then(response => response.json())
@@ -208,13 +221,13 @@ var gameSocket = {
                                 this.currentRoom = roomName;
                                 this.updateUI();
                             } else {
-                                alert(`The room '${roomName}' is already full.`);
+                                ui.showGenericErrorModal(`The room '${roomName}' is already full.`);
                             }
                         });
                 }
             })
             .catch(error => {
-                alert('There was an error checking your room status. Please try again.');
+                ui.showGenericErrorModal('There was an error checking your room status. Please try again.');
             });
     },
     
@@ -251,53 +264,49 @@ var gameSocket = {
         this.sendMessage({'action': 'list_users_in_room', 'room_name': roomName});
     },    
 
-    updateRoomList: async function(rooms) {
-        if (!rooms) {
-            return;
+    updateRoomList: function(rooms) {
+
+        if (!rooms){
+            return ;
         }
         const roomListDiv = document.getElementById('roomList');
         if (!roomListDiv) {
             return;
         }
         roomListDiv.innerHTML = '';
-    
-        for (const room of rooms) {
-            try {
-                const response = await fetch(`/api/room/${room.name}/user-count/`);
-                const data = await response.json();
-    
-                if (response.ok && data.user_count < 2) {
-                    const roomElement = document.createElement('div');
-                    roomElement.className = 'room-item btn btn-outline-success fs-2 btn-sm';
-    
-                    const roomName = document.createElement('span');
-                    roomName.textContent = room.name;
-                    roomElement.appendChild(roomName);
-    
-                    if (room.is_admin) {
-                        const deleteButton = document.createElement('button');
-                        deleteButton.type = 'button';
-                        deleteButton.className = 'btn-close btn-close-white';
-                        deleteButton.setAttribute('aria-label', 'Close');
-                        deleteButton.addEventListener('click', (event) => {
-                            event.stopPropagation();
-                            this.deleteRoom(room.name);
-                        });
-                        roomElement.appendChild(deleteButton);
-                    }
-    
-                    roomElement.addEventListener('click', () => {
-                        this.joinRoom(room.name);
-                    });
-    
-                    roomListDiv.appendChild(roomElement);
-                }
-            } catch (error) {
-                console.error('Error fetching user count:', error);
+
+        rooms.forEach((room) => {
+            const roomElement = document.createElement('div');
+            roomElement.className = 'room-item';
+            roomElement.style.display = 'flex';
+            roomElement.style.justifyContent = 'space-between';
+            roomElement.style.alignItems = 'center';
+
+            const roomName = document.createElement('span');
+            roomName.textContent = room.name;
+            roomName.style.color = 'white';
+            roomElement.appendChild(roomName);
+
+
+            if (room.is_admin) {
+                const deleteButton = document.createElement('button');
+                deleteButton.type = 'button';
+                deleteButton.className = 'btn-close btn-close-white';
+                deleteButton.setAttribute('aria-label', 'Close');
+                deleteButton.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    this.deleteRoom(room.name);
+                });
+                roomElement.appendChild(deleteButton);
             }
-        }
+
+            roomElement.addEventListener('click', () => {
+                this.joinRoom(room.name);
+            });
+
+            roomListDiv.appendChild(roomElement);
+        });
     },
-    
 
     updateUserList: function(users, roomName) {
         const usersListDiv = document.getElementById('roomUsersList');
@@ -350,7 +359,7 @@ var gameSocket = {
             };
             this.socket.send(JSON.stringify(message));
         } else {
-            setTimeout(() => this.sendBallState(), 1000);
+            setTimeout(() => this.sendBallState(), 10);
         }
     },   
     sendPaddlePos: function(role, leftPaddleY, rightPaddleY) {
@@ -443,7 +452,7 @@ var gameSocket = {
     createTournament: function() {
         const numPlayers = parseInt(document.getElementById('numplayers').value, 10);
         if (isNaN(numPlayers) || numPlayers % 2 !== 0) {
-            alert('Number of players must be an even number.');
+            ui.showGenericErrorModal('Number of players must be an even number.');
             return;
         }
     
@@ -456,13 +465,13 @@ var gameSocket = {
     invitePlayers: function() {
         const username = document.getElementById('usernameInput').value.trim();
         if (username === '') {
-            alert('Please enter a username to invite.');
+            ui.showGenericErrorModal('Please enter a username to invite.');
             return;
         }
         auth.retrieveInfos().then(userInfo => {
             const user = userInfo.username;
             if (username === user) {
-                alert('You cannot add yourself to the tournament.');
+                ui.showGenericErrorModal('You cannot add yourself to the tournament.');
                 return;
             }
             else

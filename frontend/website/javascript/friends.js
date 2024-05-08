@@ -2,11 +2,14 @@ var friendsPage = {
     initialize: function() {
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('searchFriendsBtn').addEventListener('click', this.searchFriends.bind(this));
+            document.getElementById('refreshFriendsBtn').addEventListener('click', this.listFriends.bind(this));
             this.listFriends();
         });
+        this.listFriends();
     },
 
     showUserProfile: function(username) {
+        this.listFriends();
         fetch(`/api/get_user_profile/${username}/`, {
             method: 'GET',
             headers: {
@@ -15,13 +18,16 @@ var friendsPage = {
         })
         .then(response => {
             if (!response.ok) {
+                if (response.status === 403) {
+                    ui.showGenericErrorModal('You are not friends.');
+                }
                 throw new Error(response.error);
             }
             return response.json();
         })
         .then(data => {
             if (data.error) {
-                alert(data.error);
+                ui.showGenericErrorModal(data.error);
             } else {
                 auth.retrieveInfos().then(userInfo => {
                     if (userInfo.username === username) {
@@ -50,6 +56,9 @@ var friendsPage = {
         fetch(`/api/player_stats/${username}/`)
         .then(response => {
             if (!response.ok) {
+                if (response.status === 403) {
+                    ui.showGenericErrorModal('You are not friends.');
+                }
                 throw new Error(response.error);
             }
             return response.json();
@@ -63,6 +72,7 @@ var friendsPage = {
                 document.getElementById('totalWins').textContent = data.totalWins;
                 document.getElementById('totalLosses').textContent = data.totalLosses;
                 document.getElementById('totalScore').textContent = data.totalScore;
+                ui.showOnlyOneSection('playerStats');
             }
         })
         .catch(error => {});
@@ -71,6 +81,7 @@ var friendsPage = {
     },
 
     fetchRecentGames: function(username) {
+        console.log(username);
         if (!sessionStorage.getItem('isLoggedIn')){return;}
         fetch(`/api/recent_games/${username}/`)
         .then(response => {
@@ -80,12 +91,43 @@ var friendsPage = {
             return response.json();
         })
         .then(data => {
+            console.log(data);
             const gamesList = document.getElementById('gamesList');
             gamesList.innerHTML = '';
             data.forEach(game => {
-                let listItem = document.createElement('li');
-                listItem.className = 'list-group-item';
-                listItem.textContent = `${game.player1} vs ${game.player2} - Score: ${game.player1_score}-${game.player2_score}, Duration: ${game.duration}, Start: ${game.start_time}`;
+                // let listItem = document.createElement('li');
+                // listItem.className = 'list-group-item';
+                // listItem.textContent = `${game.player1} vs ${game.player2} - Score: ${game.player1_score}-${game.player2_score}, Duration: ${game.duration}, Start: ${game.start_time}`;
+                // gamesList.appendChild(listItem);
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item game-item';
+    
+                let gameInfoDiv = document.createElement('div');
+                gameInfoDiv.classList.add('game-info'); 
+    
+                let players = document.createElement('p');
+                players.className = 'game-players';
+                players.textContent = `${game.player1} vs ${game.player2}`;
+                gameInfoDiv.appendChild(players);
+    
+                let score = document.createElement('p');
+                score.className = 'game-score';
+                score.textContent = `Score: ${game.player1_score}-${game.player2_score}`;
+                gameInfoDiv.appendChild(score);
+    
+                let duration = document.createElement('p');
+                duration.className = 'game-duration';
+                duration.textContent = `Duration: ${game.duration.toFixed(2)} seconds`;
+                gameInfoDiv.appendChild(duration);
+    
+
+                let created = document.createElement('p');
+                created.className = 'game-created';
+                created.textContent = `Created: ${game.created_at}`;
+                gameInfoDiv.appendChild(created);
+    
+
+                listItem.appendChild(gameInfoDiv);
                 gamesList.appendChild(listItem);
             });
         })
@@ -110,8 +152,9 @@ var friendsPage = {
     },
 
     goToStats: function(username) {
+        this.listFriends();
+        // displays the stats of the user
         this.fetchStatsForUser(username);
-        document.getElementById('playerStats').classList.remove('d-none');
     },
 
     addFriend: function(username) {
@@ -139,7 +182,7 @@ var friendsPage = {
             if (data.exists) {
                 this.performAddFriend(username);
             } else {
-                alert("User does not exist");
+                ui.showGenericErrorModal(username + " does not exist");
             }
         })
         .catch(error => {});
@@ -223,13 +266,13 @@ var friendsPage = {
     searchFriends: function() {
         var searchQuery = document.getElementById('searchFriendsInput').value;
         if (searchQuery === '') {
-            alert('Please enter a username to search for');
+            ui.showGenericErrorModal('Please enter a username to search for');
             return;
         }
         auth.retrieveInfos().then(userInfo => {
             const username = userInfo.username;
             if (searchQuery === username) {
-                alert('You cannot add yourself as a friend');
+                ui.showGenericErrorModal('You cannot add yourself as a friend');
                 return;
             }
             else

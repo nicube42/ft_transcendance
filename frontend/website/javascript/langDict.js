@@ -1,5 +1,10 @@
 var langDict = {
     "en": {
+        'genericerrormodallabel': 'Error',
+        'genericsuccessmodallabel': 'Success',
+        'genericerrormodalclose': 'Close',
+        'genericsuccessmodalclose': 'Close',
+        'refreshfriendsbtn': 'Refresh Friends List',
         'roomusersconnected': "Users connected to the room",
         'finalscorelabel': 'Final Scores',
         "gameballslabel": "Total balls served: ",
@@ -13,8 +18,8 @@ var langDict = {
         "gamedurationlabel" : "Duration: ",
         "totalballslabel" : "Total balls served : ",
         "playagain" : "Play again",
-        "returnhome" : "Return to home", 
-        "createroombtn" : "Create Room", 
+        "returnhome" : "Return to home",
+        "createroombtn" : "Create Room",
         
         // https://localhost:4242/rooms
         "roomnameheading" : "Users in : ",
@@ -35,7 +40,7 @@ var langDict = {
         "navTournament": "Tournament",
         "navStatistics": "Statistics",
         "login_initial": "Login",
-        "titleProfile": "Enrgistement",   
+        "titleProfile": "Enrgistement",
         
         //teste login container
         "joinRoomBtn": "Join room",
@@ -123,7 +128,7 @@ var langDict = {
         //https://localhost:4242/tournament
         "tournamentsetupheader": "Tournament Setup",
         "matchtreeheader": "Match Tree",
-        "inviteplayertournamentbtn":"invite", 
+        "inviteplayertournamentbtn":"invite",
         "tournamenttreeplaceholder": "Tournament matches will be displayed here once setup is complete.",
         "inviteusername": "Enter Username to",
         "nextstagebtn": "Next",
@@ -160,6 +165,11 @@ var langDict = {
     },
 
     "fr": {
+        'genericerrormodallabel': 'Erreur',
+        'genericsuccessmodallabel': 'Succes',
+        'genericerrormodalclose': 'Fermer',
+        'genericsuccessmodalclose': 'Fermer',
+        'refreshfriendsbtn': 'Rafraichir la liste d\'amis',
         'roomusersconnected': "Utilisateurs connectes a la salle",
         'finalscorelabel': 'Scores finaux',
         'gameballslabel': 'Total des balles servies: ',
@@ -182,7 +192,7 @@ var langDict = {
         "usernameinput": "Inviter des joueurs",
         "quitroombtn": "Quitter la salle",
         "playdistantbtn": "jouer",
-        "createroombtn" : "Cree une salle", 
+        "createroombtn" : "Cree une salle",
 
 
         
@@ -291,7 +301,7 @@ var langDict = {
         "nextstagebtn": "suivant",
         "previous_tournament" : "Precedent",
         "numplayerslabel" : "Nombres de joueurs",
-        "inviteplayertournamentbtn":"Inviter", 
+        "inviteplayertournamentbtn":"Inviter",
         "inviteplayersheader" : "Inviter joueurs",
         "participantcountlabel": "Participants: ",
         "starttournamentbtn" : "Commencer tournois",
@@ -326,6 +336,11 @@ var langDict = {
     },
 
     "es": {
+        'genericerrormodallabel': 'Exito',
+        'genericsuccessmodallabel': 'Exito',
+        'genericerrormodalclose': 'Cerrar',
+        'genericsuccessmodalclose': 'Cerrar',
+        'refreshfriendsbtn': 'Actualizar lista de amigos',
         'roomusersconnected': "Usuarios conectados a la sala",
         'finalscorelabel': 'Puntuacion final',
         'gameballslabel': 'Total de bolas servidas: ',
@@ -345,7 +360,7 @@ var langDict = {
         "inviteroombtn": "Invitar a un jugador",
         "inviteplayerslabel": "Invitar jugadores",
         "usernameinput": "Invitar a un jugador",
-        "createroombtn" : "Creatado sallas", 
+        "createroombtn" : "Creatado sallas",
         
         "quitroombtn": "Salir de la sala",
         "playdistantbtn": "jugar",
@@ -388,8 +403,8 @@ var langDict = {
         "password": "Contraseña",
     
         // https://localhost:4242/register
-        "registersubmitbutton": "Loginada", 
-        "registersubmit": "Loginada", 
+        "registersubmitbutton": "Loginada",
+        "registersubmit": "Loginada",
         "cancelregisterbutton": "Annulada",
         "registerusernamelabel" : "usernamado",
         "usernameprofilenochangelabel" : "Nomados Usuario: ",
@@ -445,7 +460,7 @@ var langDict = {
         //https://localhost:4242/tournament
         "tournamentsetupheader": "Configuracion del torneo",
         "starttournamentbtn" : "arbol de partidos",
-        "inviteplayertournamentbtn":"Invitas", 
+        "inviteplayertournamentbtn":"Invitas",
         "matchtreeheader": "Tablosito partitas",
         "match tree": "Árbol de partidos",
         "tournamenttreeplaceholder": "Los partidos del torneo se mostrarán aquí una vez completada la configuracion.",

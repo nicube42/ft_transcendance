@@ -44,7 +44,7 @@ const tournament = {
     createTournament: function() {
         const numPlayers = parseInt(document.getElementById('numplayers').value, 10);
         if (isNaN(numPlayers) || numPlayers % 2 !== 0) {
-            alert('Please enter a valid even number of players.');
+            ui.showGenericErrorModal('Please enter a valid even number of players.');
             return;
         }
         this.initialNumPlayers = numPlayers;
@@ -60,13 +60,13 @@ const tournament = {
     invitePlayers: function() {
         const usernameInput = document.getElementById('inviteUsername').value.trim();
         if (usernameInput === '') {
-            alert('Please enter a username to invite.');
+            ui.showGenericErrorModal('Please enter a username to invite.');
             return;
         }
         auth.retrieveInfos().then(userInfo => {
             const username = userInfo.username;
             if (usernameInput === username) {
-                alert('You cannot add yourself to the tournament');
+                ui.showGenericErrorModal('You cannot add yourself to the tournament');
                 return;
             }
             else
@@ -82,9 +82,9 @@ const tournament = {
                     
                     if (data.action === 'tournament_invite_response') {
                         if (data.status === 'success') {
-                            alert(`Invitation sent to ${usernameInput}`);
+                            ui.showGenericErrorModal(`Invitation sent to ${usernameInput}`);
                         } else if (data.status === 'error') {
-                            alert(`Error sending invitation: ${data.message}`);
+                            ui.showGenericErrorModal(`Error sending invitation: ${data.message}`);
                         }
                     }
                 });
@@ -245,6 +245,9 @@ const tournament = {
 
     checkIfEndOfTournament: function() {
         auth.retrieveInfos().then(userInfo => {
+            if (!userInfo) {
+                return;
+            }
             const username = userInfo.username;
             if (this.maxPlayers === 1 && this.participants[0] === username) {
                 auth.retrieveInfos().then(userInfo => {

@@ -173,9 +173,10 @@ const stats = {
                             }
                         })
                         .catch(error => {
-                            alert('There was an error checking your room status. Please try again.');
+                            ui.showGenericErrorModal('There was an error checking your room status. Please try again.');
                         });
                 }
+                game.gameMode = 'multiplayer';
             }).catch(error => {
             });
         }, 1000);
@@ -350,9 +351,10 @@ const stats = {
                             }
                         })
                         .catch(error => {
-                            alert('There was an error checking your room status. Please try again.');
+                            ui.showGenericErrorModal('There was an error checking your room status. Please try again.');
                         });
                 }
+                game.gameMode = 'multiplayer';
             }).catch(error => {
             });
         }, 1000);
@@ -360,6 +362,7 @@ const stats = {
         
     returnToHome: function() {
         ui.showOnlyOneSection('homepage');
+        // location.reload();
     }
 };
 

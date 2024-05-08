@@ -147,6 +147,9 @@ const GameStats = {
             this.fetchRecentGames();
             this.fetchWinRateData();
         });
+        this.fetchPlayerStats();
+        this.fetchRecentGames();
+        this.fetchWinRateData();
     } 
 };
 GameStats.init();

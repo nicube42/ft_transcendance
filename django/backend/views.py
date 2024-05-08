@@ -137,7 +137,7 @@ def register(request):
                 normalized_filename = strip_accents(file.name)
                 safe_filename = get_valid_filename(normalized_filename)
                 file_name = default_storage.save(safe_filename, ContentFile(file.read()))
-                user.profile_pic_url = request.build_absolute_uri("https://c3r4s4:4242/media/pictures/" + file_name)
+                user.profile_pic_url = request.build_absolute_uri("https://c3r2s4:4242/media/pictures/" + file_name)
 
             user.save()
             return JsonResponse({'message': 'User created successfully'}, status=201)
@@ -226,7 +226,9 @@ def api_login(request):
                 return JsonResponse({'error': 'Username must be between 4 and 20 characters'}, status=400)
             if len(password) < 4 or len(password) > 20:
                 return JsonResponse({'error': 'Password must be between 4 and 20 characters'}, status=400)
-
+            #check if the user is already logged in another device
+            if LoggedInUser.objects.filter(user__username=username).exists():
+                return JsonResponse({'error':  username + ' is already logged in another device'}, status=400)
             user = authenticate(request, username=username, password=password)
             if user is None:
                 return JsonResponse({'error': 'Incorrect username or password. Please try again.'}, status=400)
@@ -507,6 +509,9 @@ def get_user_profile(request, username):
     try:
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'User not authenticated'}, status=401)
+        #check if username is friend with request.user
+        if not request.user.friends.filter(username=username).exists() and request.user.username != username:
+            return JsonResponse({'error': 'User is not your friend'}, status=403)
         user = CustomUser.objects.get(username=username)
         if not user:
             return JsonResponse({'error': 'User not found'}, status=404)
@@ -528,7 +533,7 @@ def recent_games_all(request, username):
         user = CustomUser.objects.get(username=username)
         if not user:
             return JsonResponse({'error': 'User not found'}, status=404)
-        games = Game.objects.filter(Q(player1=user) | Q(player2=user.username)).order_by('-start_time')[:5]
+        games = Game.objects.filter(player1=user).order_by('-start_time')[:5]
         games_data = [{
             'player1': game.player1.username,
             'player2': game.player2,
@@ -577,6 +582,9 @@ def win_rate_over_time_all(request, username):
 def player_stats_all(request, username):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'User not authenticated'}, status=401)
+    #check if the user is friend with the request.user or if the user is the request.user
+    if not request.user.friends.filter(username=username).exists() and request.user.username != username:
+        return JsonResponse({'error': 'User is not your friend'}, status=403)
     user = CustomUser.objects.get(username=username)
     if not user:
         return JsonResponse({'error': 'User not found'}, status=404)

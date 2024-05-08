@@ -5,7 +5,7 @@ window.addEventListener('beforeunload', function(event) {
 });
 
 window.addEventListener('DOMContentLoaded', function() {
-    if (window.location.href === 'https://c3r4s4:4242/profilePageNoChange') {
+    if (window.location.href === 'https://c3r2s4:4242/profilePageNoChange') {
         userInfoDisplayer.betterUI();
     }
 });
@@ -29,9 +29,9 @@ const ui =
             gameSocket.init();
         }
 
-        if (game.isPlaying && sectionId !== 'play' && game.gameMode === 'distant'){
-            gameSocket.surrenderGame(gameSocket.currentRoom);
-        }
+        // if (game.isPlaying && sectionId !== 'play' && game.gameMode === 'distant'){
+        //     gameSocket.surrenderGame(gameSocket.currentRoom);
+        // }
         if (sectionId === 'homepage') {
             auth.updateUserTournamentStatus('false');
         }
@@ -71,7 +71,9 @@ const ui =
             }
             if (this.actionHandlers[target.id]) {
                 e.preventDefault();
-                this.actionHandlers[target.id].call(this, e).catch();
+                if (!this.isSectionVisible('play')){
+                    this.actionHandlers[target.id].call(this, e).catch();
+                }
             }
         });
     },
@@ -104,7 +106,7 @@ const ui =
                     if (countData.user_count === 2) {
                         gameSocket.sendGameStart();
                     } else {
-                        alert(`The room is not full.`);
+                        ui.showGenericErrorModal(`The room is not full.`);
                     }
                 });
         },
@@ -154,7 +156,7 @@ const ui =
             this.showOnlyOneSection('loginContainer');
         },
         async 'navLogin42'() {
-            window.location.href = 'https://c3r4s4:4242/api/authorize/';
+            window.location.href = 'https://c3r2s4:4242/api/authorize/';
         },
         async 'navRegister'() {
             this.showOnlyOneSection('register');
@@ -168,8 +170,9 @@ const ui =
             await auth.logout();
         },
         async 'navFriends'() {
-            this.showOnlyOneSection('friends');
             friendsPage.initialize();
+            this.showOnlyOneSection('friends');
+            // location.reload();
         },
         async 'login_initial'() {
             this.showOnlyOneSection('loginContainer');
@@ -223,7 +226,7 @@ const ui =
         async 'STATISTICS'() {
             this.showOnlyOneSection('playerStats');
             GameStats.init();
-            location.reload();
+            // location.reload();
         },
         async 'lang_en'() 
         {
@@ -299,5 +302,19 @@ const ui =
         }).catch((error) => {
             this.showOnlyOneSection('firstPage', true);
         });
+    },
+
+    showGenericErrorModal: function(error) {
+        var modal = new bootstrap.Modal(document.getElementById('genericErrorModal'));
+        var modalBody = document.getElementById('genericErrorBody');
+        modalBody.innerHTML = error;
+        modal.show();
+    },
+
+    showGenericSuccessModal: function(error) {
+        var modal = new bootstrap.Modal(document.getElementById('genericErrorModal'));
+        var modalBody = document.getElementById('genericErrorBody');
+        modalBody.innerHTML = error;
+        modal.show();
     },
 };
