@@ -9,128 +9,138 @@ var gameSocket = {
     in_game: false,
 
     init: function() {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            console.log("Socket is already open.");
+            return;
+        }
+
         const wsScheme = window.location.protocol === "https:" ? "wss://" : "ws://";
         const backendHost = window.location.host;
         this.socket = new WebSocket(`${wsScheme}${backendHost}/ws/game/`);
+        
         this.socket.addEventListener('open', (event) => {
+            console.log("WebSocket connection established.");
             this.listRooms();
         });
+        this.socket.addEventListener('message', this.handleMessage.bind(this));
         this.socket.addEventListener('close', (event) => {
+            console.log("WebSocket connection closed. Attempting to reconnect...");
             setTimeout(() => this.init(), 5000);
         });
-
-        this.socket.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
-
-            if (data.action === 'update_ball_state') {
-                if (game.playerRole === 'right') {
-                    game.ballPosX = data.ball_state.ballPosX;
-                    game.ballPosY = data.ball_state.ballPosY;
-                    game.ballSpeedX = data.ball_state.ballSpeedX;
-                    game.ballSpeedY = data.ball_state.ballSpeedY;
-                }
-            }
-
-            if (data.action === 'list_users') {
-                if (data.users.length === 1){
-                    game.playerRole = 'left';
-                }
-                this.updateUserList(data.users, data.room_name);
-            } else if (data.action === 'list_rooms') {
-                this.updateRoomList(data.rooms);
-            } else if (data.action === 'start_game') {
-                this.stopPeriodicUpdates();
-                game.setGameMode('distant');
-                this.currentRoom = data.room_name;
-                ui.showOnlyOneSection('play');
-            } else if (data.action === 'stop_game') {
-                if (gameSocket.currentRoom) {
-                    gameSocket.leaveRoom(gameSocket.currentRoom);
-                    gameSocket.deleteRoom(gameSocket.currentRoom);
-                    gameSocket.currentRoom = null;
-                }
-                ui.showOnlyOneSection('homepage');
-            } else if (data.action === 'paddle_move') {
-                let paddleAdjustment = data.direction === 'up' ? -game.paddleSpeed : game.paddleSpeed;
-                if(data.role === game.playerRole) {
-                } else {
-                    if (game.playerRole === 'left') {
-                        if (data.direction == 'up'){
-                            game.rightPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
-                        }
-                        else {
-                            game.rightPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
-                        }
-                    } else if (game.playerRole === 'right') {
-                        if (data.direction == 'up') {
-                            game.leftPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
-                        }
-                        else {
-                            game.leftPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
-                        }
-                    }
-                }
-            } else if (data.action === 'update_paddle_pos'){
-                if (game.playerRole !== data.role){
-                    data.role === 'left'? game.leftPaddleY = data.leftPaddle : game.rightPaddleY = data.rightPaddle;
-                }
-            }else if (data.action === 'update_bonus') {
-                if (game.playerRole === 'right') {
-                    game.bonusGreen = data.bonusGreen;
-                    game.bonusRed = data.bonusRed;
-                }
-            } else if (data.action === 'assign_role') {
-                game.playerRole = data.role;
-            } else if (data.error && data.action === 'delete_room') {
-            } else if (data.action === 'receive_invite') {
-                this.showInvitePopup(data.room_name, data.from_user, 'room');
-            } else if(data.action === 'receive_tournament_invite') {
-                this.showInvitePopup(data.tournament_id, data.from_user, 'tournament');
-            } else if (data.action === 'tournament_created') {
-                tournament.handleTournamentCreated(data);
-            } else if (data.action === 'update_participant_count') {
-                tournament.updateParticipantCount(data.participant_count, data.max_players, data.participants);
-            } else if (data.action === 'user_status') {
-                const statusIndicator = document.getElementById(`status-${data.username}`);
-                if (statusIndicator) {
-                    statusIndicator.style.color = data.status === 'online' ? 'green' : 'red';
-                }
-            } else if (data.action === 'user_in_game') {
-            } else if (data.action === 'user_in_game_status') {
-                if (data.in_game == false)
-                    return ;
-                this.in_game = data.in_game;
-                const statusIndicator = document.getElementById(`status-${data.username}`);
-                if (statusIndicator) {
-                    statusIndicator.style.color = 'orange';
-                }
-            } else if (data.action === 'surrendered') {
-                console.log ("surrendered");
-                auth.retrieveInfos().then(userInfo => {
-                    if (game.isPlaying || data.player === userInfo.username)
-                    {
-                        if (data.player === userInfo.username)
-                        {
-                            if (game.playerRole !== 'left')
-                                stats.displayEndGameStatsSurrender(1, 0);
-                            else
-                                stats.displayEndGameStatsSurrender(0, 1);
-                        }
-                        else
-                        {
-                            if (game.playerRole !== 'left')
-                                stats.displayEndGameStatsSurrender(0, 1);
-                            else
-                                stats.displayEndGameStatsSurrender(1, 0);
-                        }
-                    }
-                });
-            } else if (data.action === 'retrieve_settings'){
-                game.updateGameSettings(data.settings);
-
-            }
+        this.socket.addEventListener('error', (event) => {
+            console.error("WebSocket encountered an error:", event);
         });
-    
+    },
+
+    handleMessage: function(event) {
+        const data = JSON.parse(event.data);
+        if (data.action === 'update_ball_state') {
+            if (game.playerRole === 'right') {
+                game.ballPosX = data.ball_state.ballPosX;
+                game.ballPosY = data.ball_state.ballPosY;
+                game.ballSpeedX = data.ball_state.ballSpeedX;
+                game.ballSpeedY = data.ball_state.ballSpeedY;
+            }
+        }
+
+        if (data.action === 'list_users') {
+            if (data.users.length === 1){
+                game.playerRole = 'left';
+            }
+            this.updateUserList(data.users, data.room_name);
+        } else if (data.action === 'list_rooms') {
+            this.updateRoomList(data.rooms);
+        } else if (data.action === 'start_game') {
+            this.stopPeriodicUpdates();
+            game.setGameMode('distant');
+            this.currentRoom = data.room_name;
+            ui.showOnlyOneSection('play');
+        } else if (data.action === 'stop_game') {
+            if (gameSocket.currentRoom) {
+                gameSocket.leaveRoom(gameSocket.currentRoom);
+                gameSocket.deleteRoom(gameSocket.currentRoom);
+                gameSocket.currentRoom = null;
+            }
+            ui.showOnlyOneSection('homepage');
+        } else if (data.action === 'paddle_move') {
+            let paddleAdjustment = data.direction === 'up' ? -game.paddleSpeed : game.paddleSpeed;
+            if(data.role === game.playerRole) {
+            } else {
+                if (game.playerRole === 'left') {
+                    if (data.direction == 'up'){
+                        game.rightPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
+                    }
+                    else {
+                        game.rightPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
+                    }
+                } else if (game.playerRole === 'right') {
+                    if (data.direction == 'up') {
+                        game.leftPaddleMovingUp = data.keyEvent == "pressed" && data.direction == 'up';
+                    }
+                    else {
+                        game.leftPaddleMovingDown = data.keyEvent == "pressed" && data.direction == "down";
+                    }
+                }
+            }
+        } else if (data.action === 'update_paddle_pos'){
+            if (game.playerRole !== data.role){
+                data.role === 'left'? game.leftPaddleY = data.leftPaddle : game.rightPaddleY = data.rightPaddle;
+            }
+        }else if (data.action === 'update_bonus') {
+            if (game.playerRole === 'right') {
+                game.bonusGreen = data.bonusGreen;
+                game.bonusRed = data.bonusRed;
+            }
+        } else if (data.action === 'assign_role') {
+            game.playerRole = data.role;
+        } else if (data.error && data.action === 'delete_room') {
+        } else if (data.action === 'receive_invite') {
+            this.showInvitePopup(data.room_name, data.from_user, 'room');
+        } else if(data.action === 'receive_tournament_invite') {
+            this.showInvitePopup(data.tournament_id, data.from_user, 'tournament');
+        } else if (data.action === 'tournament_created') {
+            tournament.handleTournamentCreated(data);
+        } else if (data.action === 'update_participant_count') {
+            tournament.updateParticipantCount(data.participant_count, data.max_players, data.participants);
+        } else if (data.action === 'user_status') {
+            const statusIndicator = document.getElementById(`status-${data.username}`);
+            if (statusIndicator) {
+                statusIndicator.style.color = data.status === 'online' ? 'green' : 'red';
+            }
+        } else if (data.action === 'user_in_game') {
+        } else if (data.action === 'user_in_game_status') {
+            if (data.in_game == false)
+                return ;
+            this.in_game = data.in_game;
+            const statusIndicator = document.getElementById(`status-${data.username}`);
+            if (statusIndicator) {
+                statusIndicator.style.color = 'orange';
+            }
+        } else if (data.action === 'surrendered') {
+            console.log ("surrendered");
+            auth.retrieveInfos().then(userInfo => {
+                if (game.isPlaying || data.player === userInfo.username)
+                {
+                    if (data.player === userInfo.username)
+                    {
+                        if (game.playerRole !== 'left')
+                            stats.displayEndGameStatsSurrender(1, 0);
+                        else
+                            stats.displayEndGameStatsSurrender(0, 1);
+                    }
+                    else
+                    {
+                        if (game.playerRole !== 'left')
+                            stats.displayEndGameStatsSurrender(0, 1);
+                        else
+                            stats.displayEndGameStatsSurrender(1, 0);
+                    }
+                }
+            });
+        } else if (data.action === 'retrieve_settings'){
+            game.updateGameSettings(data.settings);
+
+        }
     },
 
     showInvitePopup: function(inviteId, fromUser, inviteType) {

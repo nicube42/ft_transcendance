@@ -538,7 +538,8 @@ const game = {
     },
 
     drawPong: function(timestamp) {
-        if (this.animationFrameId === null)
+        console.log(this.animationFrameId);
+        if (this.animationFrameId === 1)
         {
             console.log('ANIMATION FRAME ID NULL');
             this.ballPosX = this.canvas.width / 2;
@@ -649,9 +650,9 @@ const game = {
         // }, 1000 / 60);
 
         this.lastRender = timestamp;
-        // if (this.isPlaying) {
+        if (this.isPlaying) {
             this.animationFrameId = requestAnimationFrame(this.drawPong.bind(this));
-        // }
+        }
     },    
 
     // drawPong: function(timestamp) {
