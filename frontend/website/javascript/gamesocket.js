@@ -284,7 +284,15 @@ var gameSocket = {
                         deleteButton.setAttribute('aria-label', 'Close');
                         deleteButton.addEventListener('click', (event) => {
                             event.stopPropagation();
-                            this.deleteRoom(room.name);
+                            // this.sendGameStop(room.name);
+                            // this.deleteRoom(room.name);
+                            if (data.user_count === 0){
+                                this.deleteRoom(room.name);
+                            }else{
+                                // this.sendGameStop(room.name);
+                                // this.deleteRoom(room.name);
+                                alert('You cannot delete this room, it is not empty')
+                            }
                         });
                         roomElement.appendChild(deleteButton);
                     }
