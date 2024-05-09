@@ -389,7 +389,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def add_user_to_room(self, room):
         user = await self.get_user_instance()
-        print (user)
         if user is not None:
             await database_sync_to_async(room.users.add)(user)
             await self.channel_layer.group_add(room.name, self.channel_name)
@@ -407,7 +406,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_users_in_room(self, room):
-        print(room.users.all())
         return list(room.users.all())
 
     @database_sync_to_async
@@ -498,7 +496,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                     'winningScore': room.settings.winning_score,
                     'bonus': room.settings.bonus
                 }
-                print('\nDATA:', settings_data, '\n')
                 await self.channel_layer.group_send(
                     room_name,
                     {

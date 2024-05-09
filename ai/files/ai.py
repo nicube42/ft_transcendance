@@ -10,9 +10,6 @@ connected = set()
 
 def impact_pos_y(ball_pos_x, ball_pos_y, ball_speed_x, ball_speed_y, paddle_left_y, paddle_right_y, paddle_height, canvas_width, canvas_height, ball_radius, update_ai):
 
-    # time_step = 0.01
-    # start_time = time.time()
-
     if ball_speed_x <= 0:
         return canvas_height / 2
     
@@ -20,9 +17,7 @@ def impact_pos_y(ball_pos_x, ball_pos_y, ball_speed_x, ball_speed_y, paddle_left
     nextframe = 1
 
     while nextframe < int(frames_before_impact):
-        # if time.time() - start_time > 1:
-            # break
-        if  ball_pos_y + ball_radius + ball_speed_y > canvas_height or ball_pos_y - ball_radius + ball_speed_y  < 0:
+        if ball_pos_y + ball_radius + ball_speed_y > canvas_height or ball_pos_y - ball_radius + ball_speed_y  < 0:
             
             if ball_speed_y < 0:
                 deltaFrame = -(ball_pos_y - ball_radius)/ball_speed_y 
@@ -58,8 +53,6 @@ async def ai_server(websocket, path):
                 if update_ai is True:
                     future_ball_pos_y = impact_pos_y(ball_pos_x, ball_pos_y, ball_speed_x, ball_speed_y, paddle_left_y, paddle_y, paddle_height, canvas_width, canvas_height, 10, update_ai)
 
-                print(f"Predicted ball position: {future_ball_pos_y}")
-
                 paddle_center = paddle_y + paddle_height / 2
 
                 action = "DOWN" if paddle_center < future_ball_pos_y else "UP"
@@ -72,14 +65,11 @@ async def ai_server(websocket, path):
                 await websocket.send(response)
 
             except websockets.exceptions.ConnectionClosed as e:
-                print(f"Connection closed with reason: {e}")
                 break
             except Exception as e:
-                print(f"Unhandled error: {e}")
                 continue
     finally:
         connected.remove(websocket)
-        print("Connection handler ended.")
 
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 cert_path = os.getenv('SSL_CERT_PATH', '/app/ssl/domain.crt')

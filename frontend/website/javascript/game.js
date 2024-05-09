@@ -136,81 +136,7 @@ const game = {
             setTimeout(this.fetchPlayerNames, 1000);
         }
     },
-    
 
-    // resetVars: function() {
-    //     console.log('RESET VARS');
-    //     this.ballSpeedX = this.settings.ballSpeed / 2;
-    //     this.ballSpeedY = this.settings.ballSpeed / 2;
-    //     this.paddleSpeed = this.settings.paddleSpeed;
-    //     this.winningScore = this.settings.winningScore;
-    //     this.ballSpeedMax = this.ballSpeedX * 1.4;
-    //     this.ballPosX = this.canvas.width / 2;
-    //     this.ballPosY = this.canvas.height / 2;
-    //     this.leftPaddleY = (this.canvas.height - this.paddleHeight) / 2;
-    //     this.rightPaddleY = (this.canvas.height - this.paddleHeight) / 2;
-    //     this.player1Score = 0;
-    //     this.player2Score = 0;
-    //     this.scoreMessage = '';
-    //     this.messageDisplayCounter = 0;
-    //     this.ball_color = 'white';
-    //     this.bonusTouched = false;
-    //     this.leftPaddleMovingUp = false;
-    //     this.leftPaddleMovingDown = false;
-    //     this.rightPaddleMovingUp = false;
-    //     this.rightPaddleMovingDown = false;
-    //     this.paddleMoving = false;
-    //     this.predictedPos = null;
-    //     this.update_ai = true;
-    //     this.processAIActions = false;
-    //     this.frame = 0;
-    //     this.aiPaddleDirection = 1;
-    
-    //     // Reset bonuses
-    //     this.bonusGreen = {
-    //         x: 100,
-    //         y: 100,
-    //         baseRadius: 10,
-    //         radius: 10,
-    //         color: 'green',
-    //         active: false
-    //     };
-    
-    //     this.bonusRed = {
-    //         x: 200,
-    //         y: 200,
-    //         baseRadius: 10,
-    //         radius: 10,
-    //         color: 'red',
-    //         active: false
-    //     };
-    
-    //     if (this.aiActionInterval) {
-    //         clearInterval(this.aiActionInterval);
-    //         this.aiActionInterval = null;
-    //     }
-    
-    //     if (this.aiPaddleMovementInterval) {
-    //         clearInterval(this.aiPaddleMovementInterval);
-    //         this.aiPaddleMovementInterval = null;
-    //     }
-    
-    //     if (this.nextBonusTimeout) {
-    //         clearTimeout(this.nextBonusTimeout);
-    //         this.nextBonusTimeout = null;
-    //     }
-    
-    //     if (this.gameMode === 'distant') {
-    //         this.fetchPlayerNames();
-    //     } else {
-    //         auth.retrieveInfos().then(userInfo => {
-    //             if (!userInfo) return;
-    //             this.player1_name = userInfo.username;
-    //         });
-    //         this.player2_name = "opponent";
-    //     }
-    // },
-    
     resetVars: function() {
         this.ballSpeedX = this.settings.ballSpeed / 2;
         this.ballSpeedY = this.settings.ballSpeed / 2;
@@ -369,7 +295,6 @@ const game = {
 
     pause: function() {
         this.isPlaying = false;
-        console.log('PAUSE GAME');
         if (this.animationFrameId) {
             if (this.isPlaying) {
                 cancelAnimationFrame(this.animationFrameId);
@@ -379,17 +304,13 @@ const game = {
             auth.updateUserGameStatus('false');
             this.resetVars();
             this.stopControlAndDisconnect();
-            console.log({'ball stats': {'speed': this.ballSpeed, 'speedX': this.ballSpeedX, 'sppedY': this.ballSpeedY, 'posX': this.ballPosX, 'posY': this.ballPosY}} );
         }
     },
     
     resume: function() {
-        console.log('gamemode', this.gameMode)
         this.isPlaying = true;
-        console.log('RESUME GAME');
         if (this.gameMode === 'singlePlayer')
         {
-            console.log('single player');
             this.processAIActions = true;
             this.controlRightPaddleWithAI();
         }
@@ -406,7 +327,6 @@ const game = {
             auth.updateUserGameStatus('true');
             if (this.gameMode === 'singlePlayer')
             {
-                console.log('single player');
                 this.processAIActions = true;
                 this.controlRightPaddleWithAI();
             }
@@ -414,7 +334,6 @@ const game = {
             {
                 this.stopControlAndDisconnect();
             }
-            console.log({'ball stats': {'speed': this.ballSpeed, 'speedX': this.ballSpeedX, 'sppedY': this.ballSpeedY, 'posX': this.ballPosX, 'posY': this.ballPosY}} );
         }
     },
     
@@ -567,11 +486,6 @@ const game = {
                 
             }
             this.checkColisions();
-            // if (this.gameMode === 'distant' && this.ballPosX < this.canvas.width - 10 && this.ballPosX > 10)
-            // {
-            //     gameSocket.sendBallState();
-            // }
-    
             if (this.ballPosX <= 0 || this.ballPosX >= this.canvas.width) {
                 if (this.ballPosX <= 0) {
                     this.player2Score++;
@@ -628,97 +542,12 @@ const game = {
         document.getElementById('player1_name').textContent = this.player1_name + `: ${this.player1Score}`;
         document.getElementById('player2_name').textContent = this.player2_name + `: ${this.player2Score}`;
         document.getElementById('winning_score').textContent = `${this.winningScore}`;
-    
-        // this.frame++;
-        // if (this.frame >= Number.MAX_SAFE_INTEGER) {
-        //     this.frame = 0;
-        // }
-        // this.ballDirectionChanged = false;
-    
-        // var self = this;
-        // setTimeout(function() {
-        //     self.animationFrameId = requestAnimationFrame(self.drawPong.bind(self));
-        // }, 1000 / 60);
 
         this.lastRender = timestamp;
         if (this.isPlaying) {
             this.animationFrameId = requestAnimationFrame(this.drawPong.bind(this));
         }
-    },    
-
-    // drawPong: function(timestamp) {
-    //     if (!this.lastRender) {
-    //         this.lastRender = timestamp;
-    //     }
-    //     const delta = timestamp - this.lastRender;
-    
-    //     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    
-    //     if (this.player1Score >= this.winningScore || this.player2Score >= this.winningScore) {
-    //         stats.recordEndTime();
-    //         stats.displayEndGameStats();
-    //         this.resetVars();
-    //         return;
-    //     }
-    
-    //     this.movePaddles();
-    //     this.checkBonusCollision();
-    //     if (game.gameMode !== 'distant' || game.playerRole === 'left'){
-    //         this.checkColisions();
-    //         if (game.gameMode === 'distant'){
-    //             gameSocket.sendBallState();
-    //         }   
-    //     }
-    //     this.drawBall();
-    
-    //     if (this.withBonus) {
-    //         this.attemptBonusGeneration();
-    //         if (this.bonusGreen.active) {
-    //             this.drawBonus(this.bonusGreen);
-    //         }
-    //         if (this.bonusRed.active) {
-    //             this.drawBonus(this.bonusRed);
-    //         }
-    //     }
-    
-    //     this.ctx.fillStyle = 'white';
-    //     this.ctx.fillRect(0, this.leftPaddleY, this.paddleWidth, this.paddleHeight);
-    //     this.ctx.fillRect(this.canvas.width - this.paddleWidth, this.rightPaddleY, this.paddleWidth, this.paddleHeight);
-    
-    //     if (this.messageDisplayCounter > 0) {
-    //         this.ctx.font = '30px Arial';
-    //         this.ctx.fillStyle = 'white';
-    //         this.ctx.textAlign = 'center';
-    //         this.ctx.fillText(this.scoreMessage, this.canvas.width / 2, this.canvas.height / 2);
-    //         this.messageDisplayCounter--;
-    //     } else {
-    //         if (this.ballPosX <= 0 || this.ballPosX >= this.canvas.width) {
-    //             const scorer = this.ballPosX <= 0 ? 'player2' : 'player1';
-    //             this.updateScore(scorer);
-    //         }
-    //     }
-    
-    //     document.getElementById('player1_name').textContent = this.player1_name + `: ${this.player1Score}`;
-    //     document.getElementById('player2_name').textContent = this.player2_name + `: ${this.player2Score}`;
-    //     document.getElementById('winning_score').textContent = `${this.winningScore}`;
-    
-    //     this.lastRender = timestamp;
-    //     // if (this.isPlaying) {
-    //         this.animationFrameId = requestAnimationFrame(this.drawPong.bind(this));
-    //     // }
-    // },
-    
-    // updateScore: function(scorer) {
-    //     if (scorer === 'player1') {
-    //         this.player1Score++;
-    //         this.scoreMessage = this.player1_name + ' Scored!';
-    //     } else {
-    //         this.player2Score++;
-    //         this.scoreMessage = this.player2_name + ' Scored!';
-    //     }
-    //     this.resetBall(scorer === 'player1' ? 'left' : 'right');
-    //     this.messageDisplayCounter = 180;
-    // },    
+    },
 
     drawBall: function() {
         this.ctx.fillStyle = this.ball_color;

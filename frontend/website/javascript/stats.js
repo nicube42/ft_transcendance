@@ -59,10 +59,8 @@ const stats = {
                             start_time: stats.startTime.toISOString(),
                             end_time: stats.endTime.toISOString()
                         };
-                        console.log('in stats', game.gameMode);
                         if (game.gameMode === 'distant')
                         {
-                            console.log('in stats', game.playerRole);
                             if (game.playerRole === 'right')
                             {
                                 postData = {
@@ -86,7 +84,6 @@ const stats = {
                             }
                         }
                         if (postData.player1 && postData.player2 && postData.start_time && postData.end_time) {
-                            console.log(postData);
                             fetch('/api/game_record/', {
                                 method: 'POST',
                                 headers: {
@@ -178,7 +175,6 @@ const stats = {
                             ui.showGenericErrorModal('There was an error checking your room status. Please try again.');
                         });
                 }
-                // game.gameMode = 'multiplayer';
             }).catch(error => {
             });
         }, 1000);
@@ -355,7 +351,6 @@ const stats = {
                             ui.showGenericErrorModal('There was an error checking your room status. Please try again.');
                         });
                 }
-                // game.gameMode = 'multiplayer';
             }).catch(error => {
             });
         }, 1000);
@@ -363,7 +358,6 @@ const stats = {
         
     returnToHome: function() {
         ui.showOnlyOneSection('homepage');
-        // location.reload();
     }
 };
 

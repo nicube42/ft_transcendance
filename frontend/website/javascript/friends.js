@@ -81,7 +81,6 @@ var friendsPage = {
     },
 
     fetchRecentGames: function(username) {
-        console.log(username);
         if (!sessionStorage.getItem('isLoggedIn')){return;}
         fetch(`/api/recent_games/${username}/`)
         .then(response => {
@@ -91,14 +90,9 @@ var friendsPage = {
             return response.json();
         })
         .then(data => {
-            console.log(data);
             const gamesList = document.getElementById('gamesList');
             gamesList.innerHTML = '';
             data.forEach(game => {
-                // let listItem = document.createElement('li');
-                // listItem.className = 'list-group-item';
-                // listItem.textContent = `${game.player1} vs ${game.player2} - Score: ${game.player1_score}-${game.player2_score}, Duration: ${game.duration}, Start: ${game.start_time}`;
-                // gamesList.appendChild(listItem);
                 const listItem = document.createElement('li');
                 listItem.className = 'list-group-item game-item';
     

@@ -28,10 +28,6 @@ const ui =
         if (sessionStorage.getItem('isLoggedIn') === 'true') {
             gameSocket.init();
         }
-
-        // if (game.isPlaying && sectionId !== 'play' && game.gameMode === 'distant'){
-        //     gameSocket.surrenderGame(gameSocket.currentRoom);
-        // }
         if (sectionId === 'homepage') {
             auth.updateUserTournamentStatus('false');
         }
@@ -172,7 +168,6 @@ const ui =
         async 'navFriends'() {
             friendsPage.initialize();
             this.showOnlyOneSection('friends');
-            // location.reload();
         },
         async 'login_initial'() {
             this.showOnlyOneSection('loginContainer');
@@ -193,20 +188,16 @@ const ui =
         },
         async 'playAgain'() {
             if (game.gameMode === 'singlePlayer'){
-                console.log('playAgain singlePlayer');
                 game.setGameMode('singlePlayer');
                 settings.populateSettings();
                 ui.showOnlyOneSection('play');
             }
             else
             {
-                console.log('playAgain multiplayer');
                 game.setGameMode('multiplayer');
                 settings.populateSettings();
                 ui.showOnlyOneSection('play');
             }
-            // this.showOnlyOneSection('play');
-            // await settings.populateSettings();
         },
         async 'createRoomBtn' () {
             const roomName = document.querySelector('#roomNameInput').value;
@@ -239,7 +230,6 @@ const ui =
         async 'STATISTICS'() {
             this.showOnlyOneSection('playerStats');
             GameStats.init();
-            // location.reload();
         },
         async 'lang_en'() 
         {

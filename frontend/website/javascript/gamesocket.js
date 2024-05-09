@@ -10,7 +10,6 @@ var gameSocket = {
 
     init: function() {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-            console.log("Socket is already open.");
             return;
         }
 
@@ -19,16 +18,13 @@ var gameSocket = {
         this.socket = new WebSocket(`${wsScheme}${backendHost}/ws/game/`);
         
         this.socket.addEventListener('open', (event) => {
-            console.log("WebSocket connection established.");
             this.listRooms();
         });
         this.socket.addEventListener('message', this.handleMessage.bind(this));
         this.socket.addEventListener('close', (event) => {
-            console.log("WebSocket connection closed. Attempting to reconnect...");
             setTimeout(() => this.init(), 5000);
         });
         this.socket.addEventListener('error', (event) => {
-            console.error("WebSocket encountered an error:", event);
         });
     },
 
@@ -117,7 +113,6 @@ var gameSocket = {
                 statusIndicator.style.color = 'orange';
             }
         } else if (data.action === 'surrendered') {
-            console.log ("surrendered");
             auth.retrieveInfos().then(userInfo => {
                 if (game.isPlaying || data.player === userInfo.username)
                 {

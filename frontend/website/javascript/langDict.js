@@ -42,7 +42,7 @@ var langDict = {
         "login_initial": "Login",
         "titleProfile": "Enrgistement",
         
-        //teste login container
+        // login container
         "joinRoomBtn": "Join room",
         "homepacreateRoomBtnge": "Create room",
         "register_initial": "Register",
@@ -203,7 +203,7 @@ var langDict = {
         "language": "Langue",
         "account": "Compte",
         "logout": "Deconnexion",
-        "register": "Inscription", //a double virer si conflit
+        "register": "Inscription",
         "friends": "Amis",
         "friendsheader": "Ami",
         "navTournament": "Tournois",
@@ -225,8 +225,7 @@ var langDict = {
 
         //https://localhost:4242/firstPage + https://localhost:4242/loginContainer
         "login": "Connexion",
-        "register": "Inscription",
-        "password": "Mot de passe", //a double virer si conflit
+        "password": "Mot de passe",
 
 
 
@@ -234,7 +233,7 @@ var langDict = {
         "registersubmitbutton": "S\"enregistrer",
         "registersubmit": "S\"enregistrer",
         "cancelregisterbutton": "retour",
-        "registerheader": "Inscription", //a double virer si conflit
+        "registerheader": "Inscription",
         "usernameprofilenochangelabel" : "Nom d’utilisateur: ",
         "fullnameprofilenochangelabel" : "Nom complet: ",
         "registerusernamelabel": "Nom d’utilisateur",
@@ -317,7 +316,6 @@ var langDict = {
         //https://localhost:4242/loginContainer top
         "loginbutton":"S\"enregistre",
         "canceloginbutton": "Sortir",
-        "registerheader": "S\"enregistrer",
         "passwordlabel": "Mot de passe",
         "id_password": "Mot de passe",
         "cancelloginbutton": "Annuler",

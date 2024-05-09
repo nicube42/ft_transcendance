@@ -30,7 +30,6 @@ def save_settings(request):
     if request.user.is_authenticated is False:
         return JsonResponse({'error': 'User not authenticated'}, status=401)
     try:
-        print('\n\nSAVE_SETTINGS\n\n')
         data = json.loads(request.body)
         player1_name = data.get('player1')
         player2_name = data.get('player2')
@@ -38,7 +37,6 @@ def save_settings(request):
         paddle_speed = int(data.get('paddleSpeed', 5))
         winning_score = int(data.get('winningScore', 5))
         bonus = data.get('bonus')
-        print(f"\n\n\game bonus: {bonus}n\n")
 
         if not player1_name or not player2_name:
             return JsonResponse({'error': 'Missing player names'}, status=400)
@@ -149,7 +147,6 @@ def register(request):
 @csrf_exempt
 def intraAuthorize(request):
     if request.method == 'GET':
-        print("intraAuthorize")
         client_id = os.getenv('AUTH_CLIENT_ID')
         redirect_uri = os.getenv('REDIRECT_AUTH_URL')
         response_type = 'code'
@@ -387,7 +384,6 @@ def player_stats(request):
             'totalLosses': games_lost,
             'totalScore': total_score
         }
-        print(f"Stats for {user.username}: {data}")
         return JsonResponse(data)
     except Exception as e:
         logging.exception("Error fetching player stats")
@@ -725,7 +721,6 @@ def change_profile_pic(request):
             safe_filename = get_valid_filename(normalized_filename)
             file_name = default_storage.save('pictures/' + safe_filename, ContentFile(file.read()))
             user.profile_pic_url = request.build_absolute_uri(settings.MEDIA_URL + file_name)
-            print(f"Profile picture URL: {user.profile_pic_url}")
         user.save()
         return JsonResponse({'message': 'Profile picture updated successfully'}, status=200)
     else:
