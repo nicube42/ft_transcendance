@@ -58,7 +58,12 @@ var gameSocket = {
                 gameSocket.currentRoom = null;
             }
             ui.showOnlyOneSection('homepage');
-        } else if (data.action === 'paddle_move') {
+        } else if (data.action === 'update_score') {
+            if (data.role === 'right') {
+                game.leftScore = data.scoreLeft;
+                game.rightScore = data.scoreRight;
+            }
+        }else if (data.action === 'paddle_move') {
             let paddleAdjustment = data.direction === 'up' ? -game.paddleSpeed : game.paddleSpeed;
             if(data.role === game.playerRole) {
             } else {
@@ -136,6 +141,15 @@ var gameSocket = {
             game.updateGameSettings(data.settings);
 
         }
+    },
+    updateScore: function(){
+        this.sendMessage({
+            'action': 'update_score',
+            'role': game.playerRole,
+            'room': this.currentRoom,
+            'scoreLeft': game.leftScore,
+            'scoreRight': game.rightScore,
+        });
     },
 
     showInvitePopup: function(inviteId, fromUser, inviteType) {

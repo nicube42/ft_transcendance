@@ -92,6 +92,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.create_room(text_data_json)
         elif action == 'update_paddle_pos':
             await self.update_paddle_pos(text_data_json)
+        elif action == 'update_score':
+            await self.update_score(text_data_json)
         elif action == 'join_room':
             await self.join_room(text_data_json)
         elif action == 'list_rooms':
@@ -539,6 +541,31 @@ class GameConsumer(AsyncWebsocketConsumer):
             'role': event['role'],
             'leftPaddle': event['leftPaddle'],
             'rightPaddle': event['rightPaddle'],
+        }))
+
+    async def update_score(self, data):
+        room_name = data['room']
+
+        role = data.get('role')
+        scoreA = data.get('scoreLeft')
+        scoreB = data.get('scoreRight')
+
+        await self.channel_layer.group_send(
+            room_name,
+            {
+                'type': 'broadcast_score',
+                'role': role,
+                'scoreA': scoreA,
+                'scoreB': scoreB,
+            }
+        )
+
+    async def broadcast_score(self, event):
+        await self.send_message_safe(json.dumps({
+            'action': 'update_score',
+            'role': event['role'],
+            'scoreLeft': event['scoreA'],
+            'scoreRight': event['scoreB'],
         }))
 
     async def update_ball_state(self, data):
