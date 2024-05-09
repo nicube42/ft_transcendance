@@ -473,6 +473,7 @@ const game = {
         if (Math.abs(this.ballSpeedX) < 15){
             this.ballSpeedX > 0 ? this.ballSpeedX += 1 : this.ballSpeedX -= 1;
         }
+        console.log(Math.cos(radianAngle));
         this.ballSpeed = Math.abs(this.ballSpeedX / Math.cos(radianAngle));
 
         this.ballSpeedY = Math.sin(radianAngle) * this.ballSpeed;
@@ -541,6 +542,10 @@ const game = {
                 gameSocket.sendBallState();
             }
         }
+        if (this.ballPosX <= 40 || this.ballPosX >= this.canvas.width - 40)
+        {
+            gameSocket.sendBallState();
+        }
         this.checkAndCorrectCheating();
         if (!this.lastRender) {
             this.lastRender = timestamp;
@@ -571,16 +576,25 @@ const game = {
             // {
             //     gameSocket.sendBallState();
             // }
-    
+            // && (this.gameMode !== 'distant' || this.playerRole === 'left')
             if (this.ballPosX <= 0 || this.ballPosX >= this.canvas.width) {
                 if (this.ballPosX <= 0) {
                     this.player2Score++;
                     this.scoreMessage =  this.player2_name + ' Scored!';
                     this.resetBall('right');
+                    if (this.gameMode === 'distant')
+                    {
+                        gameSocket.updateScore();
+                    }
+                        
                 } else {
                     this.player1Score++;
                     this.scoreMessage =  this.player1_name + ' Scored!';
                     this.resetBall('left');
+                    if (this.gameMode === 'distant')
+                    {
+                        gameSocket.updateScore();
+                    }
                 }
                 this.messageDisplayCounter = 180;
             }
