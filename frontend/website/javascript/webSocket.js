@@ -16,6 +16,7 @@ const websocket = {
         };
 
         this.aiSocket.onclose = (event) => {
+            console.log('AI socket closed');
             setTimeout(() => this.initialize(), 3000);
         };
 

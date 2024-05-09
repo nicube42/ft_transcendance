@@ -244,6 +244,7 @@ const game = {
         this.restart_ai = true;
         this.isPlaying = false;
         this.animationFrameId = null;
+        stats.initStats();
     },
 
     handleKeyDown: function (e) {
@@ -383,6 +384,7 @@ const game = {
     },
     
     resume: function() {
+        console.log('gamemode', this.gameMode)
         this.isPlaying = true;
         console.log('RESUME GAME');
         if (this.gameMode === 'singlePlayer')
@@ -488,7 +490,6 @@ const game = {
             tmpX = this.ballPosX + this.ballSpeedX * delta;
             tmpY = obstacle;
             this.ballSpeedY *= -1;
-            console.log('this.ballSpeedY', this.ballSpeedY, 'delta', delta);
         }
         this.ballPosX = tmpX + this.ballSpeedX * (1 - delta);
         this.ballPosY = tmpY + this.ballSpeedY * (1 - delta);
@@ -506,25 +507,18 @@ const game = {
         let deltaFrame = Infinity;
 
         if (nextFrameBallX - this.ballRadius < this.paddleWidth && nextFrameBallY > this.leftPaddleY && nextFrameBallY < this.leftPaddleY + this.paddleHeight){
-            console.log('LEFT PADDLE');
             deltaFrame = Math.abs((this.paddleWidth - (this.ballPosX - this.ballRadius))/this.ballSpeedX);
             this.updateBallPos(deltaFrame, this.paddleWidth + this.ballRadius, true, this.leftPaddleY + this.paddleHeight / 2);
         }
         else if (nextFrameBallX + this.ballRadius > this.canvas.width - this.paddleWidth && nextFrameBallY > this.rightPaddleY && nextFrameBallY < this.rightPaddleY + this.paddleHeight){
-            console.log('RIGHT PADDLE');
             deltaFrame = Math.abs((this.canvas.width - this.paddleWidth - (this.ballPosX + this.ballRadius)) / this.ballSpeedX);
             this.updateBallPos(deltaFrame, this.canvas.width - this.paddleWidth - this.ballRadius, true,this.rightPaddleY + this.paddleHeight / 2);
         }
         else if (nextFrameBallY - this.ballRadius < 0){
-            console.log('UP WALL');
-            console.log('nextFrameBallY', nextFrameBallY, 'this.ballRadius', this.ballRadius, 'this.canvas.height', this.canvas.height);
             deltaFrame = Math.abs((0 - (this.ballPosY - this.ballRadius)) / this.ballSpeedY);
-            console.log('this.ballPosY', this.ballPosY, 'this.ballSpeedY', this.ballSpeedY, 'deltaFrame', deltaFrame);
             this.updateBallPos(deltaFrame, this.ballRadius, false, null);
         }
         else if (nextFrameBallY + this.ballRadius > this.canvas.height){
-            console.log('DOWN WALL');
-            console.log(this.leftPaddleY);
             deltaFrame = Math.abs((this.canvas.height - (this.ballPosY + this.ballRadius)) / this.ballSpeedY);
             this.updateBallPos(deltaFrame, this.canvas.height - this.ballRadius, false, null);
         }
@@ -538,13 +532,10 @@ const game = {
     },
 
     drawPong: function(timestamp) {
-        console.log(this.animationFrameId);
         if (this.animationFrameId === 1)
         {
-            console.log('ANIMATION FRAME ID NULL');
             this.ballPosX = this.canvas.width / 2;
             this.ballPosY = this.canvas.height / 2;
-            console.log('this.ballPosX', this.ballPosX, 'this.ballPosY', this.ballPosY, 'canvas.width', this.canvas.width, 'canvas.height', this.canvas.height);
             if (this.gameMode === 'distant' && game.playerRole === 'left')
             {
                 gameSocket.sendBallState();

@@ -147,10 +147,6 @@ const stats = {
                     if (game.gameMode !== 'distant') {
                         document.getElementById('playAgain').classList.remove('d-none');
                         playAgainButton.textContent = 'Play Again';
-                        if (game.gameMode === 'multiplayer')
-                            playAgainButton.onclick = this.goToMultiPlayerGame();
-                        else
-                            playAgainButton.onclick = this.goToSinglePlayerGame();
                     }
                     else
                     {
@@ -328,10 +324,6 @@ const stats = {
                     if (game.gameMode !== 'distant') {
                         document.getElementById('playAgain').classList.remove('d-none');
                         playAgainButton.textContent = 'Play Again';
-                        if (game.gameMode === 'multiplayer')
-                            playAgainButton.onclick = this.goToMultiPlayerGame();
-                        else
-                            playAgainButton.onclick = this.goToSinglePlayerGame();
                     }
                     else
                     {
@@ -364,18 +356,6 @@ const stats = {
             }).catch(error => {
             });
         }, 1000);
-    },
-
-    goToSinglePlayerGame: function() {
-        game.setGameMode('singlePlayer');
-        settings.populateSettings();
-        ui.showOnlyOneSection('play');
-    },
-
-    goToMultiPlayerGame: function() {
-        game.setGameMode('multiplayer');
-        settings.populateSettings();
-        ui.showOnlyOneSection('play');
     },
         
     returnToHome: function() {

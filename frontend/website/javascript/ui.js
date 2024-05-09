@@ -71,7 +71,7 @@ const ui =
             }
             if (this.actionHandlers[target.id]) {
                 e.preventDefault();
-                if (!this.isSectionVisible('play')){
+                if (!this.isSectionVisible('play') || game.gameMode === 'singlePlayer' || game.gameMode === 'multiplayer'){
                     this.actionHandlers[target.id].call(this, e).catch();
                 }
             }
@@ -192,8 +192,21 @@ const ui =
                 this.showOnlyOneSection('firstPage');
         },
         async 'playAgain'() {
-            this.showOnlyOneSection('play');
-            await settings.populateSettings();
+            if (game.gameMode === 'singlePlayer'){
+                console.log('playAgain singlePlayer');
+                game.setGameMode('singlePlayer');
+                settings.populateSettings();
+                ui.showOnlyOneSection('play');
+            }
+            else
+            {
+                console.log('playAgain multiplayer');
+                game.setGameMode('multiplayer');
+                settings.populateSettings();
+                ui.showOnlyOneSection('play');
+            }
+            // this.showOnlyOneSection('play');
+            // await settings.populateSettings();
         },
         async 'createRoomBtn' () {
             const roomName = document.querySelector('#roomNameInput').value;
