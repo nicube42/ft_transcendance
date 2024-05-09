@@ -1,35 +1,8 @@
 To do updated
 
-<<<<<<< HEAD
-- game name dans les settings (thomas)
+nothing
 
 
-=======
->>>>>>> origin/ndiamant
-- personnalisation du jeu KO 0.5 (thomas)
-    - activer ou non les bonus dans les settings
-    - gérer les bonus dans les modes distants
-
-
-
-Marco
-- Prevent double login
-- Prevent sharing of accounts with 42 login and regular
-- Login And Register specific error messages
-
-
-
-
-
-
-
-
-
-
-
-
-=======
->>>>>>> origin/ndiamant
 LAST CHECKLIST
 
 - no .env
@@ -37,9 +10,7 @@ LAST CHECKLIST
 - remove console.log
 - remove console.error
 - remove print()
-- remove "todo" comments
 - remove commented code
 - clean comments
-- clean imports (remove unused) and put them on top
 - remove logging in settings.py
-- no todofile
+- remove todofile
